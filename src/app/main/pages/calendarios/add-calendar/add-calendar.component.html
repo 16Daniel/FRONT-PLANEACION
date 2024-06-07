@@ -1,0 +1,222 @@
+<div class="row m-0">
+
+    <div class="rounded-lg col-md-12 col-lg-12 p-2 mb-3 h-100" >
+  
+      <div class="bg-white shadow p-4 rounded-lg p-3 w-100 rounded-3 h-100"  *ngIf="loading==false">
+  
+  
+        <p class="mt-5 text-center fw-bold fs-5">CONFIGURACIÓN DE PEDIDOS</p>
+        <p class="text-center">Selecciona una opción y luego da clic en las celdas para marcar</p>
+  
+        <div class="d-flex flex-wrap gap-3 justify-content-center p-3 rounded-3" style="background-color: #eee;">
+          <div class="flex align-items-center">
+              <p-radioButton name="pedido" value="1" [(ngModel)]="typedata" inputId="op1"></p-radioButton>
+              <label for="op1" class="ml-2">&nbsp;Pedido</label>
+          </div>
+
+          <div class="flex align-items-center">
+            <p-radioButton name="pedido" value="3" [(ngModel)]="typedata" inputId="op3"></p-radioButton>
+            <label for="op3" class="ml-2">&nbsp;Entrega</label>
+        </div>
+          
+          <div class="flex align-items-center">
+              <p-radioButton name="pedido" value="2" [(ngModel)]="typedata" inputId="op2"></p-radioButton>
+              <label for="op2" class="ml-2">&nbsp;Consumo</label>
+          </div>
+
+          <div class="flex align-items-center">
+            <p-radioButton name="pedido" value="0" [(ngModel)]="typedata" inputId="op3"></p-radioButton>
+            <label for="op3" class="ml-2">&nbsp;Vacío</label>
+        </div>
+
+      </div>
+         
+         <div style="overflow-x: auto;">
+            <table class="table table-borderless">
+                <thead>
+                  <tr>
+                    <th scope="col">DOMINGO</th>
+                    <th scope="col">LUNES</th>
+                    <th scope="col">MARTES</th>
+                    <th scope="col">MIERCOLES</th>
+                    <th scope="col">JUEVES</th>
+                    <th scope="col">VIERNES</th>
+                    <th scope="col">SÁBADO</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of arr_pedidos; let i = index">
+                     <td>
+                       <div style="min-height: 3rem;" class="card d-flex justify-content-center align-item-center" (click)="marcar(i,0)" [ngClass]="{'bg-p-l': item[0]==1, 'bg-consumo': item[0]==2, 'c-entrega': item[0]==3}">
+                         <div *ngIf="item[0]==1" class="text-center">PEDIDO</div>
+                         <div *ngIf="item[0]==2" class="text-center">CONSUMO</div>
+                         <div *ngIf="item[0]==3" class="text-center">ENTREGA</div>
+                       </div>
+                     </td>
+                     <td>
+                       <div style="min-height: 3rem;" class="card d-flex justify-content-center align-item-center" (click)="marcar(i,1)" [ngClass]="{'bg-p-l': item[1]==1, 'bg-consumo': item[1]==2, 'c-entrega': item[1]==3}">
+                         <div *ngIf="item[1]==1" class="text-center">PEDIDO</div>
+                         <div *ngIf="item[1]==2" class="text-center">CONSUMO</div>
+                         <div *ngIf="item[1]==3" class="text-center">ENTREGA</div>
+                       </div>
+                     </td>
+                     <td>
+                       <div style="min-height: 3rem;" class="card d-flex justify-content-center align-item-center"  (click)="marcar(i,2)" [ngClass]="{'bg-p-l': item[2]==1, 'bg-consumo': item[2]==2, 'c-entrega': item[2]==3}">
+                         <div *ngIf="item[2]==1" class="text-center">PEDIDO</div>
+                         <div *ngIf="item[2]==2" class="text-center">CONSUMO</div>
+                         <div *ngIf="item[2]==3" class="text-center">ENTREGA</div>
+                       </div>
+                     </td>
+                     <td>
+                       <div style="min-height: 3rem;" class="card d-flex justify-content-center align-item-center" (click)="marcar(i,3)" [ngClass]="{'bg-p-l': item[3]==1, 'bg-consumo': item[3]==2, 'c-entrega': item[3]==3}">
+                         <div *ngIf="item[3]==1" class="text-center">PEDIDO</div>
+                         <div *ngIf="item[3]==2" class="text-center">CONSUMO</div>
+                         <div *ngIf="item[3]==3" class="text-center">ENTREGA</div>
+                       </div>
+                     </td>
+                     <td>
+                       <div style="min-height: 3rem;" class="card d-flex justify-content-center align-item-center" (click)="marcar(i,4)" [ngClass]="{'bg-p-l': item[4]==1, 'bg-consumo': item[4]==2, 'c-entrega': item[4]==3}">
+                         <div *ngIf="item[4]==1" class="text-center">PEDIDO</div>
+                         <div *ngIf="item[4]==2" class="text-center">CONSUMO</div>
+                         <div *ngIf="item[4]==3" class="text-center">ENTREGA</div>
+                       </div>
+                     </td>
+                     <td>
+                       <div style="min-height: 3rem;" class="card d-flex justify-content-center align-item-center" (click)="marcar(i,5)" [ngClass]="{'bg-p-l': item[5]==1, 'bg-consumo': item[5]==2, 'c-entrega': item[5]==3}">
+                         <div *ngIf="item[5]==1" class="text-center">PEDIDO</div>
+                         <div *ngIf="item[5]==2" class="text-center">CONSUMO</div>
+                         <div *ngIf="item[5]==3" class="text-center">ENTREGA</div>
+                       </div>
+                     </td>
+                     <td>
+                       <div style="min-height: 3rem;" class="card d-flex justify-content-center align-item-center" (click)="marcar(i,6)" [ngClass]="{'bg-p-l': item[6]==1, 'bg-consumo': item[6]==2, 'c-entrega': item[6]==3}">
+                         <div *ngIf="item[6]==1" class="text-center">PEDIDO</div>
+                         <div *ngIf="item[6]==2" class="text-center">CONSUMO</div>
+                         <div *ngIf="item[6]==3" class="text-center">ENTREGA</div>
+                       </div>
+                     </td>
+                     <td><button class="btn btn-danger" (click)="deletearr(i)"><i class='bx bx-minus-circle' ></i></button></td>
+                   </tr>
+
+                </tbody>
+              </table>
+        </div>
+      
+        <Button class="btn bg-p-b pt-2" (click)="newarrsemana()">
+         <i class='bx bx-plus-circle bx-sm'></i>
+        </Button>
+
+        <Button class="btn bg-p-b p-2 ms-3" (click)="limpiarcalendario();">
+          LIMPIAR
+         </Button>
+ 
+
+
+        <p class="mt-3 fw-bold" >PROVEDOR</p>
+        <select class="form-select" [(ngModel)]="proveedorsel" (change)="changeProv();">
+          <input type="text">
+            <option *ngFor="let item of catproveedores" [value]="item.codproveedor">{{item.codproveedor +' - '+item.nombre}}</option>
+        </select>
+
+        <p class="mt-3 fw-bold">ARTICULOS</p>
+        <p-multiSelect [options]="catitems" [(ngModel)]="selecteditems" optionLabel="descripcion" [style]="{'width':'100%'}"></p-multiSelect>
+
+        <p class="mt-4 fw-bold" >SELECCIONAR UNA O MAS SUCURSALES</p>
+
+          <div class="row m-0 p-0">
+            <div class="col-auto">
+              <button class="btn btn-light bg-g-l p-3" (click)="seleccionarTodo()" title="Seleccionar todo">
+                <span> 
+                  <i class='bx bx-select-multiple bx-sm'></i>
+                </span>
+              </button>
+            </div>
+
+            <div class="col-auto">
+              <button class="btn btn-light bg-g-l p-3" (click)="quitarselecciones()" title="Quitar selecciones">
+                <span> 
+                  <i class='bx bx-x-circle bx-sm' ></i>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div class="row m-0 mt-3">
+
+            @for (item of catsucursales; track $index) 
+            {
+              <div class="col-sm-6 col-lg-3 mt-3">
+                <div class="p-3 rounded-3 card" [ngClass]="{'op-selected': sucursalesseleccionadas[$index]==1}"  (click)="chageStatusSucursal($index)">
+                  @if(sucursalesseleccionadas[$index]==0)
+                  {
+                    <i class='bx bx-circle bx-sm'></i>
+                  } @else
+                  {
+                    <i class='bx bxs-check-circle bx-sm color-t'></i>
+                  }
+                  {{item.name}}
+                </div>
+              </div>
+            }
+
+          </div>
+
+          <div class="d-flex justify-content-end mt-3">
+            <button class="btn bg-p-b p-3" style="width: 10rem;" (click)="saveAll()">
+              <i class='bx bx-save bx-sm' ></i>
+              &nbsp;GUARDAR</button>
+          </div>
+
+      </div>
+  
+      <!-- skelleton -->
+      <div class="bg-white shadow p-4 rounded-lg p-3 w-100 rounded-3 h-100" style="overflow-x: auto;" *ngIf="loading">
+  
+        <div class="border-round border-1 surface-border p-4 surface-card">
+          <ul class="m-0 p-0 list-none">
+              <li class="mb-3">
+                  <div class="flex">
+                      <p-skeleton shape="circle" size="4rem" styleClass="mr-2"></p-skeleton>
+                      <div style="flex: 1">
+                          <p-skeleton width="100%" styleClass="mb-2"></p-skeleton>
+                          <p-skeleton width="75%"></p-skeleton>
+                      </div>
+                  </div>
+              </li>
+              <li class="mb-3">
+                  <div class="flex">
+                      <p-skeleton shape="circle" size="4rem" styleClass="mr-2"></p-skeleton>
+                      <div style="flex: 1">
+                          <p-skeleton width="100%" styleClass="mb-2"></p-skeleton>
+                          <p-skeleton width="75%"></p-skeleton>
+                      </div>
+                  </div>
+              </li>
+              <li class="mb-3">
+                  <div class="flex">
+                      <p-skeleton shape="circle" size="4rem" styleClass="mr-2"></p-skeleton>
+                      <div style="flex: 1">
+                          <p-skeleton width="100%" styleClass="mb-2"></p-skeleton>
+                          <p-skeleton width="75%"></p-skeleton>
+                      </div>
+                  </div>
+              </li>
+              <li>
+                  <div class="flex">
+                      <p-skeleton shape="circle" size="4rem" styleClass="mr-2"></p-skeleton>
+                      <div style="flex: 1">
+                          <p-skeleton width="100%" styleClass="mb-2"></p-skeleton>
+                          <p-skeleton width="75%"></p-skeleton>
+                      </div>
+                  </div>
+              </li>
+          </ul>
+      </div>
+  
+      </div>
+  
+    </div>
+  
+  </div>
+  
+  <p-toast [breakpoints]="{'920px': {width: '100%', right: '0', left: '0'}}" [showTransformOptions]="'translateY(100%)'" [showTransitionOptions]="'500ms'" [hideTransitionOptions]="'500ms'" [showTransformOptions]="'translateX(100%)'"></p-toast>

@@ -1,0 +1,283 @@
+<div class="row m-0">
+
+  <div class="p-2 col-xl-3 mb-3">
+    
+    <div class="bg-white shadow rounded-3 p-4 h-100">
+      <div class="" *ngIf="loading == false">
+
+        <div class="col-12">
+          <p class="mt-3 fw-bold" >SUCURSAL</p>
+          <select class="form-select" [(ngModel)]="sucursal">
+              <option *ngFor="let item of catsucursales" [value]="item.cod">{{item.name}}</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <p class="mt-3 fw-bold" >ARTÍCULO</p>
+
+          <select class="form-select" [(ngModel)]="articulo">
+            <option *ngFor="let item of catitems" [value]="item.cod">{{item.descripcion}}</option>
+          </select>
+        </div>
+        <div class="col-12">
+          <p class="mt-3 fw-bold" >PROVEDOR</p>
+          <select class="form-select" [(ngModel)]="proveedorsel">
+            <input type="text">
+              <option *ngFor="let item of catproveedores" [value]="item.codproveedor">{{item.codproveedor +' - '+item.nombre}}</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <p class="mt-3 fw-bold" >SEMANA</p>
+            <select class="form-select" [(ngModel)]="semanasel" (change)="changeweek()">
+              <input type="text">
+                <option *ngFor="let item of numsemanas" [value]="item">{{item}}</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <p class="mt-3 fw-bold">CONSUMO PROMEDIO</p>
+            <div class="row m-0">
+             <div class="col-12">
+              <input type="number" class="form-control m-0" [(ngModel)]="semanas" disabled=""/>
+             </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <p class="mt-3 fw-bold">FACTOR SEGURIDAD</p>
+            <div class="row m-0">
+             <div class="col-12">
+              <input type="number" class="form-control m-0" [(ngModel)]="factorseguridad" disabled=""/>
+             </div>
+            </div>
+          </div>
+        </div>
+      
+        <div class="col-12">
+          <Button class="btn bg-p-b p-3 mt-5" style="width: 100%" (click)="getConsumoPromedio()">
+            <span>EJECUTAR</span>
+           </Button>
+        </div>
+
+    </div>
+
+      <div *ngIf="loading">
+        <p-skeleton styleClass="mb-2"></p-skeleton>
+          <p-skeleton width="10rem" styleClass="mb-2"></p-skeleton>
+          <p-skeleton width="5rem" styleClass="mb-2"></p-skeleton>
+          <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+          <p-skeleton width="10rem" height="4rem"></p-skeleton>
+          <p-skeleton styleClass="mb-2 mt-3"></p-skeleton>
+          <p-skeleton width="10rem" styleClass="mb-2"></p-skeleton>
+          <p-skeleton width="5rem" styleClass="mb-2"></p-skeleton>
+          <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+          <p-skeleton width="10rem" height="4rem"></p-skeleton>
+          <p-skeleton width="100%" height="4rem" styleClass="mt-3"></p-skeleton>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="rounded-lg col-xl-9 p-2 mb-3">
+
+    <div class="bg-white shadow p-4 rounded-lg p-3 w-100 rounded-3 h-100" style="overflow-x: auto;" *ngIf="loading==false">
+      @if(consumos.length>0)
+      {
+          <div style="overflow-x: auto;" class="p-2">
+        <table class="table table-bordered">
+            <thead>
+              <tr class="text-center">
+                <th scope="col">DOMINGO</th>
+                <th scope="col">LUNES</th>
+                <th scope="col">MARTES</th>
+                <th scope="col">MIERCOLES</th>
+                <th scope="col">JUEVES</th>
+                <th scope="col">VIERNES</th>
+                <th scope="col">SÁBADO</th>
+              </tr>
+            </thead>
+            <tbody>
+                <tr>
+                  <td *ngFor="let item of consumos let i=index">
+                    <div class="p-2">
+                      <div *ngIf="proyecciones[i]>0">
+                        <div class="text-center">{{diasdelasemana[i] | date}}</div>
+                        <div class="fw-bold text-center text-danger">PEDIDO</div>
+                        <P class="fs-4 text-danger fw-bold text-center">{{ proyecciones[i] | number : '1.2-2'}}</P>
+                      </div>
+                      <div *ngIf="proyecciones[i]==0">
+                        <div class="text-center">{{diasdelasemana[i] | date}}</div>
+                        <div class="fw-bold text-center">&nbsp;</div>
+                        <P class="fs-4 text-danger fw-bold text-center">&nbsp;</P>
+                      </div>
+                      <hr/>
+                      <div class="mt-1 text-center">Consumo promedio</div>
+                      <div class="bg-g-l text-center rounded-3" style="background-color: orangered; color: white;" *ngIf="consumos[i].consumo == mayorconsumosemana">{{consumos[i].consumo}}</div>
+                      <div class="bg-g-l text-center rounded-3" *ngIf="consumos[i].consumo != mayorconsumosemana">{{consumos[i].consumo}}</div>
+                      <hr/>
+                      <div class="text-center">Stock de seguridad</div>
+                      <div class="bg-g-l text-center rounded-3">{{(mayorconsumosemana*factorseguridad) | number : '1.2-2' }}</div>
+                      <hr/>
+                      <div style="border: 1px solid darkblue;" class="mt-1 p-0" *ngIf="consumoscalculados[i].consumo != consumos[i].consumo">
+                        <div class="mt-0 text-center fw-bold" style="background-color: darkblue; color: white;">{{consumoscalculados[i].descripcion | uppercase}}</div>
+                        <div class="p-1">
+                          <div class="text-center">Factor: {{consumoscalculados[i].factor}}</div>
+                          <div class="text-center">Consumo: {{consumoscalculados[i].consumo | number : '1.2-2'}}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>  
+
+      </tbody>
+    </table>
+      </div>
+      }
+         
+
+      <h5 class="text-center">CÓDIGO DE COLORES</h5>
+      <div class="d-flex justify-content-center gap-3">
+        <div class="d-flex justify-content-center gap-1">
+          <div><i class='bx bxs-circle bx-sm text-danger'></i></div>
+          <div>PEDIDO</div>
+        </div>
+
+        <div class="d-flex justify-content-center gap-1">
+          <div><i class='bx bxs-circle bx-sm' style="color: rgb(1, 184, 108);" ></i></div>
+          <div>ENTREGA</div>
+        </div>
+
+        <div class="d-flex justify-content-center gap-1">
+          <div><i class='bx bxs-circle bx-sm' style="color: #ebc311;"></i></div>
+          <div>CONSUMO</div>
+        </div>
+
+        <div class="d-flex justify-content-center gap-1">
+          <div><i class='bx bxs-circle bx-sm' style="color: rgb(0, 0, 0);"></i></div>
+          <div>INVENTARIO</div>
+        </div>
+
+        </div>
+
+      <p class="mt-5 text-center fw-bold fs-5">CONSUMOS PROMEDIOS ULTIMAS {{semanas}} SEMANAS</p>
+         
+      <div style="overflow-x: auto;" class="card p-3">
+         <table class="table table-borderless">
+             <thead>
+               <tr class="text-center">
+                <th scope="col">CONSUMOS</th>
+                 <th scope="col">DOMINGO</th>
+                 <th scope="col">LUNES</th>
+                 <th scope="col">MARTES</th>
+                 <th scope="col">MIERCOLES</th>
+                 <th scope="col">JUEVES</th>
+                 <th scope="col">VIERNES</th>
+                 <th scope="col">SÁBADO</th>
+               </tr>
+             </thead>
+             <tbody>
+              <tr>
+                <td></td>
+                <td><div  class="text-center card p-2 text-light" style="background-color: rgb(0, 0, 0);">{{ getInv(diasdelasemana[0] )}}</div></td>
+                <td><div  class="text-center card p-2 text-light" style="background-color: rgb(0, 0, 0);">{{ getInv(diasdelasemana[1] )}}</div></td>
+                <td><div  class="text-center card p-2 text-light" style="background-color: rgb(0, 0, 0);">{{ getInv(diasdelasemana[2] )}}</div></td>
+                <td><div  class="text-center card p-2 text-light" style="background-color: rgb(0, 0, 0);">{{ getInv(diasdelasemana[3] )}}</div></td>
+                <td><div  class="text-center card p-2 text-light" style="background-color: rgb(0, 0, 0);">{{ getInv(diasdelasemana[4] )}}</div></td>
+                <td><div  class="text-center card p-2 text-light" style="background-color: rgb(0, 0, 0);">{{ getInv(diasdelasemana[5] )}}</div></td>
+                <td><div  class="text-center card p-2 text-light" style="background-color: rgb(0, 0, 0);">{{ getInv(diasdelasemana[6] )}}</div></td>
+              </tr>
+               <tr *ngFor="let item of arr_pedidos; let i = index">
+                <td><div class="p-3 bg-g-l fw-bold rounded-3">{{consumoscalendario[i] | number : '1.2-2' }}</div></td>
+                 <td>
+                   <div style="min-height: 3rem;" class="card d-flex justify-content-center align-item-center" [ngClass]="{'bg-p-l': item[0]==1, 'bg-consumo': item[0]==2, 'c-entrega': item[0]==3}">
+                     <div *ngIf="item[0]==1 || item[0]==2 || item[0]==3" class="text-center">{{consumoscalculados[0].consumo | number : '1.2-2'}}</div>
+                   </div>
+                 </td>
+                 <td>
+                   <div style="min-height: 3rem;" class="card d-flex justify-content-center align-item-center" [ngClass]="{'bg-p-l': item[1]==1, 'bg-consumo': item[1]==2, 'c-entrega': item[1]==3}">
+                     <div *ngIf="item[1]==1 || item[1]==2 || item[1]==3" class="text-center">{{consumoscalculados[1].consumo | number : '1.2-2' }}</div>
+                   </div>
+                 </td>
+                 <td>
+                   <div style="min-height: 3rem;" class="card d-flex justify-content-center align-item-center" [ngClass]="{'bg-p-l': item[2]==1, 'bg-consumo': item[2]==2, 'c-entrega': item[2]==3}">
+                    <div *ngIf="item[2]==1 || item[2]==2 || item[2]==3" class="text-center">{{consumoscalculados[2].consumo | number : '1.2-2' }}</div>
+                   </div>
+                 </td>
+                 <td>
+                   <div style="min-height: 3rem;" class="card d-flex justify-content-center align-item-center" [ngClass]="{'bg-p-l': item[3]==1, 'bg-consumo': item[3]==2, 'c-entrega': item[3]==3}">
+                    <div *ngIf="item[3]==1 || item[3]==2 || item[3]==3" class="text-center">{{consumoscalculados[3].consumo | number : '1.2-2' }}</div>
+                   </div>
+                 </td>
+                 <td>
+                   <div style="min-height: 3rem;" class="card d-flex justify-content-center align-item-center" [ngClass]="{'bg-p-l': item[4]==1, 'bg-consumo': item[4]==2, 'c-entrega': item[4]==3}">
+                    <div *ngIf="item[4]==1 || item[4]==2 || item[4]==3" class="text-center">{{consumoscalculados[4].consumo | number : '1.2-2' }}</div>
+                   </div>
+                 </td>
+                 <td>
+                   <div style="min-height: 3rem;" class="card d-flex justify-content-center align-item-center" [ngClass]="{'bg-p-l': item[5]==1, 'bg-consumo': item[5]==2, 'c-entrega': item[5]==3}">
+                    <div *ngIf="item[5]==1 || item[5]==2 || item[5]==3" class="text-center">{{consumoscalculados[5].consumo | number : '1.2-2' }}</div>
+                   </div>
+                 </td>
+                 <td>
+                   <div style="min-height: 3rem;" class="card d-flex justify-content-center align-item-center" [ngClass]="{'bg-p-l': item[6]==1, 'bg-consumo': item[6]==2, 'c-entrega': item[6]==3}">
+                    <div *ngIf="item[6]==1 || item[6]==2 || item[6]==3" class="text-center">{{consumoscalculados[6].consumo | number : '1.2-2' }}</div>
+                   </div>
+                 </td>
+               </tr>
+             </tbody>
+           </table>
+     </div>
+
+
+    </div>
+
+    <!-- skelleton -->
+    <div class="bg-white shadow p-4 rounded-lg p-3 w-100 rounded-3 h-100" style="overflow-x: auto;" *ngIf="loading">
+
+      <div class="border-round border-1 surface-border p-4 surface-card">
+        <ul class="m-0 p-0 list-none">
+            <li class="mb-3">
+                <div class="flex">
+                    <p-skeleton shape="circle" size="4rem" styleClass="mr-2"></p-skeleton>
+                    <div style="flex: 1">
+                        <p-skeleton width="100%" styleClass="mb-2"></p-skeleton>
+                        <p-skeleton width="75%"></p-skeleton>
+                    </div>
+                </div>
+            </li>
+            <li class="mb-3">
+                <div class="flex">
+                    <p-skeleton shape="circle" size="4rem" styleClass="mr-2"></p-skeleton>
+                    <div style="flex: 1">
+                        <p-skeleton width="100%" styleClass="mb-2"></p-skeleton>
+                        <p-skeleton width="75%"></p-skeleton>
+                    </div>
+                </div>
+            </li>
+            <li class="mb-3">
+                <div class="flex">
+                    <p-skeleton shape="circle" size="4rem" styleClass="mr-2"></p-skeleton>
+                    <div style="flex: 1">
+                        <p-skeleton width="100%" styleClass="mb-2"></p-skeleton>
+                        <p-skeleton width="75%"></p-skeleton>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <div class="flex">
+                    <p-skeleton shape="circle" size="4rem" styleClass="mr-2"></p-skeleton>
+                    <div style="flex: 1">
+                        <p-skeleton width="100%" styleClass="mb-2"></p-skeleton>
+                        <p-skeleton width="75%"></p-skeleton>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<p-toast [breakpoints]="{'920px': {width: '100%', right: '0', left: '0'}}" [showTransformOptions]="'translateY(100%)'" [showTransitionOptions]="'500ms'" [hideTransitionOptions]="'500ms'" [showTransformOptions]="'translateX(100%)'"></p-toast>

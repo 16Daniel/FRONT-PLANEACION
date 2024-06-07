@@ -1,0 +1,22 @@
+<div class="m-3 bg-white p-3 shadow rounded-3">
+
+    <h4 class="text-center">PEDIDOS</h4>
+    <div class="row m-3">
+       <div class="col-md-6 p-3">
+        <P class="text-center">DIAS DEL CONSUMO PROMEDIO</P>
+        <input class="form-control text-center" type="number" [(ngModel)]="diasconprom">
+       </div>
+       <div class="col-md-6 p-3">
+        <P class="text-center">FACTOR DEL STOCK DE SEGURIDAD</P>
+        <input class="form-control text-center" type="number" [(ngModel)]="factorstock">
+       </div>
+    </div>
+
+
+    <div class="d-flex justify-content-end m-3">
+        <button class="btn bg-p-b p-3" (click)="guardarParametros()"><i class='bx bx-save' ></i> GUARDAR</button>
+    </div>
+
+</div>
+
+<p-toast [breakpoints]="{'920px': {width: '100%', right: '0', left: '0'}}" [showTransformOptions]="'translateY(100%)'" [showTransitionOptions]="'500ms'" [hideTransitionOptions]="'500ms'" [showTransformOptions]="'translateX(100%)'"></p-toast>

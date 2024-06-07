@@ -1,0 +1,155 @@
+<div>
+    <p-toast [breakpoints]="{'920px': {width: '100%', right: '0', left: '0'}}" [showTransformOptions]="'translateY(100%)'" [showTransitionOptions]="'500ms'" [hideTransitionOptions]="'500ms'" [showTransformOptions]="'translateX(100%)'"></p-toast>
+    <p-confirmDialog>
+        <ng-template pTemplate="message" let-message>
+            <div class="flex flex-column align-items-center w-full gap-3 border-bottom-1 surface-border">
+                <i class="pi pi-exclamation-circle text-6xl text-primary-500"></i>
+                <p>{{ message.message }}</p>
+            </div>
+        </ng-template>
+    </p-confirmDialog>
+
+    <div class="m-2">
+        <button class="btn bg-p-b p-3" (click)="showAgregar()"><i class='bx bx-plus'></i> Agregar </button>
+    </div>
+
+    <!-- sin resultados -->
+    <div class="m-2 mt-3 bg-white p-3 shadow-sm rounded-3" *ngIf="foundData == false && loading == false">
+        <h5>LISTA DE DIAS ESPECIALES</h5>
+        <div class="bg-white m-4 p-3 d-flex align-items-center rounded-3 flex-column">
+            <img src="assets/img/nodata.jpg" style="width: 80%; max-width: 25rem;">
+            <p>NO SE ENCONTRARON REGISTROS</p>
+
+        </div>
+    </div>
+
+    <!-- skeleton -->
+
+    <div class="m-2 mt-3 bg-white p-3 shadow-sm rounded-3" *ngIf="loading">
+        <div class="row m-0">
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="3rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="3rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="3rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="3rem"></p-skeleton> </div>
+        </div>
+       
+        <div class="row m-0 mt-3">
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+        </div>
+        <div class="row m-0 mt-2">
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+        </div>
+        <div class="row m-0 mt-2">
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+        </div>
+        <div class="row m-0 mt-2">
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+        </div>
+        <div class="row m-0 mt-2">
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+        </div>
+        <div class="row m-0 mt-2">
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+        </div>
+        <div class="row m-0 mt-2">
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+            <div class="col-3"> <p-skeleton width="auto" styleClass="mb-2" height="1.5rem"></p-skeleton> </div>
+        </div>
+
+    </div>
+
+    <!-- lista de dias -->
+    <div class="m-2 mt-3" *ngIf="foundData && loading == false">
+        <h5>LISTA DE DÍAS ESPECIALES</h5>
+        <div class="m-4 p-3 bg-white shadow rounded-3">
+
+            <table class="table">
+                <thead >
+                    <tr>
+                        <th style="background-color: #fafafa;">DÍA</th>
+                        <th style="background-color: #fafafa;">SEMANA</th>
+                        <th style="background-color: #fafafa;">FECHA</th>
+                        <th style="background-color: #fafafa;">DESCRIPCIÓN</th>
+                        <th style="background-color: #fafafa;">FACTOR CONSUMO</th>
+                        <th style="background-color: #fafafa;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr *ngFor="let item of diasespeciales; let i=index">
+                        <td>{{item.dia}}</td>
+                        <td>{{item.semana}}</td>
+                        <td>{{item.fecha | date}}</td>
+                        <td>{{item.descripcion | uppercase}}</td>
+                        <td>{{item.factorConsumo}}</td>
+                        <td>
+                            <button class="btn btn-primary me-3" (click)="showEdit(item)"><i class='bx bx-edit bx-sm' ></i></button>
+                            <button class="btn btn-danger" (click)="confirm(item.id)"><i class='bx bx-trash bx-sm' ></i></button>
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+    <!-- MODAL AGREGAR DIA ESPECIAL -->
+
+<p-dialog [header]="actualizar ? 'Actualizar día especial' :'Agregar día especial'" [(visible)]="modalAgregar" [modal]="true" [style]="{ 'width': '95vh', 'max-width':'50rem' }" [draggable]="false" [resizable]="false">
+      
+        <p>Fecha<span class="text-danger fw-bold">{{actualizar ? ': '+(formDate | date) :''}}</span></p>
+        <p-calendar [(ngModel)]="formDate" [inline]="true" [showWeek]="true" [style]="{'width':'100%'}" (onSelect)="clickCalendar()" [locale]="es"></p-calendar>
+     
+       <div class="row mt-3">
+        <div class="col-sm-12 col-md-6">
+            <p>Dia del año</p>
+            <input type="number" class="form-control" [(ngModel)]="formDia" disabled/>
+        </div>
+        <div class="col-sm-12 col-md-6">
+            <p>Semana del año</p>
+            <input type="number" class="form-control" [(ngModel)]="formsemana" disabled/>
+        </div>
+       </div>
+
+    <div class="mt-3">
+        <p>Descripción</p>
+        <input type="text" class="form-control" [(ngModel)]="formdDescripcion" spellcheck="true"/>
+    </div>
+
+    <div class="mt-3">
+        <p>Factor de consumo</p>
+        <input type="number" class="form-control" [(ngModel)]="formFactor"/>
+    </div>
+
+    <div class="mt-3 mb-3 d-flex  justify-content-end">
+        <button class="btn bg-p-b p-3 rounded-4" (click)="saveData()" *ngIf="actualizar == false"> <i class='bx bx-save' ></i> GUARDAR</button>
+        <button class="btn bg-p-b p-3 rounded-4" (click)="updateData()" *ngIf="actualizar"> <i class='bx bx-save' ></i> ACTUALIZAR</button>
+    </div>
+
+
+</p-dialog>
+
+
+
+</div>

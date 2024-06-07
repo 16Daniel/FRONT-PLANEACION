@@ -1,0 +1,202 @@
+<nav class="navbar">
+  <div class="logo_item">
+    <i class="bx bx-menu" id="sidebarOpen"></i>
+   REBEL WINGS V1.17
+  </div>
+  <div class="navbar_content">
+    <i class="bi bi-grid"></i>
+    <span class="fw-bold" *ngIf="userdata!=undefined">{{userdata.nombre + ' '+userdata.apellidoP}}</span>
+    <i class='bx bxs-user-circle bx-md' (click)="op.toggle($event)"></i>
+  </div>
+</nav>
+<!-- sidebar -->
+<nav class="sidebar hoverable">
+  <div class="menu_content">
+    <ul class="menu_items">
+
+      <div class="menu_title menu_menu"></div>
+       
+      <!-- <li class="item">
+        <div href="#" class="nav_link submenu_item">
+          <span class="navlink_icon">
+            <i class="bx bx-grid-alt"></i>
+          </span>
+          <span class="navlink">Overview</span>
+          <i class="bx bx-chevron-right arrow-left"></i>
+        </div>
+        <ul class="menu_items submenu">
+          <a href="#" class="nav_link sublink">Nav Sub Link</a>
+          <a href="#" class="nav_link sublink">Nav Sub Link</a>
+          <a href="#" class="nav_link sublink">Nav Sub Link</a>
+          <a href="#" class="nav_link sublink">Nav Sub Link</a>
+        </ul>
+      </li> -->
+      <!-- end -->
+    </ul>
+    <ul class="menu_items" *ngIf="loading == false">
+      <!-- duplicate these li tag if you want to add or remove navlink only -->
+      <!-- Start -->
+      <li class="item">
+        <a
+        [routerLink]="'/main/home'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-home-alt' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Inicio</span>
+        </a>
+      </li>
+
+      <li class="item" *ngIf="comprobaracceso('/main/users')">
+        <a
+        [routerLink]="'users'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-user' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Usuarios</span>
+        </a>
+      </li>
+
+      <li class="item" *ngIf="comprobaracceso('/main/roles')">
+        <a
+        [routerLink]="'roles'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-objects-horizontal-left' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Roles</span>
+        </a>
+      </li>
+
+      <li class="item" *ngIf="comprobaracceso('/main/parameters')">
+        <a
+        [routerLink]="'parameters'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-cog' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Parámetros</span>
+        </a>
+      </li>
+
+      <li class="item" *ngIf="comprobaracceso('/main/order-calendar')">
+        <a
+        [routerLink]="'order-calendar'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-calculator' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Simulador</span>
+        </a>
+      </li>
+
+      <li class="item" *ngIf="comprobaracceso('/main/orders')">
+        <a
+        [routerLink]="'orders'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-list-ul' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Pedidos</span>
+        </a>
+      </li>
+
+      <li class="item" *ngIf="comprobaracceso('/main/h-orders')">
+        <a
+        [routerLink]="'h-orders'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-history' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Historial pedidos</span>
+        </a>
+      </li>
+
+      <li class="item" *ngIf="comprobaracceso('/main/medidas-uds')">
+        <a
+        [routerLink]="'medidas-uds'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-package' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Medidas UDS</span>
+        </a>
+      </li>
+
+      <div class="menu_title menu_calendarios"></div> 
+
+      <li class="item" *ngIf="comprobaracceso('/main/add-calendar')">
+        <a
+        [routerLink]="'add-calendar'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-calendar-plus' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Agregar</span>
+        </a>
+      </li>
+
+      <li class="item" *ngIf="comprobaracceso('/main/edit-calendar')">
+        <a
+        [routerLink]="'edit-calendar'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-calendar-plus' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Editar</span>
+        </a>
+      </li>
+
+      <li class="item" *ngIf="comprobaracceso('/main/delete-calendar')">
+        <a
+        [routerLink]="'delete-calendar'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-calendar-x' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Eliminar</span>
+        </a>
+      </li>
+
+      <li class="item" *ngIf="comprobaracceso('/main/especial-day')">
+        <a
+        [routerLink]="'especial-day'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-calendar-heart' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Dias especiales</span>
+        </a>
+      </li>
+   
+    </ul>
+
+    <!-- Sidebar Open / Close -->
+    <div class="bottom_content">
+      <div class="bottom toggle">
+        <span>Cerrar</span>
+        <i class='bx bx-chevron-right' *ngIf="sbclose"></i>
+        <i class='bx bx-chevron-left' *ngIf="sbclose == false"></i>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<p-overlayPanel #op>
+  <div class="justify-content-center">
+      <button class="btn bg-p-b p-3" (click)="logout()"> <i class='bx bx-log-out'></i>&nbsp;CERRAR SESIÓN</button>
+  </div>
+</p-overlayPanel>
