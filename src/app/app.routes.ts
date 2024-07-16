@@ -69,6 +69,11 @@ export const routes: Routes = [
             loadComponent: () => import('./main/pages/historial-pedidos/historial-pedidos.component')
         },
         {
+            path:'dias-especiales-sucursales',
+            title:'Dias especiales por sucursal',
+            loadComponent: () => import('./main/pages/calendarios/especiales-sucursales/especiales-sucursales.component')
+        },
+        {
             path: '',
             redirectTo: '/main/home',
             pathMatch: 'full'

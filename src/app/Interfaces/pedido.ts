@@ -1,4 +1,4 @@
-import { DiasEspecial } from "./DiasEspecial";
+import { DiasEspecial, DiasEspecialSuc } from "./DiasEspecial";
 
 export interface Pedido 
 {
@@ -52,7 +52,7 @@ export interface ArticuloPedido
         consumomayor:number;
         factorseguridad:number;
         arraycalendario:number[];
-        diasespeciales:DiasEspecial[]; 
+        diasespeciales:DiasEspecialSuc[]; 
 }
 
 export interface ConsumoModel

@@ -149,14 +149,14 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let item of pedidosel?.articulos" [ngClass]="{'table-danger': item.total_linea <0}">
+        <tr *ngFor="let item of pedidosel?.articulos" [ngClass]="{'table-danger': item.total_linea <=0}">
           <th>{{item.nombre}}</th>
           <td>{{item.cajas}}</td>
           <td *ngIf="item.tienemultiplo == true">{{item.unidadescaja}}</td>
           <td *ngIf="item.tienemultiplo == false"><button class="btn bg-p-b" (click)="showModalAdduds(item);">AGREGAR</button></td>
-          <td>{{item.unidadestotales}}</td>
+          <td>{{item.unidadestotales | number : '1.2-2'}}</td>
           <td>{{item.tipoImpuesto}}</td>
-          <td>{{item.precio}}</td>
+          <td>{{item.precio | number : '1.2-2'}}</td>
           <td>{{item.total_linea | number : '1.2-2'}}</td>
           @if (item.tienemultiplo == false && item.hayinventario==false)
            {
@@ -242,13 +242,28 @@
       </thead>
       <tbody>
         <tr >
-          <td class="tdR" [ngClass]="{'table-danger': itemdetalles.arraycalendario[0] ==1, 'bg-consumo': itemdetalles.arraycalendario[0] ==2, 'c-entrega': itemdetalles.arraycalendario[0] ==3}">{{itemdetalles!.consumospromedios[0].consumo}} <p class="text-primary fw-bold" *ngIf="itemdetalles.diasespeciales[0]!=null">{{itemdetalles.diasespeciales[0].descripcion}}</p></td>
-          <td class="tdR" [ngClass]="{'table-danger': itemdetalles.arraycalendario[1] ==1, 'bg-consumo': itemdetalles.arraycalendario[1] ==2, 'c-entrega': itemdetalles.arraycalendario[1] ==3}">{{itemdetalles!.consumospromedios[1].consumo}} <p class="text-primary fw-bold" *ngIf="itemdetalles.diasespeciales[1]!=null">{{itemdetalles.diasespeciales[1].descripcion}}</p></td>
-          <td class="tdR" [ngClass]="{'table-danger': itemdetalles.arraycalendario[2] ==1, 'bg-consumo': itemdetalles.arraycalendario[2] ==2, 'c-entrega': itemdetalles.arraycalendario[2] ==3}">{{itemdetalles!.consumospromedios[2].consumo}} <p class="text-primary fw-bold" *ngIf="itemdetalles.diasespeciales[2]!=null">{{itemdetalles.diasespeciales[2].descripcion}}</p></td>
-          <td class="tdR" [ngClass]="{'table-danger': itemdetalles.arraycalendario[3] ==1, 'bg-consumo': itemdetalles.arraycalendario[3] ==2, 'c-entrega': itemdetalles.arraycalendario[3] ==3}">{{itemdetalles!.consumospromedios[3].consumo}} <p class="text-primary fw-bold" *ngIf="itemdetalles.diasespeciales[3]!=null">{{itemdetalles.diasespeciales[3].descripcion}}</p></td>
-          <td class="tdR" [ngClass]="{'table-danger': itemdetalles.arraycalendario[4] ==1, 'bg-consumo': itemdetalles.arraycalendario[4] ==2, 'c-entrega': itemdetalles.arraycalendario[4] ==3}">{{itemdetalles!.consumospromedios[4].consumo}} <p class="text-primary fw-bold" *ngIf="itemdetalles.diasespeciales[4]!=null">{{itemdetalles.diasespeciales[4].descripcion}}</p></td>
-          <td class="tdR" [ngClass]="{'table-danger': itemdetalles.arraycalendario[5] ==1, 'bg-consumo': itemdetalles.arraycalendario[5] ==2, 'c-entrega': itemdetalles.arraycalendario[5] ==3}">{{itemdetalles!.consumospromedios[5].consumo}} <p class="text-primary fw-bold" *ngIf="itemdetalles.diasespeciales[5]!=null">{{itemdetalles.diasespeciales[5].descripcion}}</p></td>
-          <td class="tdR" [ngClass]="{'table-danger': itemdetalles.arraycalendario[6] ==1, 'bg-consumo': itemdetalles.arraycalendario[6] ==2, 'c-entrega': itemdetalles.arraycalendario[6] ==3}">{{itemdetalles!.consumospromedios[6].consumo}} <p class="text-primary fw-bold" *ngIf="itemdetalles.diasespeciales[6]!=null">{{itemdetalles.diasespeciales[6].descripcion}}</p></td>
+          <td class="tdR" [ngClass]="{'table-danger text-light': itemdetalles.arraycalendario[0] ==1, 'bg-consumo text-dark': itemdetalles.arraycalendario[0] ==2, 'c-entrega text-light': itemdetalles.arraycalendario[0] ==3}">{{itemdetalles!.consumospromedios[0].consumo}} <p class="fw-bold" *ngIf="itemdetalles.diasespeciales[0]!=null">{{itemdetalles.diasespeciales[0].descripcion}}</p>
+          <p *ngIf="itemdetalles.diasespeciales[0]!=null && itemdetalles.diasespeciales[0].sucursal==0">ESPECIAL GLOBAL</p>
+          <p *ngIf="itemdetalles.diasespeciales[0]!=null && itemdetalles.diasespeciales[0].sucursal>0">ESPECIAL SUCURSAL / ARTÍCULO</p>
+          </td>
+          <td class="tdR" [ngClass]="{'table-danger text-light': itemdetalles.arraycalendario[1] ==1, 'bg-consumo text-dark': itemdetalles.arraycalendario[1] ==2, 'c-entrega text-light': itemdetalles.arraycalendario[1] ==3}">{{itemdetalles!.consumospromedios[1].consumo}} <p class="fw-bold" *ngIf="itemdetalles.diasespeciales[1]!=null">{{itemdetalles.diasespeciales[1].descripcion}}</p>
+            <p *ngIf="itemdetalles.diasespeciales[1]!=null && itemdetalles.diasespeciales[1].sucursal==0">ESPECIAL GLOBAL</p>
+            <p *ngIf="itemdetalles.diasespeciales[1]!=null && itemdetalles.diasespeciales[1].sucursal>0">ESPECIAL SUCURSAL / ARTÍCULO</p></td>
+          <td class="tdR" [ngClass]="{'table-danger text-light': itemdetalles.arraycalendario[2] ==1, 'bg-consumo text-dark': itemdetalles.arraycalendario[2] ==2, 'c-entrega text-light': itemdetalles.arraycalendario[2] ==3}">{{itemdetalles!.consumospromedios[2].consumo}} <p class="fw-bold" *ngIf="itemdetalles.diasespeciales[2]!=null">{{itemdetalles.diasespeciales[2].descripcion}}</p>
+            <p *ngIf="itemdetalles.diasespeciales[2]!=null && itemdetalles.diasespeciales[2].sucursal==0">ESPECIAL GLOBAL</p>
+            <p *ngIf="itemdetalles.diasespeciales[2]!=null && itemdetalles.diasespeciales[2].sucursal>0">ESPECIAL SUCURSAL / ARTÍCULO</p></td>
+          <td class="tdR" [ngClass]="{'table-danger text-light': itemdetalles.arraycalendario[3] ==1, 'bg-consumo text-dark': itemdetalles.arraycalendario[3] ==2, 'c-entrega text-light': itemdetalles.arraycalendario[3] ==3}">{{itemdetalles!.consumospromedios[3].consumo}} <p class="fw-bold" *ngIf="itemdetalles.diasespeciales[3]!=null">{{itemdetalles.diasespeciales[3].descripcion}}</p>
+            <p *ngIf="itemdetalles.diasespeciales[3]!=null && itemdetalles.diasespeciales[3].sucursal==0">ESPECIAL GLOBAL</p>
+            <p *ngIf="itemdetalles.diasespeciales[3]!=null && itemdetalles.diasespeciales[3].sucursal>0">ESPECIAL SUCURSAL / ARTÍCULO</p></td>
+          <td class="tdR" [ngClass]="{'table-danger text-light': itemdetalles.arraycalendario[4] ==1, 'bg-consumo text-dark': itemdetalles.arraycalendario[4] ==2, 'c-entrega text-light': itemdetalles.arraycalendario[4] ==3}">{{itemdetalles!.consumospromedios[4].consumo}} <p class="fw-bold" *ngIf="itemdetalles.diasespeciales[4]!=null">{{itemdetalles.diasespeciales[4].descripcion}}</p>
+            <p *ngIf="itemdetalles.diasespeciales[4]!=null && itemdetalles.diasespeciales[4].sucursal==0">ESPECIAL GLOBAL</p>
+            <p *ngIf="itemdetalles.diasespeciales[4]!=null && itemdetalles.diasespeciales[4].sucursal>0">ESPECIAL SUCURSAL / ARTÍCULO</p></td>
+          <td class="tdR" [ngClass]="{'table-danger text-light': itemdetalles.arraycalendario[5] ==1, 'bg-consumo text-dark': itemdetalles.arraycalendario[5] ==2, 'c-entrega text-light': itemdetalles.arraycalendario[5] ==3}">{{itemdetalles!.consumospromedios[5].consumo}} <p class="fw-bold" *ngIf="itemdetalles.diasespeciales[5]!=null">{{itemdetalles.diasespeciales[5].descripcion}}</p>
+            <p *ngIf="itemdetalles.diasespeciales[5]!=null && itemdetalles.diasespeciales[5].sucursal==0">ESPECIAL GLOBAL</p>
+            <p *ngIf="itemdetalles.diasespeciales[5]!=null && itemdetalles.diasespeciales[5].sucursal>0">ESPECIAL SUCURSAL / ARTÍCULO</p></td>
+          <td class="tdR" [ngClass]="{'table-danger text-light': itemdetalles.arraycalendario[6] ==1, 'bg-consumo text-dark': itemdetalles.arraycalendario[6] ==2, 'c-entrega text-light': itemdetalles.arraycalendario[6] ==3}">{{itemdetalles!.consumospromedios[6].consumo}} <p class="fw-bold" *ngIf="itemdetalles.diasespeciales[6]!=null">{{itemdetalles.diasespeciales[6].descripcion}}</p>
+            <p *ngIf="itemdetalles.diasespeciales[6]!=null && itemdetalles.diasespeciales[6].sucursal==0">ESPECIAL GLOBAL</p>
+            <p *ngIf="itemdetalles.diasespeciales[6]!=null && itemdetalles.diasespeciales[6].sucursal>0">ESPECIAL SUCURSAL / ARTÍCULO</p></td>
         </tr>
       </tbody> 
     </table>
@@ -334,9 +349,9 @@
         <p class="fw-bold">PEDIDO FINAL</p>
         <p>UNIDADES TOTALES</p>
         <P>CAJAS * UNIDADES</P>
-        <P>{{getCajas(getproyeccion(getconsumopedido(itemdetalles.arraycalendario,itemdetalles.consumospromedios),getStockSeguridad(itemdetalles.factorseguridad,itemdetalles.consumomayor),inventariovalue) / itemdetalles.unidadescaja) +" * " + itemdetalles.unidadescaja}}</P>
+        <P>{{(getCajas(getproyeccion(getconsumopedido(itemdetalles.arraycalendario,itemdetalles.consumospromedios),getStockSeguridad(itemdetalles.factorseguridad,itemdetalles.consumomayor),inventariovalue) / itemdetalles.unidadescaja) +" * " + itemdetalles.unidadescaja) | number : '1.2-2'}}</P>
        <div class="p-3 text-success fw-bold bg-white rounded-3">
-          {{getCajas(getproyeccion(getconsumopedido(itemdetalles.arraycalendario,itemdetalles.consumospromedios),getStockSeguridad(itemdetalles.factorseguridad,itemdetalles.consumomayor),inventariovalue) / itemdetalles.unidadescaja) * itemdetalles.unidadescaja}}
+          {{(getCajas(getproyeccion(getconsumopedido(itemdetalles.arraycalendario,itemdetalles.consumospromedios),getStockSeguridad(itemdetalles.factorseguridad,itemdetalles.consumomayor),inventariovalue) / itemdetalles.unidadescaja) * itemdetalles.unidadescaja) | number : '1.2-2'}}
         </div>
         <p>&nbsp;</p>
       </div>
@@ -353,8 +368,8 @@
             </div>
 
             <div *ngIf="tieneajustefinal ==true">
-              <p class="fw-bold">CAJAS : {{itemdetalles.cajas}}</p>
-              <p class="fw-bold">UNIDADES TOTALES : {{itemdetalles.unidadestotales}}</p>
+              <p class="fw-bold">CAJAS : {{itemdetalles.cajas | number : '1.2-2'}}</p>
+              <p class="fw-bold">UNIDADES TOTALES : {{itemdetalles.unidadestotales | number : '1.2-2'}}</p>
             </div>
 
             <div><button class="btn bg-p-b p-2" (click)="showmodalajustec()"><i class='bx bxs-edit' ></i> AJUSTE COMPRAS</button></div>
@@ -392,8 +407,10 @@
   <div class="mt-3 mb-3">
     <select class="form-select" [(ngModel)]="comentarioajuste">
       <option value="ALMACENAJE LIMITADO">ALMACENAJE LIMITADO</option>
-      <option class="NUEVA PROMOCION">NUEVA PROMOCION</option>
-      <option class="VENTA EXTRAODINARIA">VENTA EXTRAODINARIA</option>
+      <option value="NUEVA PROMOCION">NUEVA PROMOCION</option>
+      <option value="VENTA EXTRAODINARIA">VENTA EXTRAODINARIA</option>
+      <option value="STOCK POR ENCIMA DEL CONSUMO PROYECTADO">STOCK POR ENCIMA DEL CONSUMO PROYECTADO</option>
+      <option value="STOCK EXACTO PARA CUBRIR VENTA">STOCK EXACTO PARA CUBRIR VENTA</option>
     </select>
   </div>
   

@@ -119,6 +119,8 @@
                       <hr/>
                       <div style="border: 1px solid darkblue;" class="mt-1 p-0" *ngIf="consumoscalculados[i].consumo != consumos[i].consumo">
                         <div class="mt-0 text-center fw-bold" style="background-color: darkblue; color: white;">{{consumoscalculados[i].descripcion | uppercase}}</div>
+                        <div *ngIf="consumoscalculados[i].prioridadsuc == 0" class="mt-0 text-center fw-bold" style="background-color: darkblue; color: white;">ESPECIAL GLOBAL</div>
+                        <div *ngIf="consumoscalculados[i].prioridadsuc == 1" class="mt-0 text-center fw-bold" style="background-color: darkblue; color: white;">ESPECIAL SUCURSAL</div>
                         <div class="p-1">
                           <div class="text-center">Factor: {{consumoscalculados[i].factor}}</div>
                           <div class="text-center">Consumo: {{consumoscalculados[i].consumo | number : '1.2-2'}}</div>

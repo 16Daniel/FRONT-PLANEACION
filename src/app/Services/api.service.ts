@@ -7,7 +7,7 @@ import { Proveedor } from '../Interfaces/Proveedor';
 import { Item } from '../Interfaces/Item';
 import { Consumo } from '../Interfaces/Consumo';
 import { Calendario } from '../Interfaces/Calendario';
-import { DiasEspecial,respuestaDiaEspecial } from '../Interfaces/DiasEspecial';
+import { DiasEspecial,DiasEspecialSuc,respuestaDiaEspecial } from '../Interfaces/DiasEspecial';
 import { Inventario } from '../Interfaces/inventario';
 import { Pedido, PedidoH } from '../Interfaces/pedido';
 import { ItProducto } from '../Interfaces/ItProducto';
@@ -74,19 +74,43 @@ export class ApiService {
       return this.http.get<DiasEspecial[]>(this.url+'Calendarios/getDiasEspeciales',{headers:this.headers})
    }
 
+   getDiasEspecialesSuc():Observable<DiasEspecialSuc[]>
+   {
+      return this.http.get<DiasEspecialSuc[]>(this.url+'DiaEspecialSucursal/getDiasEspecialesSucursales',{headers:this.headers})
+   }
+
    createDiaEspecial(data:any):Observable<any>
    {
       return this.http.post<any>(this.url+'Calendarios/CreateDiaEspecial',data,{headers:this.headers})
    }
+
+   createDiaEspecialS(data:any):Observable<any>
+   {
+      return this.http.post<any>(this.url+'DiaEspecialSucursal/CreateDiaEspecialSucursal',data,{headers:this.headers})
+   }
+
 
    deleteDiaEspecial(id:number):Observable<any>
    {
       return this.http.delete<any>(this.url+`Calendarios/deleteDiaEspecial/${id}`,{headers:this.headers})
    }
 
+   deleteDiasEspecialesSuc(data:string):Observable<any>
+   {
+      let formdata = new FormData();
+      formdata.append("sucursales",data);
+      return this.http.post<any>(this.url+'DiaEspecialSucursal/deleteC',formdata,{headers:this.headers})
+   }
+
+
    updateDiaEspecial(data:DiasEspecial):Observable<any>
    {
       return this.http.put<any>(this.url+`Calendarios/UpdateDiaEspecial`,data,{headers:this.headers})
+   }
+
+   updateDiaEspecialSuc(data:any):Observable<any>
+   {
+      return this.http.post<any>(this.url+`DiaEspecialSucursal/UpdateDiaEspecialSucursal`,data,{headers:this.headers})
    }
 
    esdiaespecial(data:any):Observable<respuestaDiaEspecial>
@@ -314,6 +338,14 @@ export class ApiService {
    login(data:any):Observable<UsuarioLogin>
    {
       return this.http.post<UsuarioLogin>(this.url+`Usuarios/Login`,data,{headers:this.headers})
+   }
+
+   EliminarLineaPedido(idp:number,codart:number):Observable<any>
+   {
+      let formdata = new FormData();
+      formdata.append("idp",idp.toString());
+      formdata.append("codart",codart.toString());
+      return this.http.post<any>(this.url+`Pedidos/EliminarLinea`,formdata,{headers:this.headers})
    }
 
 }

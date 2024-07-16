@@ -305,7 +305,9 @@ async calcularconsumo(index:number):Promise<void>
   const data =
   {
     fecha: this.diasdelasemana[index],
-    consumo: this.consumos[index].consumo
+    consumo: this.consumos[index].consumo,
+    idsucursal: this.sucursal,
+    idart: this.articulo
   }
 
 return new Promise<void>((resolve, reject) => {

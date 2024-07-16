@@ -560,29 +560,40 @@ guardarac()
     comentario: this.comentarioajuste
     };
 
-  this.apiserv.guardarajustecompras(data).subscribe({
-    next: data => {
-      //this.tieneajustefinal = true; 
-      this.modalajustecompras = false; 
-      this.pedidosel = undefined; 
-      this.modaldetallesart = false;
-      this.verpedido = false; 
-      if(this.filtrofecha == undefined)
-        {
-          this.getPedidos();
-        } else 
-        {
-          this.getpedidosFecha(); 
-        }
-       this.cdr.detectChanges();
-       
-       this.showMessage('success','Success','Guardado correctamente');
-    },
-    error: error => {
-       console.log(error);
-       this.showMessage('error',"Error","Error al procesar la solicitud");
-    }
-});
+
+    if(this.unidadesajustec == 0)
+      {
+        this.confirmarLineaEnCero(data); 
+      } else
+      {
+        this.apiserv.guardarajustecompras(data).subscribe({
+          next: data => {
+            //this.tieneajustefinal = true; 
+            this.modalajustecompras = false; 
+            this.pedidosel = undefined; 
+            this.modaldetallesart = false;
+            this.verpedido = false; 
+            this.justificacionac = '';
+            this.comentarioajuste= ''; 
+            if(this.filtrofecha == undefined)
+              {
+                this.getPedidos();
+              } else 
+              {
+                this.getpedidosFecha(); 
+              }
+             this.cdr.detectChanges();
+             
+             this.showMessage('success','Success','Guardado correctamente');
+          },
+          error: error => {
+             console.log(error);
+             this.showMessage('error',"Error","Error al procesar la solicitud");
+          }
+      });
+      }
+
+
 }
 
 
@@ -843,6 +854,70 @@ rechazarPedidos()
        this.showMessage('error',"Error","Error al procesar la solicitud");
     }
 });
+}
+
+
+confirmarLineaEnCero(datareg:any)
+{
+  this.confirmationService.confirm({
+    message: 'LAS LINEAS EN CERO SE ELIMINARAN DEL PEDIDO, ¿DESEA CONTINUAR?',
+    header: 'Confirmación',
+    icon: 'pi pi-exclamation-triangle',
+    acceptIcon:"none",
+    rejectIcon:"none",
+    rejectButtonStyleClass:"btn btn-secondary me-2",
+    acceptButtonStyleClass:"btn btn-danger",
+    accept: () => {
+      
+      this.apiserv.guardarajustecompras(datareg).subscribe({
+        next: data => {
+          
+          this.modalajustecompras = false; 
+          this.pedidosel = undefined; 
+          this.modaldetallesart = false;
+          this.verpedido = false; 
+          this.justificacionac = '';
+          this.comentarioajuste= ''; 
+
+          this.EliminarLineaencero(datareg.id,datareg.codarticulo); 
+           
+        },
+        error: error => {
+           console.log(error);
+           this.showMessage('error',"Error","Error al procesar la solicitud");
+        }
+    });
+
+    },
+    reject: () => {
+      this.loading = false; 
+    }
+});
+}
+
+
+EliminarLineaencero(idpedido:number,codart:number)
+{
+  this.apiserv.EliminarLineaPedido(idpedido,codart).subscribe({
+    next: data => {
+      
+      if(this.filtrofecha == undefined)
+        {
+          this.getPedidos();
+        } else 
+        {
+          this.getpedidosFecha(); 
+        }
+       this.cdr.detectChanges();
+       
+       this.showMessage('success','Success','Guardado correctamente');
+    },
+    error: error => {
+       console.log(error);
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
+
 }
 
 }

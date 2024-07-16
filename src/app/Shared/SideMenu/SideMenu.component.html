@@ -1,7 +1,7 @@
 <nav class="navbar">
   <div class="logo_item">
     <i class="bx bx-menu" id="sidebarOpen"></i>
-   REBEL WINGS V1.17
+   REBEL WINGS V1.19
   </div>
   <div class="navbar_content">
     <i class="bi bi-grid"></i>
@@ -179,6 +179,18 @@
             <i class='bx bx-calendar-heart' [routerLinkActive]="'text-light'"></i>
           </span>
           <span class="navlink" [routerLinkActive]="'text-light'">Dias especiales</span>
+        </a>
+      </li>
+
+      <li class="item" *ngIf="comprobaracceso('/main/dias-especiales-sucursales')">
+        <a
+        [routerLink]="'dias-especiales-sucursales'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-calendar-heart' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Especiales Sucursal</span>
         </a>
       </li>
    

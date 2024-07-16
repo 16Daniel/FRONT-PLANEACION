@@ -13,7 +13,6 @@ export const authGuard: CanActivateFn = (route, state) => {
         }else
         {
           let catrutas:Ruta[] = JSON.parse(localStorage.getItem("catRutas")!); 
-      
           let filtro = catrutas.filter(x => x.ruta == "/main/"+route.url.toString());
           if(filtro.length>0)
             {
