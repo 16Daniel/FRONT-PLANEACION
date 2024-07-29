@@ -11,6 +11,9 @@ import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { UsuarioLogin } from '../../Interfaces/Usuario';
 import { ApiService } from '../../Services/api.service';
 import { Ruta } from '../../Interfaces/Ruta';
+import { MessagesModule } from 'primeng/messages';
+import { Message } from 'primeng/api';
+import { DialogModule } from 'primeng/dialog';
 @Component({
   selector: 'app-side-menu',
   standalone: true,
@@ -21,7 +24,9 @@ import { Ruta } from '../../Interfaces/Ruta';
     MenuModule,
     SidebarModule,
     FormsModule,
-    OverlayPanelModule
+    OverlayPanelModule,
+    MessagesModule,
+    DialogModule
   ],
   templateUrl: './SideMenu.component.html',
   styleUrl: './SideMenu.component.css',
@@ -33,7 +38,8 @@ export class SideMenuComponent implements OnInit {
   public userdata:UsuarioLogin|undefined;
   public loading:boolean = true; 
   public catRutas:Ruta[] = []; 
-
+  public mensaje:boolean = false; 
+  public errorvpn:boolean = false;
   constructor(public cdr:ChangeDetectorRef,private router: Router,public apiserv:ApiService)
   {
       let jsondata:string|null = localStorage.getItem("rwuserdata");
@@ -43,6 +49,9 @@ export class SideMenuComponent implements OnInit {
 
   ngOnInit(): void 
   {
+    this.testvpn(); 
+    this.comprobarmensaje(); 
+  
     const body = document.querySelector("body");
 const sidebar = document.querySelector(".sidebar");
 const submenuItems = document.querySelectorAll(".submenu_item");
@@ -107,6 +116,7 @@ if (window.innerWidth < 768) {
 
    comprobaracceso(ruta:string):boolean
    {
+
       let permitir:boolean = false;
       let filtro = this.catRutas.filter(x => x.ruta == ruta);
 
@@ -116,6 +126,40 @@ if (window.innerWidth < 768) {
         }
 
       return permitir; 
+   }
+
+
+  comprobarmensaje()
+   {
+    setInterval(() => {
+      let today = new Date();
+    if(today.getDay() == 5)
+      {
+        this.mensaje = true;
+      }else { this.mensaje = false;}
+      this.cdr.detectChanges();
+    }, 2000);
+   }
+
+   testvpn()
+   {
+
+    setInterval(() => {
+    
+      this.apiserv.testvpn().subscribe({
+        next: data => {
+          this.errorvpn = false;
+          console.log(data);
+         this.cdr.detectChanges();
+        },
+        error: error => {
+          this.errorvpn = true; 
+          console.log("sin conexion")
+        }
+    });
+
+    }, 10000);
+
    }
 
 }

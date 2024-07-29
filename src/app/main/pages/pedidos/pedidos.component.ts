@@ -14,6 +14,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, ConfirmEventType } from 'primeng/api';
 import { UsuarioLogin } from '../../../Interfaces/Usuario';
+import { CheckboxModule } from 'primeng/checkbox';
 @Component({
   selector: 'app-pedidos',
   standalone: true,
@@ -22,7 +23,8 @@ import { UsuarioLogin } from '../../../Interfaces/Usuario';
     FormsModule,
     DialogModule,
     ToastModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    CheckboxModule
   ],
   providers:[MessageService,DatePipe,ConfirmationService],
   templateUrl: './pedidos.component.html',
@@ -60,6 +62,9 @@ export default class PedidosComponent implements OnInit {
   public userdata:UsuarioLogin | undefined;
 
   public pedidosseleccionados:number[] = []; 
+  public modaleliminarlineas:boolean= false; 
+  public lineasrojas:ArticuloPedido[] = []; 
+  public lineasrojassel:ArticuloPedido[] = []; 
 
   constructor(public apiserv:ApiService, public cdr:ChangeDetectorRef,private messageService: MessageService,private datePipe: DatePipe,private confirmationService: ConfirmationService)
   {
@@ -83,26 +88,7 @@ getPedidos()
        this.pedidos = data; 
        this.pedidosall = [...this.pedidos]; 
        this.loading = false; 
-
-       if(this.pedidosel != undefined)
-        {
-            const temp = this.pedidos.filter(p => p.id = this.pedidosel!.id);
-            if(temp.length>0)
-              {
-                this.pedidosel = temp[0]; 
-                if(this.itemdetalles != undefined)
-                  {
-                    const tempid = this.pedidosel.articulos.filter(i => i.codArticulo == this.itemdetalles?.codArticulo);
-                    if(tempid.length>0)
-                      {
-                        this.itemdetalles = tempid[0]; 
-                      }
-                  }
-              }
-        }
-
        this.cdr.detectChanges();
-       console.log(this.pedidos);
     },
     error: error => {
        console.log(error);
@@ -297,15 +283,78 @@ updatepedido()
   this.apiserv.UpdatePedido(data).subscribe({
     next: data => {
       this.showMessage('success',"Success","Guardado correctamente");
-      this.pedidosel = undefined; 
-      this.modaldetallesart = false;
-      this.verpedido = false; 
+     // this.modaldetallesart = false;
+      //this.verpedido = false; 
       if(this.filtrofecha == undefined)
         {
-          this.getPedidos();
+                  this.apiserv.getPedidos().subscribe({
+                    next: data => {
+                      this.pedidos = data; 
+                      this.pedidosall = [...this.pedidos]; 
+                      this.loading = false; 
+                
+                      if(this.pedidosel != undefined)
+                        {
+                          let pedidoupdate = this.pedidos.filter(x =>x.id == this.pedidosel?.id);
+                          if(pedidoupdate.length>0)
+                           {
+                             this.pedidosel = pedidoupdate[0];
+                            if(this.itemdetalles != undefined)
+                              {
+                                let tempitem = this.pedidosel.articulos.filter(x => x.codArticulo == this.itemdetalles?.codArticulo);
+                                if(tempitem.length>0)
+                                  {
+                                    this.itemdetalles = tempitem[0]; 
+                                  }
+                              }
+
+                           }
+                          this.cdr.detectChanges();
+                        }
+                
+                      this.cdr.detectChanges();
+                    },
+                    error: error => {
+                      console.log(error);
+                      this.showMessage('error',"Error","Error al procesar la solicitud");
+                    }
+                });
+
         } else 
         {
-          this.getpedidosFecha(); 
+          this.loading = true;
+
+                this.apiserv.getPedidosF(this.filtrofecha).subscribe({
+                  next: data => {
+                    this.pedidos = data; 
+                  this.pedidosall = [...this.pedidos]; 
+                  this.loading = false; 
+
+                   if(this.pedidosel != undefined)
+                    {
+                       let pedidoupdate = this.pedidos.filter(x =>x.id == this.pedidosel?.id);
+                       if(pedidoupdate.length>0)
+                        {
+                          this.pedidosel = pedidoupdate[0];
+                          if(this.itemdetalles != undefined)
+                            {
+                              let tempitem = this.pedidosel.articulos.filter(x => x.codArticulo == this.itemdetalles?.codArticulo);
+                              if(tempitem.length>0)
+                                {
+                                  this.itemdetalles = tempitem[0]; 
+                                }
+                            }
+                        }
+                       this.cdr.detectChanges();
+                    }
+
+                  
+                  },
+                  error: error => {
+                    console.log(error);
+                    this.showMessage('error',"Error","Error al procesar la solicitud");
+                  }
+              });
         }
        this.cdr.detectChanges();
     },
@@ -570,17 +619,64 @@ guardarac()
           next: data => {
             //this.tieneajustefinal = true; 
             this.modalajustecompras = false; 
-            this.pedidosel = undefined; 
             this.modaldetallesart = false;
-            this.verpedido = false; 
+            //this.verpedido = false; 
             this.justificacionac = '';
             this.comentarioajuste= ''; 
             if(this.filtrofecha == undefined)
               {
-                this.getPedidos();
+                        this.apiserv.getPedidos().subscribe({
+                          next: data => {
+                            this.pedidos = data; 
+                            this.pedidosall = [...this.pedidos]; 
+                            this.loading = false; 
+                      
+                            if(this.pedidosel != undefined)
+                              {
+                                let pedidoupdate = this.pedidos.filter(x =>x.id == this.pedidosel?.id);
+                                if(pedidoupdate.length>0)
+                                 {
+                                   this.pedidosel = pedidoupdate[0];
+                                 }
+                                this.cdr.detectChanges();
+                              }
+                      
+                            this.cdr.detectChanges();
+                          },
+                          error: error => {
+                            console.log(error);
+                            this.showMessage('error',"Error","Error al procesar la solicitud");
+                          }
+                      });
+  
               } else 
               {
-                this.getpedidosFecha(); 
+                this.loading = true;
+  
+                      this.apiserv.getPedidosF(this.filtrofecha).subscribe({
+                        next: data => {
+                          this.pedidos = data; 
+                        this.pedidosall = [...this.pedidos]; 
+                        this.loading = false; 
+  
+                         if(this.pedidosel != undefined)
+                          {
+                            debugger
+                             let pedidoupdate = this.pedidos.filter(x =>x.id == this.pedidosel?.id);
+                             if(pedidoupdate.length>0)
+                              {
+                                this.pedidosel = pedidoupdate[0];
+                              }
+                             this.cdr.detectChanges();
+                          }
+  
+                        
+                        },
+                        error: error => {
+                          console.log(error);
+                          this.showMessage('error',"Error","Error al procesar la solicitud");
+                        }
+                    });
               }
              this.cdr.detectChanges();
              
@@ -611,10 +707,73 @@ borrarajuste()
       this.tieneajustefinal = false; 
       if(this.filtrofecha == undefined)
         {
-          this.getPedidos();
+                  this.apiserv.getPedidos().subscribe({
+                    next: data => {
+                      this.pedidos = data; 
+                      this.pedidosall = [...this.pedidos]; 
+                      this.loading = false; 
+                
+                      if(this.pedidosel != undefined)
+                        {
+                          let pedidoupdate = this.pedidos.filter(x =>x.id == this.pedidosel?.id);
+                          if(pedidoupdate.length>0)
+                           {
+                             this.pedidosel = pedidoupdate[0];
+                             if(this.itemdetalles != undefined)
+                              {
+                                let tempitem = this.pedidosel.articulos.filter(x => x.codArticulo == this.itemdetalles?.codArticulo);
+                                if(tempitem.length>0)
+                                  {
+                                    this.itemdetalles = tempitem[0]; 
+                                  }
+                              }
+                           }
+                          this.cdr.detectChanges();
+                        }
+                
+                      this.cdr.detectChanges();
+                    },
+                    error: error => {
+                      console.log(error);
+                      this.showMessage('error',"Error","Error al procesar la solicitud");
+                    }
+                });
+
         } else 
         {
-          this.getpedidosFecha(); 
+          this.loading = true;
+
+                this.apiserv.getPedidosF(this.filtrofecha).subscribe({
+                  next: data => {
+                    this.pedidos = data; 
+                  this.pedidosall = [...this.pedidos]; 
+                  this.loading = false; 
+
+                   if(this.pedidosel != undefined)
+                    {
+                       let pedidoupdate = this.pedidos.filter(x =>x.id == this.pedidosel?.id);
+                       if(pedidoupdate.length>0)
+                        {
+                          this.pedidosel = pedidoupdate[0];
+                          if(this.itemdetalles != undefined)
+                            {
+                              let tempitem = this.pedidosel.articulos.filter(x => x.codArticulo == this.itemdetalles?.codArticulo);
+                              if(tempitem.length>0)
+                                {
+                                  this.itemdetalles = tempitem[0]; 
+                                }
+                            }
+                        }
+                       this.cdr.detectChanges();
+                    }
+
+                  
+                  },
+                  error: error => {
+                    console.log(error);
+                    this.showMessage('error',"Error","Error al procesar la solicitud");
+                  }
+              });
         }
        this.cdr.detectChanges();
     },
@@ -640,23 +799,6 @@ getpedidosFecha()
         this.pedidos = data; 
        this.pedidosall = [...this.pedidos]; 
        this.loading = false; 
-
-       if(this.pedidosel != undefined)
-        {
-            const temp = this.pedidos.filter(p => p.id = this.pedidosel!.id);
-            if(temp.length>0)
-              {
-                this.pedidosel = temp[0]; 
-                if(this.itemdetalles != undefined)
-                  {
-                    const tempid = this.pedidosel.articulos.filter(i => i.codArticulo == this.itemdetalles?.codArticulo);
-                    if(tempid.length>0)
-                      {
-                        this.itemdetalles = tempid[0]; 
-                      }
-                  }
-              }
-        }
 
        this.cdr.detectChanges();
        console.log(this.pedidos);
@@ -918,6 +1060,107 @@ EliminarLineaencero(idpedido:number,codart:number)
     }
 });
 
+}
+
+showEliminarlineas()
+{
+    this.modaleliminarlineas = true; 
+    this.lineasrojas = this.pedidosel!.articulos.filter(x => x.total_linea<=0); 
+    this.lineasrojassel = this.lineasrojas; 
+}
+
+eliminarlineas()
+{
+  this.confirmationService.confirm({
+    message: 'SE ELIMINARAN '+this.lineasrojassel.length+' ARTÍCULOS DEL PEDIDO, ¿DESEA CONTINUAR?',
+    header: 'Confirmación',
+    icon: 'pi pi-exclamation-triangle',
+    acceptIcon:"none",
+    rejectIcon:"none",
+    rejectButtonStyleClass:"btn btn-secondary me-2",
+    acceptButtonStyleClass:"btn btn-success",
+    accept: () => {
+
+      let arr_articulos:number[] =[];
+      for(let item of this.lineasrojassel)
+        {
+          arr_articulos.push(item.codArticulo);
+        }
+
+      this.apiserv.eliminarlineasrojas(this.pedidosel!.id,JSON.stringify(arr_articulos),this.userdata!.id,).subscribe({
+        next: data => {
+          this.modaleliminarlineas = false;
+         // this.verpedido = false; 
+          if(this.filtrofecha == undefined)
+            {
+                      this.apiserv.getPedidos().subscribe({
+                        next: data => {
+                          this.pedidos = data; 
+                          this.pedidosall = [...this.pedidos]; 
+                          this.loading = false; 
+                    
+                          if(this.pedidosel != undefined)
+                            {
+                              let pedidoupdate = this.pedidos.filter(x =>x.id == this.pedidosel?.id);
+                              if(pedidoupdate.length>0)
+                               {
+                                 this.pedidosel = pedidoupdate[0];
+                               }
+                              this.cdr.detectChanges();
+                            }
+                    
+                          this.cdr.detectChanges();
+                        },
+                        error: error => {
+                          console.log(error);
+                          this.showMessage('error',"Error","Error al procesar la solicitud");
+                        }
+                    });
+
+            } else 
+            {
+              this.loading = true;
+
+                    this.apiserv.getPedidosF(this.filtrofecha).subscribe({
+                      next: data => {
+                        this.pedidos = data; 
+                      this.pedidosall = [...this.pedidos]; 
+                      this.loading = false; 
+
+                       if(this.pedidosel != undefined)
+                        {
+                           let pedidoupdate = this.pedidos.filter(x =>x.id == this.pedidosel?.id);
+                           if(pedidoupdate.length>0)
+                            {
+                              this.pedidosel = pedidoupdate[0];
+                            }
+                           this.cdr.detectChanges();
+                        }
+
+                      
+                      },
+                      error: error => {
+                        console.log(error);
+                        this.showMessage('error',"Error","Error al procesar la solicitud");
+                      }
+                  });
+            }
+           this.cdr.detectChanges();
+           
+           this.showMessage('success','Success','Guardado correctamente');
+        },
+        error: error => {
+           console.log(error);
+           this.showMessage('error',"Error","Error al procesar la solicitud");
+        }
+    });
+
+    },
+    reject: () => {
+      this.loading = false; 
+    }
+});
+ 
 }
 
 }

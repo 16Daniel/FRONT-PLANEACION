@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { Observable, throwError } from "rxjs";
+import { catchError, Observable, throwError, timeout } from "rxjs";
 import { environment } from '../../environments/enviroments';
 import { Sucursal } from '../Interfaces/Sucursal';
 import { Proveedor } from '../Interfaces/Proveedor';
@@ -346,6 +346,25 @@ export class ApiService {
       formdata.append("idp",idp.toString());
       formdata.append("codart",codart.toString());
       return this.http.post<any>(this.url+`Pedidos/EliminarLinea`,formdata,{headers:this.headers})
+   }
+
+   eliminarlineasrojas(idp:number, articulos:string,idu:number):Observable<respuestaDiaEspecial>
+   {
+      let formdata = new FormData();
+      formdata.append("idp",idp.toString());
+      formdata.append("articulosp",articulos);
+      formdata.append("idu",idu.toString());
+      return this.http.post<respuestaDiaEspecial>(this.url+'Pedidos/EliminarLineas',formdata,{headers:this.headers})
+   }
+
+   testvpn():Observable<any>
+   {
+      return this.http.get<any>("https://operamx.no-ip.net/back/api_planeacion/api/Usuarios/TestCon",{headers:this.headers}).pipe(
+         timeout(5000), // Tiempo de espera de 5 segundos
+         catchError(error => {
+           return throwError(error);
+         })
+       );
    }
 
 }
