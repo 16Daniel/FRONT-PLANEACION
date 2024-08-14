@@ -149,7 +149,6 @@ if (window.innerWidth < 768) {
       this.apiserv.testvpn().subscribe({
         next: data => {
           this.errorvpn = false;
-          console.log(data);
          this.cdr.detectChanges();
         },
         error: error => {

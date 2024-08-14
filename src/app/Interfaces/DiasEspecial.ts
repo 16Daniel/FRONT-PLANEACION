@@ -26,4 +26,5 @@ export interface DiasEspecial
     factorConsumo:number;
     sucursal:number; 
     articulos:string; 
+    nombresuc:string; 
  }

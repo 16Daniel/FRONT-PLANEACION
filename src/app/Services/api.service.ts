@@ -16,6 +16,7 @@ import { Modioficacion } from '../Interfaces/Modioficacion';
 import { Rol } from '../Interfaces/Rol';
 import { Ruta } from '../Interfaces/Ruta';
 import { Usuario, UsuarioLogin } from '../Interfaces/Usuario';
+import { Asignacion } from '../Interfaces/Asignacion.';
 
 @Injectable({
   providedIn: 'root'
@@ -130,12 +131,17 @@ export class ApiService {
 
    getPedidos():Observable<Pedido[]>
    {
-      return this.http.get<Pedido[]>(this.url+`Pedidos/getPedidos`,{headers:this.headers})
+
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      return this.http.get<Pedido[]>(this.url+`Pedidos/getPedidos/${idu}`,{headers:this.headers})
    }
 
    refreshPedidos():Observable<Pedido[]>
    {
-      return this.http.get<Pedido[]>(this.url+`Pedidos/getPedidosHoy`,{headers:this.headers})
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      return this.http.get<Pedido[]>(this.url+`Pedidos/getPedidosHoy/${idu}`,{headers:this.headers})
    }
 
    saveumedida(data:any):Observable<any>
@@ -232,8 +238,11 @@ export class ApiService {
 
    getPedidosF(fechap:Date):Observable<Pedido[]>
    {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
       let formdata = new FormData();
       formdata.append("fecha",fechap.toString());
+      formdata.append("idu",idu)
       return this.http.post<Pedido[]>(this.url+`Pedidos/getPedidosFecha`,formdata,{headers:this.headers})
    }
 
@@ -315,9 +324,12 @@ export class ApiService {
 
    AceptaroTodosLosPedidos(idprov:number,idsuc:number,fecha:Date|undefined):Observable<any>
    {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
       let formdata = new FormData();
       formdata.append("proveedor",idprov.toString());
       formdata.append("sucursal",idsuc.toString());
+      formdata.append("idu",idu); 
       if(fecha != undefined)
          {
             formdata.append("fecha",fecha.toString());
@@ -366,6 +378,34 @@ export class ApiService {
          })
        );
    }
+
+   
+   getStatusPedidos():Observable<any>
+   {
+      return this.http.get<any>(this.url+`Pedidos/StatusPedidos`,{headers:this.headers})
+   }
+
+   guardarAsignacioones(idprov:number, idu:number, sucursales:string):Observable<any>
+   {
+      let formdata = new FormData();
+      formdata.append("idprov",idprov.toString());
+      formdata.append("idu",idu.toString());
+      formdata.append("jdsucursales",sucursales);
+      return this.http.post<any>(this.url+'AsignacionProv/addAsignacionProv',formdata,{headers:this.headers})
+   }
+
+   getAsignaiones():Observable<Asignacion[]>
+   {
+      return this.http.get<Asignacion[]>(this.url+`AsignacionProv/getAsignaciones`,{headers:this.headers})
+   }
+
+
+   deleteAsignaciones(jdata:string):Observable<any>
+   {
+      let formdata = new FormData();
+      return this.http.delete<any>(this.url+`AsignacionProv/deleteAsignacionesProv/${jdata}`,{headers:this.headers})
+   }
+
 
 }
 

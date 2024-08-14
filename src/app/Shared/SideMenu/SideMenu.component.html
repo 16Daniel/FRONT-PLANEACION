@@ -1,7 +1,7 @@
 <nav class="navbar">
   <div class="logo_item">
     <i class="bx bx-menu" id="sidebarOpen"></i>
-   REBEL WINGS V1.21
+   REBEL WINGS V1.22
   </div>
   <div *ngIf="mensaje" class="p-1 bg-danger w-auto rounded-3 text-light fw-bold">
     ⚠️ HOY ES VIERNES: HOY SE TIENE QUE CARGAR LOS DÍAS ESPECIALES (SUCURSAL / ARTÍCULO) DE LA SIGUIENTE SEMANA</div>
@@ -71,6 +71,18 @@
             <i class='bx bx-objects-horizontal-left' [routerLinkActive]="'text-light'"></i>
           </span>
           <span class="navlink" [routerLinkActive]="'text-light'">Roles</span>
+        </a>
+      </li>
+
+      <li class="item" *ngIf="comprobaracceso('/main/asignaciones')">
+        <a
+        [routerLink]="'asignaciones'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-sitemap' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Asignaciones</span>
         </a>
       </li>
 

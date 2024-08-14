@@ -3,7 +3,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { Component,ChangeDetectorRef  } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { ApiService } from '../../../../Services/api.service';
-import { DiasEspecial, DiasEspecialSuc } from '../../../../Interfaces/DiasEspecial';
+import { DiasEspecialSuc} from '../../../../Interfaces/DiasEspecial';
 import { Dialog, DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { CalendarModule } from 'primeng/calendar';
@@ -55,12 +55,14 @@ export default class EspecialesSucursalesComponent {
   public catitems:Item[] = []; 
   public selecteditems:Item[] = []; 
   public sucursal:number|undefined;
-  
+  public registrosseleccionados:number[] = []; 
+  public elementosfiltrados: DiasEspecialSuc[] = []; 
+  public filtrosuc:number = -1;
+  public filtrofecha:Date|undefined; 
   
   constructor(public apiserv:ApiService,private messageService: MessageService,public cdr:ChangeDetectorRef, private config: PrimeNGConfig,
     private confirmationService: ConfirmationService)
   {
-    this.getDiasespeciales(); 
   }
     ngOnInit(): void
      {
@@ -107,7 +109,6 @@ export default class EspecialesSucursalesComponent {
     });
   
     this.getSucursales(); 
-    this.getItemsProv(); 
 
       }
   
@@ -121,15 +122,20 @@ export default class EspecialesSucursalesComponent {
            if(data.length==0)
            {
             this.foundData = false; 
+           } else
+           {
+              for(let item of this.diasespeciales)
+                {
+                  let temp = this.catsucursales.filter(x => x.cod == item.sucursal);
+                  if(temp.length>0)
+                    {
+                      item.nombresuc = temp[0].name; 
+                    }
+                }
+                this.elementosfiltrados = this.diasespeciales; 
            }
-           const registrosUnicos = this.diasespeciales.filter((registro, index, self) =>
-            index === self.findIndex((r) => (
-              r.fecha === registro.fecha && r.descripcion === registro.descripcion
-            ))
-          );
-          this.diasespeciales = [];
-          this.diasespeciales = registrosUnicos; 
-          console.log(registrosUnicos,this.datadiases);
+        
+           
          this.cdr.detectChanges();
         },
         error: error => {
@@ -148,7 +154,6 @@ export default class EspecialesSucursalesComponent {
   {
     this.selecteditems = [];
     this.sucursalesseleccionadas = []; 
-    this.getItemsProv(); 
     this.getSucursales();
     this.actualizar=false;
     this.modalAgregar = true; 
@@ -261,20 +266,8 @@ export default class EspecialesSucursalesComponent {
   {
     this.modaleliminar = false; 
    this.loading = true; 
-   let sucursalesarr:number[] = [];
-   for(let i=0; i<this.sucursalesseleccionadas.length; i++)
-     {
-       if(this.sucursalesseleccionadas[i] == 1)
-       {
-          let filtro = this.diaespecialsuc.filter(x => x.sucursal == this.catsucursales[i].cod)
-          if(filtro.length>0)
-            {
-              sucursalesarr.push(filtro[0].id);
-            }
-       }
-     }
 
-    this.apiserv.deleteDiasEspecialesSuc(JSON.stringify(sucursalesarr)).subscribe({
+    this.apiserv.deleteDiasEspecialesSuc(JSON.stringify(this.registrosseleccionados)).subscribe({
       next: data => {
          this.getDiasespeciales(); 
          this.loading = false;        
@@ -292,10 +285,9 @@ export default class EspecialesSucursalesComponent {
   
   confirm() {
 
-    let dataS:number[] = this.sucursalesseleccionadas.filter((element) => element ==1);
-    if(dataS.length<1)
+    if(this.registrosseleccionados.length<1)
     {
-      this.showMessage('info','Error','Seleccione mínimo una sucursal');
+      this.showMessage('info','Error','Seleccione mínimo un dia especial');
       return;
     }
 
@@ -360,51 +352,51 @@ export default class EspecialesSucursalesComponent {
 
   }
 
-  showDelete(data:DiasEspecialSuc)
-  { 
-    this.diaespecialsuc= []; 
-    this.formDate = data.fecha;
-    this.formDia = data.dia;
-    this.formFactor = data.factorConsumo;
-    this.formsemana = data.semana
-    this.formdDescripcion = data.descripcion; 
-    this.actualizar=true;
-    this.modaleliminar = true;
-    this.diasespecialsel = data;
+  // showDelete(data:DiasEspecialSuc)
+  // { 
+  //   this.diaespecialsuc= []; 
+  //   this.formDate = data.fecha;
+  //   this.formDia = data.dia;
+  //   this.formFactor = data.factorConsumo;
+  //   this.formsemana = data.semana
+  //   this.formdDescripcion = data.descripcion; 
+  //   this.actualizar=true;
+  //   this.modaleliminar = true;
+  //   this.diasespecialsel = data;
 
-    this.diaespecialsuc = this.datadiases.filter(x => x.fecha == data.fecha && x.descripcion == data.descripcion);
-    this.catsucursales = []; 
-    for(var item of this.diaespecialsuc)
-      { 
-        let filtersuc = this.datacatsucursales.filter(x =>x.cod == item.sucursal);
+  //   this.diaespecialsuc = this.datadiases.filter(x => x.fecha == data.fecha && x.descripcion == data.descripcion);
+  //   this.catsucursales = []; 
+  //   for(var item of this.diaespecialsuc)
+  //     { 
+  //       let filtersuc = this.datacatsucursales.filter(x =>x.cod == item.sucursal);
 
-        if(filtersuc.length>0)
-          {
-            this.catsucursales.push(filtersuc[0]); 
-          }
+  //       if(filtersuc.length>0)
+  //         {
+  //           this.catsucursales.push(filtersuc[0]); 
+  //         }
 
-          this.sucursalesseleccionadas = [];
+  //         this.sucursalesseleccionadas = [];
 
-          for(let ix = 0; ix< this.catsucursales.length; ix++)
-            {
-              this.sucursalesseleccionadas.push(0); 
-            }
+  //         for(let ix = 0; ix< this.catsucursales.length; ix++)
+  //           {
+  //             this.sucursalesseleccionadas.push(0); 
+  //           }
 
-      }
-      let obj = JSON.parse(data.articulos);
-      this.selecteditems = [];
-      for(var codart of obj)
-        {
-          let item = this.catitems.filter(x => x.cod == codart);
-          if(item.length>0)
-            {
-              this.selecteditems.push(item[0]); 
-            }
-        }
+  //     }
+  //     let obj = JSON.parse(data.articulos);
+  //     this.selecteditems = [];
+  //     for(var codart of obj)
+  //       {
+  //         let item = this.catitems.filter(x => x.cod == codart);
+  //         if(item.length>0)
+  //           {
+  //             this.selecteditems.push(item[0]); 
+  //           }
+  //       }
 
-        console.log(this.catitems,this.selecteditems);
+  //       console.log(this.catitems,this.selecteditems);
 
-  }
+  // }
 
   updateData()
   { 
@@ -497,7 +489,7 @@ export default class EspecialesSucursalesComponent {
          for (let index = 0; index < this.catsucursales.length; index++) {
             this.sucursalesseleccionadas.push(0);
          }
-
+         this.getItemsProv(); 
          this.cdr.detectChanges();
       },
       error: error => {
@@ -542,6 +534,7 @@ getItemsProv()
     next: data => {
        this.catitems=data;
        this.loading = false; 
+       this.getDiasespeciales(); 
        this.cdr.detectChanges();
     },
     error: error => {
@@ -576,6 +569,109 @@ changeSuc()
           }
       }
    //console.log(this.diasespecialsel);
+}
+
+checkregistro(id:number)
+{
+
+  const index = this.registrosseleccionados.indexOf(id);
+
+    if (index > -1) {
+      // El número existe, lo eliminamos
+      this.registrosseleccionados.splice(index, 1);
+    } else {
+      // El número no existe, lo agregamos
+      this.registrosseleccionados.push(id);
+    }
+
+} 
+
+
+getCheck(id:number):boolean
+{
+
+  const index = this.registrosseleccionados.indexOf(id);
+ 
+  if (index > -1) {
+    return true;
+  } else {
+    return false;
+  }
+
+}
+
+seleccionartodo()
+{
+
+   for(let item of this.elementosfiltrados)
+     {
+       this.registrosseleccionados.push(item.id);
+     }
+     this.cdr.detectChanges();
+}
+
+desmarcartodo()
+{
+  this.registrosseleccionados = []; 
+}
+
+showDelete()
+{ 
+  this.confirmationService.confirm({
+    header: 'Confirmación',
+    message: '¿Está seguro que desea eliminar '+this.registrosseleccionados.length+' registros?',
+    acceptIcon: 'pi pi-check mr-2',
+    rejectIcon: 'pi pi-times mr-2',
+    acceptButtonStyleClass:"btn bg-p-b p-3",
+    rejectButtonStyleClass:"btn btn-light me-3 p-3",
+    accept: () => {
+     
+    },
+    reject: () => {
+        
+    }
+});
+}
+
+filtrar()
+{
+  debugger
+  
+  if(this.filtrosuc != -1 && this.filtrofecha !=undefined)
+    {
+      this.elementosfiltrados = this.diasespeciales.filter(x => x.fecha == this.filtrofecha && x.sucursal==this.filtrosuc);
+      this.cdr.detectChanges();
+      return;
+    }
+
+    if(this.filtrosuc > -1 && this.filtrofecha == undefined)
+      {
+        this.elementosfiltrados = this.diasespeciales.filter(x => x.sucursal==this.filtrosuc);
+        this.cdr.detectChanges();
+        return;
+      }
+
+      if(this.filtrosuc == -1 && this.filtrofecha != undefined)
+        {
+          this.elementosfiltrados = this.diasespeciales.filter(obj => {
+            debugger
+            let objDate = new Date(obj.fecha);
+            let filtrofecha2 = new Date(this.filtrofecha!.toString()+'T00:00:00');
+            return objDate.getDate() === filtrofecha2.getDate() &&
+                   objDate.getMonth() === filtrofecha2.getMonth() &&
+                   objDate.getFullYear() === filtrofecha2.getFullYear();
+          });
+          
+          this.cdr.detectChanges();
+          return;
+        } 
+}
+
+borrarfiltros()
+{
+  this.filtrofecha = undefined;
+  this.filtrosuc = -1;
+  this.elementosfiltrados = this.diasespeciales; 
 }
 
 }

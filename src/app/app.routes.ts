@@ -74,6 +74,11 @@ export const routes: Routes = [
             loadComponent: () => import('./main/pages/calendarios/especiales-sucursales/especiales-sucursales.component')
         },
         {
+            path:'asignaciones',
+            title:'Asignaciones',
+            loadComponent: () => import('./main/pages/AsignarProveedores/AsignarProveedores.component')
+        },
+        {
             path: '',
             redirectTo: '/main/home',
             pathMatch: 'full'

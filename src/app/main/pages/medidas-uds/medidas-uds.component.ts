@@ -36,6 +36,7 @@ export default class MedidasUdsComponent implements OnInit {
   public articulo:any; 
   public modalagregar:boolean = false;
   public itemumedidaupdate: ItProducto | undefined; 
+  public loading:boolean= true;
   constructor(public apiserv:ApiService, public cdr:ChangeDetectorRef,private messageService: MessageService,private datePipe: DatePipe,private confirmationService: ConfirmationService)
   {
     this.getMedidas();
@@ -51,13 +52,16 @@ export default class MedidasUdsComponent implements OnInit {
 
   getMedidas()
   {
+    this.loading = true;
     this.apiserv.getMedidasuds().subscribe({
       next: data => {
          this.medidasuds = data; 
+         this.loading = false; 
          this.cdr.detectChanges();
       },
       error: error => {
          console.log(error);
+         this.loading = false; 
          this.showMessage('error',"Error","Error al procesar la solicitud");
       }
   });
@@ -100,7 +104,7 @@ export default class MedidasUdsComponent implements OnInit {
 
   guardarMedidaUds()
   {  
-
+   
     if(this.modelmedida == undefined || this.modelmedida == "")
       {
         this.showMessage('info',"Error","Favor de agregar una unidad de medida");
@@ -119,7 +123,7 @@ export default class MedidasUdsComponent implements OnInit {
       umedida: this.modelmedida.toUpperCase(),
       uds: this.modeluds
     };
-
+    this.loading = true; 
     this.apiserv.saveumedida(data).subscribe({
       next: data => {
         this.modalagregar = false
@@ -128,11 +132,12 @@ export default class MedidasUdsComponent implements OnInit {
         this.modeluds = undefined;
         this.getMedidas(); 
 
-
+        this.loading = false; 
          this.cdr.detectChanges();
       },
       error: error => {
          console.log(error);
+         this.loading = false; 
          this.showMessage('error',"Error","Error al procesar la solicitud");
       }
   });

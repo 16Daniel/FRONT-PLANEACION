@@ -88,6 +88,7 @@ getPedidos()
        this.pedidos = data; 
        this.pedidosall = [...this.pedidos]; 
        this.loading = false; 
+       console.log(data);
        this.cdr.detectChanges();
     },
     error: error => {
@@ -432,22 +433,22 @@ refreshpedidos()
 { 
   this.btnrefresh = true; 
   this.loading = true;
+
   this.apiserv.refreshPedidos().subscribe({
     next: data => {
       this.showMessage('success',"Success","Lista de pedidos actualizada");
-      // this.getPedidos();
-      //  this.cdr.detectChanges();
-       this.btnrefresh = false; 
-       setTimeout(() => {
+      this.btnrefresh = false; 
+      setTimeout(() => {
         window.location.reload();
-       }, 1500);
+      }, 1500);
     },
     error: error => {
-       console.log(error);
-       this.showMessage('error',"Error","Error al procesar la solicitud");
-       this.btnrefresh = false; 
+      console.log(error);
+      this.showMessage('error',"Error","Error al procesar la solicitud");
+      this.btnrefresh = false; 
     }
 });
+
 }   
 
 
