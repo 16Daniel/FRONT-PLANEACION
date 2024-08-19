@@ -91,10 +91,19 @@ if (window.innerWidth < 768) {
 
    logout()
    {
-     localStorage.removeItem("rwuserdata");
-     localStorage.removeItem("catRutas");
-     
-     this.router.navigate(["/auth/login"]);
+
+    this.apiserv.logout().subscribe({
+      next: data => {
+        localStorage.removeItem("rwuserdata");
+        localStorage.removeItem("catRutas");
+        
+        this.router.navigate(["/auth/login"]);
+      },
+      error: error => {
+        this.loading = false; 
+         console.log(error);
+      }
+  });
    }
 
    getRutas(id:number)

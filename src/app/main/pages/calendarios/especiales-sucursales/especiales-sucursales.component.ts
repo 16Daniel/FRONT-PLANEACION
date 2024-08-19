@@ -14,6 +14,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Sucursal } from '../../../../Interfaces/Sucursal';
 import { Item } from '../../../../Interfaces/Item';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { isDate } from 'date-fns';
 @Component({
   selector: 'app-especiales-sucursales',
   standalone: true,
@@ -57,8 +58,11 @@ export default class EspecialesSucursalesComponent {
   public sucursal:number|undefined;
   public registrosseleccionados:number[] = []; 
   public elementosfiltrados: DiasEspecialSuc[] = []; 
-  public filtrosuc:number = -1;
+  public filtrosuc:Sucursal[] = [];
   public filtrofecha:Date|undefined; 
+  public fechasMultiples:Date[] = []; 
+  public switchmultifechas:boolean = false; 
+  public formIdDiaEspecialSuc:number|undefined; 
   
   constructor(public apiserv:ApiService,private messageService: MessageService,public cdr:ChangeDetectorRef, private config: PrimeNGConfig,
     private confirmationService: ConfirmationService)
@@ -164,6 +168,8 @@ export default class EspecialesSucursalesComponent {
     this.formFactor = 1.5;
     this.formsemana = undefined;
     this.formdDescripcion = ''; 
+    this.switchmultifechas = false; 
+    this.fechasMultiples = []; 
   }
   
   // Función para obtener el día del año
@@ -190,11 +196,18 @@ export default class EspecialesSucursalesComponent {
   
   saveData()
   {  
-    if(this.formDate == undefined)
+    if(this.formDate == undefined && this.switchmultifechas == false)
     {
       this.showMessage('info',"Info","Favor de seleccionar una fecha");
       return;
     }
+
+    if(this.fechasMultiples.length == 0 && this.switchmultifechas == true)
+      {
+        this.showMessage('info',"Info","Favor de seleccionar una o más fechas");
+        return;
+      }
+
     if(this.formdDescripcion == undefined)
     {
       this.showMessage('info',"Info","Favor de ingresar una descripción");
@@ -236,29 +249,72 @@ export default class EspecialesSucursalesComponent {
           listaart.push(art.cod);
         }
 
-    const data =
-    {
-    dia: this.formDia,
-    semana: this.formsemana,
-    fecha: this.formDate,
-    descripcion: this.formdDescripcion,
-    factorConsumo: this.formFactor,
-    sucursales: JSON.stringify(sucursalesarr),
-    articulos: JSON.stringify(listaart)
-    };
+        if(this.switchmultifechas==false)
+          {
+            
+                const data =
+                {
+                dia: this.formDia,
+                semana: this.formsemana,
+                fecha: this.formDate,
+                descripcion: this.formdDescripcion,
+                factorConsumo: this.formFactor,
+                sucursales: JSON.stringify(sucursalesarr),
+                articulos: JSON.stringify(listaart)
+                };
 
-    this.apiserv.createDiaEspecialS(data).subscribe({
-      next: data => {
-         this.getDiasespeciales(); 
-         this.loading = false;        
-       this.showMessage('success',"Success","Guardado correctamente");
-      },
-      error: error => {
-        this.modalAgregar=true;
-         console.log(error);
-         this.showMessage('error',"Error","Error al procesar la solicitud");
-      }
-  });
+                this.apiserv.createDiaEspecialS(data).subscribe({
+                  next: data => {
+                    this.getDiasespeciales(); 
+                    this.loading = false;        
+                  this.showMessage('success',"Success","Guardado correctamente");
+                  },
+                  error: error => {
+                    this.modalAgregar=true;
+                    console.log(error);
+                    this.showMessage('error',"Error","Error al procesar la solicitud");
+                  }
+              });
+          } else
+          {
+            let data:any[] = []; 
+            let temp:any; 
+
+            for(let item of this.fechasMultiples)
+              {
+                this.obtenerDiaDelAño(item);
+                this.obtenerSemanaDelAño(item);
+
+                temp =
+                {
+                dia: this.formDia,
+                semana: this.formsemana,
+                fecha: item,
+                descripcion: this.formdDescripcion,
+                factorConsumo: this.formFactor,
+                sucursales: JSON.stringify(sucursalesarr),
+                articulos: JSON.stringify(listaart)
+                };
+
+                data.push(temp); 
+              }
+
+
+                this.apiserv.createDiasEspecialesS(data).subscribe({
+                              next: data => {
+                                this.getDiasespeciales(); 
+                                this.loading = false;        
+                              this.showMessage('success',"Success","Guardado correctamente");
+                              },
+                              error: error => {
+                                this.modalAgregar=true;
+                                console.log(error);
+                                this.showMessage('error',"Error","Error al procesar la solicitud");
+                              }
+                          });
+                        
+          }
+
   
   } 
   
@@ -319,26 +375,8 @@ export default class EspecialesSucursalesComponent {
     this.modalAgregar = true;
     this.diasespecialsel = data;
     this.sucursal = data.sucursal; 
+    this.formIdDiaEspecialSuc = data.id; 
 
-    this.diaespecialsuc = this.datadiases.filter(x => x.fecha == data.fecha && x.descripcion == data.descripcion);
-    this.catsucursales = []; 
-    for(var item of this.diaespecialsuc)
-      { 
-        let filtersuc = this.datacatsucursales.filter(x =>x.cod == item.sucursal);
-
-        if(filtersuc.length>0)
-          {
-            this.catsucursales.push(filtersuc[0]); 
-          }
-
-          this.sucursalesseleccionadas = [];
-
-          for(let ix = 0; ix< this.catsucursales.length; ix++)
-            {
-              this.sucursalesseleccionadas.push(0); 
-            }
-
-      }
       let obj = JSON.parse(data.articulos);
       this.selecteditems = [];
       for(var codart of obj)
@@ -352,51 +390,6 @@ export default class EspecialesSucursalesComponent {
 
   }
 
-  // showDelete(data:DiasEspecialSuc)
-  // { 
-  //   this.diaespecialsuc= []; 
-  //   this.formDate = data.fecha;
-  //   this.formDia = data.dia;
-  //   this.formFactor = data.factorConsumo;
-  //   this.formsemana = data.semana
-  //   this.formdDescripcion = data.descripcion; 
-  //   this.actualizar=true;
-  //   this.modaleliminar = true;
-  //   this.diasespecialsel = data;
-
-  //   this.diaespecialsuc = this.datadiases.filter(x => x.fecha == data.fecha && x.descripcion == data.descripcion);
-  //   this.catsucursales = []; 
-  //   for(var item of this.diaespecialsuc)
-  //     { 
-  //       let filtersuc = this.datacatsucursales.filter(x =>x.cod == item.sucursal);
-
-  //       if(filtersuc.length>0)
-  //         {
-  //           this.catsucursales.push(filtersuc[0]); 
-  //         }
-
-  //         this.sucursalesseleccionadas = [];
-
-  //         for(let ix = 0; ix< this.catsucursales.length; ix++)
-  //           {
-  //             this.sucursalesseleccionadas.push(0); 
-  //           }
-
-  //     }
-  //     let obj = JSON.parse(data.articulos);
-  //     this.selecteditems = [];
-  //     for(var codart of obj)
-  //       {
-  //         let item = this.catitems.filter(x => x.cod == codart);
-  //         if(item.length>0)
-  //           {
-  //             this.selecteditems.push(item[0]); 
-  //           }
-  //       }
-
-  //       console.log(this.catitems,this.selecteditems);
-
-  // }
 
   updateData()
   { 
@@ -420,13 +413,6 @@ export default class EspecialesSucursalesComponent {
           this.showMessage('info',"Info","Favor de seleccionar por lo menos un artículo");
           return;
         }
-      let dataS:number[] = this.sucursalesseleccionadas.filter((element) => element ==1);
-      if(dataS.length<1)
-      {
-        this.showMessage('info','Error','Seleccione mínimo una sucursal');
-        return;
-      }
-
 
     let listaart:number[] = [];
     for(var art of this.selecteditems)
@@ -435,18 +421,8 @@ export default class EspecialesSucursalesComponent {
       }
   
 
-      let dias:number[] = []; 
-      for(let is= 0; is< this.sucursalesseleccionadas.length; is++)
-        {
-          if(this.sucursalesseleccionadas[is]==1)
-            {
-              let filtro = this.diaespecialsuc.filter(x => x.sucursal == this.catsucursales[is].cod);
-              if(filtro.length > 0 )
-                {
-                  dias.push(filtro[0].id); 
-                }
-            }
-        }
+      let dias:number[] = [];
+      dias.push(this.formIdDiaEspecialSuc!); 
 
 
   const data =
@@ -459,8 +435,6 @@ export default class EspecialesSucursalesComponent {
   articulos: JSON.stringify(listaart),
   ids: JSON.stringify(dias)
   };
-
-  console.log(data);
 
     this.loading = true; 
     this.apiserv.updateDiaEspecialSuc(data).subscribe({
@@ -637,21 +611,31 @@ filtrar()
 {
   debugger
   
-  if(this.filtrosuc != -1 && this.filtrofecha !=undefined)
+  if(this.filtrosuc.length>0 && this.filtrofecha !=undefined)
     {
-      this.elementosfiltrados = this.diasespeciales.filter(x => x.fecha == this.filtrofecha && x.sucursal==this.filtrosuc);
+      this.elementosfiltrados = this.elementosfiltrados = this.diasespeciales.filter(obj => {
+        debugger
+        let objDate = new Date(obj.fecha);
+        let filtrofecha2 = new Date(this.filtrofecha!.toString()+'T00:00:00');
+        return objDate.getDate() === filtrofecha2.getDate() &&
+               objDate.getMonth() === filtrofecha2.getMonth() &&
+               objDate.getFullYear() === filtrofecha2.getFullYear();
+      });
+
+      this.elementosfiltrados = this.elementosfiltrados.filter(x => this.filtrosuc.some(sucursal => sucursal.cod === x.sucursal));
+
       this.cdr.detectChanges();
       return;
     }
 
-    if(this.filtrosuc > -1 && this.filtrofecha == undefined)
+    if(this.filtrosuc.length > 0 && this.filtrofecha == undefined)
       {
-        this.elementosfiltrados = this.diasespeciales.filter(x => x.sucursal==this.filtrosuc);
+        this.elementosfiltrados = this.diasespeciales.filter(x => this.filtrosuc.some(sucursal => sucursal.cod === x.sucursal));
         this.cdr.detectChanges();
         return;
       }
 
-      if(this.filtrosuc == -1 && this.filtrofecha != undefined)
+      if(this.filtrosuc.length==0 && this.filtrofecha != undefined)
         {
           this.elementosfiltrados = this.diasespeciales.filter(obj => {
             debugger
@@ -670,8 +654,29 @@ filtrar()
 borrarfiltros()
 {
   this.filtrofecha = undefined;
-  this.filtrosuc = -1;
+  this.filtrosuc = [];
   this.elementosfiltrados = this.diasespeciales; 
+}
+
+getStringArt(articulos:string):string
+{
+  let arr_art = JSON.parse(articulos);
+  let data = ""
+  let cont = 0; 
+  for(let ids of arr_art)
+    {
+      let temp = this.catitems.filter(x => x.cod == ids);
+      if(cont==0)
+        {
+           if(temp.length > 0){  data+= temp[0].descripcion; }
+        }else
+        {
+          if(temp.length > 0){  data+= " ,"+temp[0].descripcion; }
+        }
+      cont++
+
+    }
+    return data; 
 }
 
 }

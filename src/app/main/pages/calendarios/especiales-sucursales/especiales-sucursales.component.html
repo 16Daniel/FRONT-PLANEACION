@@ -91,11 +91,8 @@
               </div>
               
               <div>
-                <span>SUCURSAL</span>
-                <select class="form-select" style="height: 48PX;" [(ngModel)]="filtrosuc">
-                    <option value="-1" selected>TODAS</option>
-                    <option *ngFor="let item of catsucursales" [value]="item.cod">{{item.name}}</option>
-                  </select>
+                <span>SUCURSAL</span><br/>
+                <p-multiSelect [options]="catsucursales" [(ngModel)]="filtrosuc" optionLabel="name" [style]="{'width':'10rem'}"></p-multiSelect>
             </div>
     
             <div>
@@ -132,6 +129,7 @@
                         <th style="background-color: #fafafa;">FECHA</th>
                         <th style="background-color: #fafafa;">DESCRIPCIÓN</th>
                         <th style="background-color: #fafafa;">SUCURSAL</th>
+                        <th style="background-color: #fafafa;">ARTÍCULOS</th>
                         <th style="background-color: #fafafa;">FACTOR CONSUMO</th>
                         <th style="background-color: #fafafa;"></th>
                     </tr>
@@ -145,10 +143,11 @@
                         <td>{{item.fecha | date}}</td>
                         <td>{{item.descripcion | uppercase}}</td>
                         <td>{{item.nombresuc}}</td>
+                        <td>{{getStringArt(item.articulos)}}</td>
                         <td>{{item.factorConsumo}}</td>
                         <td>
                             <div class="d-flex justify-content-center">
-                              <!-- <button class="btn btn-primary me-3" (click)="showEdit(item)"><i class='bx bx-edit bx-sm' ></i></button> -->
+                              <button class="btn btn-primary me-3" (click)="showEdit(item)"><i class='bx bx-edit bx-sm' ></i></button>
                             </div>
                         </td>
                     </tr>
@@ -161,12 +160,34 @@
 
     <!-- MODAL AGREGAR DIA ESPECIAL -->
 
-<p-dialog [header]="actualizar ? 'Eliminar día especial' :'Agregar día especial'" [(visible)]="modalAgregar" [modal]="true" [style]="{ 'width': '90%' }" [draggable]="false" [resizable]="false">
+<p-dialog [header]="actualizar ? 'Acttualizar dia especial' :'Agregar día especial'" [(visible)]="modalAgregar" [modal]="true" [style]="{ 'width': '90%' }" [draggable]="false" [resizable]="false">
       
-        <p>Fecha<span class="text-danger fw-bold">{{actualizar ? ': '+(formDate | date) :''}}</span></p>
-        <p-calendar [(ngModel)]="formDate" [inline]="true" [showWeek]="true" [style]="{'width':'100%'}" (onSelect)="clickCalendar()" [locale]="es" ></p-calendar>
-     
-       <div class="row mt-3" *ngIf="actualizar == false">
+        <p>Fecha<span class="text-danger fw-bold fs-5">{{actualizar ? ': '+(formDate | date) :''}}</span></p>
+        <div class="form-check form-switch" *ngIf="actualizar==false">
+          <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" [(ngModel)]="switchmultifechas">
+          <label class="form-check-label" for="flexSwitchCheckDefault">SELECCIONAR MÚLTIPLES FECHAS</label>
+        </div>
+
+        <div class="w-100" *ngIf="switchmultifechas">
+          <p-calendar 
+        [(ngModel)]="fechasMultiples" 
+        selectionMode="multiple" 
+        [readonlyInput]="true"
+        [style]="{'width':'100%'}"
+        [iconDisplay]="'input'" 
+        [showIcon]="true" 
+        inputId="icondisplay"
+        [inline]="true"
+        [locale]="es"
+        [showWeek]="true"
+        />
+        </div>
+
+        <div *ngIf="switchmultifechas == false">
+          <p-calendar [(ngModel)]="formDate" [inline]="true" [showWeek]="true" [style]="{'width':'100%'}" (onSelect)="clickCalendar()" [locale]="es" ></p-calendar>
+
+        </div>
+       <div class="row mt-3" *ngIf="actualizar == false && switchmultifechas == false">
         <div class="col-sm-12 col-md-6">
             <p>Dia del año</p>
             <input type="number" class="form-control" [(ngModel)]="formDia" disabled/>
@@ -178,7 +199,7 @@
        </div>
 
        
-       <div class="row mt-3" *ngIf="actualizar == true">
+       <div class="row mt-3" *ngIf="actualizar == true && switchmultifechas == false">
         <div class="col-sm-12 col-md-3">
             <p>Dia del año</p>
             <input type="number" class="form-control" [(ngModel)]="formDia" disabled/>
@@ -190,7 +211,7 @@
 
         <div class="col-md-6 col-sm-12">
             <p>SUCURSAL</p>
-            <select class="form-select" [(ngModel)]="sucursal" (change)="changeSuc()">
+            <select class="form-select" [(ngModel)]="sucursal" (change)="changeSuc()" disabled>
                 <option *ngFor="let item of catsucursales" [value]="item.cod">{{item.name}}</option>
             </select>
     
@@ -210,27 +231,29 @@
     <p class="mt-3 fw-bold">ARTICULOS</p>
     <p-multiSelect [options]="catitems" [(ngModel)]="selecteditems" optionLabel="descripcion" [style]="{'width':'100%'}"></p-multiSelect>
     
-    <p class="mt-4 fw-bold" >SELECCIONAR UNA O MAS SUCURSALES</p>
+ <div *ngIf="actualizar==false">
+  <p class="mt-4 fw-bold" >SELECCIONAR UNA O MAS SUCURSALES</p>
 
-    <div class="row m-0 p-0">
-      <div class="col-auto">
-        <button class="btn btn-light bg-g-l p-3" (click)="seleccionarTodo()" title="Seleccionar todo">
-          <span> 
-            <i class='bx bx-select-multiple bx-sm'></i>
-          </span>
-        </button>
-      </div>
-
-      <div class="col-auto">
-        <button class="btn btn-light bg-g-l p-3" (click)="quitarselecciones()" title="Quitar selecciones">
-          <span> 
-            <i class='bx bx-x-circle bx-sm' ></i>
-          </span>
-        </button>
-      </div>
+  <div class="row m-0 p-0">
+    <div class="col-auto">
+      <button class="btn btn-light bg-g-l p-3" (click)="seleccionarTodo()" title="Seleccionar todo">
+        <span> 
+          <i class='bx bx-select-multiple bx-sm'></i>
+        </span>
+      </button>
     </div>
 
-    <div class="row m-0 mt-3">
+    <div class="col-auto">
+      <button class="btn btn-light bg-g-l p-3" (click)="quitarselecciones()" title="Quitar selecciones">
+        <span> 
+          <i class='bx bx-x-circle bx-sm' ></i>
+        </span>
+      </button>
+    </div>
+  </div>
+ </div>
+
+    <div class="row m-0 mt-3" *ngIf="actualizar==false">
 
       @for (item of catsucursales; track $index) 
       {
@@ -260,92 +283,6 @@
 </p-dialog>
 
 <!-- modal elimnar dias especial  -->
-
-<p-dialog [header]="'Eliminar día especial'" [(visible)]="modaleliminar" [modal]="true" [style]="{ 'width': '90%' }" [draggable]="false" [resizable]="false">
-      
-    <p>Fecha<span class="text-danger fw-bold">{{formDate | date}}</span></p>
-
-   <div class="row mt-3">
-    <div class="col-sm-12 col-md-3">
-        <p>Dia del año</p>
-        <input type="number" class="form-control" [(ngModel)]="formDia" disabled/>
-    </div>
-    <div class="col-sm-12 col-md-3">
-        <p>Semana del año</p>
-        <input type="number" class="form-control" [(ngModel)]="formsemana" disabled/>
-    </div>
-
-    <div class="col-md-6 col-sm-12">
-        <p>SUCURSAL</p>
-        <select class="form-select" [(ngModel)]="sucursal" (change)="changeSuc()">
-            <option *ngFor="let item of catsucursales" [value]="item.cod">{{item.name}}</option>
-        </select>
-
-      </div>
-
-   </div>
-
-<div class="mt-3">
-    <p>Descripción</p>
-    <input type="text" class="form-control" [(ngModel)]="formdDescripcion" spellcheck="true" [disabled]="actualizar"/>
-</div>
-
-<div class="mt-3">
-    <p>Factor de consumo</p>
-    <input type="number" class="form-control" [(ngModel)]="formFactor" [disabled]="actualizar"/>
-</div>
-
-<p class="mt-3 fw-bold">ARTICULOS</p>
-<p-multiSelect [options]="catitems" [(ngModel)]="selecteditems" optionLabel="descripcion" [style]="{'width':'100%'}"></p-multiSelect>
-
-<p class="mt-4 fw-bold" >SELECCIONAR UNA O MAS SUCURSALES</p>
-
-<div class="row m-0 p-0">
-  <div class="col-auto">
-    <button class="btn btn-light bg-g-l p-3" (click)="seleccionarTodo()" title="Seleccionar todo">
-      <span> 
-        <i class='bx bx-select-multiple bx-sm'></i>
-      </span>
-    </button>
-  </div>
-
-  <div class="col-auto">
-    <button class="btn btn-light bg-g-l p-3" (click)="quitarselecciones()" title="Quitar selecciones">
-      <span> 
-        <i class='bx bx-x-circle bx-sm' ></i>
-      </span>
-    </button>
-  </div>
-</div>
-
-<div class="row m-0 mt-3">
-
-  @for (item of catsucursales; track $index) 
-  {
-    <div class="col-sm-6 col-lg-3 mt-3">
-      <div class="p-3 rounded-3 card" [ngClass]="{'op-selected': sucursalesseleccionadas[$index]==1}"  (click)="chageStatusSucursal($index)">
-        @if(sucursalesseleccionadas[$index]==0)
-        {
-          <i class='bx bx-circle bx-sm'></i>
-        } @else
-        {
-          <i class='bx bxs-check-circle bx-sm color-t'></i>
-        }
-        {{item.name}}
-      </div>
-    </div>
-  }
-
-</div>
-
-
-<div class="mt-3 mb-3 d-flex  justify-content-end">
-    <button class="btn bg-p-b p-3 rounded-4" (click)="confirm()" *ngIf="actualizar"> <i class='bx bx-trash bx-sm' ></i> ELIMINAR</button>
-</div>
-
-
-</p-dialog>
-
 
 
 

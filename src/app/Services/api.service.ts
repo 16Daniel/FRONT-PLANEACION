@@ -90,6 +90,12 @@ export class ApiService {
       return this.http.post<any>(this.url+'DiaEspecialSucursal/CreateDiaEspecialSucursal',data,{headers:this.headers})
    }
 
+   createDiasEspecialesS(data:any):Observable<any>
+   {
+      return this.http.post<any>(this.url+'DiaEspecialSucursal/CreateDiasEspecialesSucursal',data,{headers:this.headers})
+   }
+
+
 
    deleteDiaEspecial(id:number):Observable<any>
    {
@@ -382,7 +388,9 @@ export class ApiService {
    
    getStatusPedidos():Observable<any>
    {
-      return this.http.get<any>(this.url+`Pedidos/StatusPedidos`,{headers:this.headers})
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      return this.http.get<any>(this.url+`Pedidos/StatusPedidos/${idu}`,{headers:this.headers})
    }
 
    guardarAsignacioones(idprov:number, idu:number, sucursales:string):Observable<any>
@@ -405,6 +413,14 @@ export class ApiService {
       let formdata = new FormData();
       return this.http.delete<any>(this.url+`AsignacionProv/deleteAsignacionesProv/${jdata}`,{headers:this.headers})
    }
+
+   logout():Observable<any>
+   {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      return this.http.get<any>(this.url+`Usuarios/logout/${idu}`,{headers:this.headers})
+   }
+
 
 
 }

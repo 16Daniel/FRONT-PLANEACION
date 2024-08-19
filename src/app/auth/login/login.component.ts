@@ -72,10 +72,15 @@ showMessage(sev:string,summ:string,det:string) {
              if(error.status == 404)
               {
                 this.showMessage('error',"Error","Credenciales incorrectas");
-              }else
-              {
-                this.showMessage('error',"Error","Error al procesar la solicitud");
               }
+
+              if(error.status == 423)
+                {
+                  this.showMessage('error',"Error","Hay una sesión iniciada con este usuario");
+                }else
+                {
+                  this.showMessage('error',"Error","Error al procesar la solicitud");
+                }
             
           }
       });

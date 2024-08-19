@@ -434,18 +434,39 @@ refreshpedidos()
   this.btnrefresh = true; 
   this.loading = true;
 
-  this.apiserv.refreshPedidos().subscribe({
+  this.apiserv.getStatusPedidos().subscribe({
     next: data => {
-      this.showMessage('success',"Success","Lista de pedidos actualizada");
-      this.btnrefresh = false; 
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
+
+      if(data.status == 0)
+        {
+          this.apiserv.refreshPedidos().subscribe({
+            next: data => {
+              this.showMessage('success',"Success","Lista de pedidos actualizada");
+              this.btnrefresh = false; 
+              setTimeout(() => {
+                window.location.reload();
+              }, 1500);
+            },
+            error: error => {
+              console.log(error);
+              this.showMessage('error',"Error","Error al procesar la solicitud");
+              this.btnrefresh = false; 
+            }
+        });
+        
+        }else
+        {
+          this.showMessage('error',"info","Hay una solicitud en proceso, intente más tarde");
+          this.loading = false;
+          this.btnrefresh  = false;
+        }
+
     },
     error: error => {
       console.log(error);
       this.showMessage('error',"Error","Error al procesar la solicitud");
       this.btnrefresh = false; 
+      this.loading = false; 
     }
 });
 
@@ -1162,6 +1183,17 @@ eliminarlineas()
     }
 });
  
+}
+
+tienelineasrojas(item:Pedido):boolean
+{
+  let tlr:boolean =false; 
+  let lineasrojas = item.articulos.filter(x => x.total_linea<=0);
+  if(lineasrojas.length>0)
+    {
+      tlr = true; 
+    }
+  return tlr; 
 }
 
 }
