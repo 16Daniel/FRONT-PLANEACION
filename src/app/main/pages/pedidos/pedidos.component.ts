@@ -266,7 +266,9 @@ getPedidos()
 
  getproyeccion(num1:number,num2:number,num3:number):number
  {
-    return num1+num2-num3
+   let total = num1+num2-num3; 
+   if(this.itemdetalles!.calendarioespecial){ total = total - this.itemdetalles!.unidadesextra }
+    return total
  }   
 
 updatepedido()

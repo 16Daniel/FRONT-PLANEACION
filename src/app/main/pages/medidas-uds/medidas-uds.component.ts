@@ -104,7 +104,7 @@ export default class MedidasUdsComponent implements OnInit {
 
   guardarMedidaUds()
   {  
-   
+   debugger
     if(this.modelmedida == undefined || this.modelmedida == "")
       {
         this.showMessage('info',"Error","Favor de agregar una unidad de medida");

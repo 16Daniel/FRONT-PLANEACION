@@ -10,8 +10,10 @@ import { Consumo } from '../../../../Interfaces/Consumo';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { Dialog, DialogModule } from 'primeng/dialog';
-import { Calendario } from '../../../../Interfaces/Calendario';
+import { Calendario, CalendarioUpdate } from '../../../../Interfaces/Calendario';
 import { Router } from '@angular/router';
+import { Item } from '../../../../Interfaces/Item';
+import { MultiSelectModule } from 'primeng/multiselect';
 
 @Component({
   selector: 'app-delete-calendar',
@@ -23,6 +25,7 @@ import { Router } from '@angular/router';
     SkeletonModule,
     ToastModule,
     DialogModule,
+    MultiSelectModule
   ],
   providers:[MessageService],
   templateUrl: './delete-calendar.component.html',
@@ -49,7 +52,14 @@ export default class DeleteCalendarComponent {
   public shadowModal:boolean = true; 
   public resultados:boolean = false;
   public calendarios:Calendario[] = []; 
+  public calendariosupdate:CalendarioUpdate[] = [];  
   public provseleccionado:boolean = false; 
+
+  public catitems:Item[] = []; 
+  public selecteditems:Item[] = []; 
+  public especial:boolean = false; 
+  public regsel:number|undefined; 
+
 
   constructor(public apiserv:ApiService,private messageService: MessageService,public cdr:ChangeDetectorRef,public router:Router)
   {
@@ -149,38 +159,10 @@ export default class DeleteCalendarComponent {
     this.messageService.add({ severity: sev, summary: summ, detail: det });
 }
 
-chageStatusSucursal(index:number)
-{
-  let status = this.sucursalesseleccionadas[index];
-  if(status == 1)
-  {
-    this.sucursalesseleccionadas[index] = 0;
-  } else 
-  {
-    this.sucursalesseleccionadas[index] = 1; 
-  }
-}
 
-seleccionarTodo()
+async save():Promise<void>
 {
-  for(let i =0; i< this.sucursalesseleccionadas.length; i++)
-  {
-      this.sucursalesseleccionadas[i] = 1; 
-  }
-}
-
-quitarselecciones()
-{
-  for(let i =0; i< this.sucursalesseleccionadas.length; i++)
-  {
-      this.sucursalesseleccionadas[i] = 0; 
-  }
-}
-
-async save(sucursal:number):Promise<void>
-{
-  let objCalendar:Calendario[] = this.calendarios.filter(suc => suc.codsucursal == sucursal);
-  let id:number = objCalendar[0].id;  
+  let id:number = this.regsel!;
 return new Promise<void>((resolve, reject) => {
   this.apiserv.deleteCalendar(id).subscribe({
       next: (data) => {
@@ -207,12 +189,6 @@ return new Promise<void>((resolve, reject) => {
     this.showMessage('error','Error',"Seleccione un proveedor");
     return;
   }
-  let data:number[] = this.sucursalesseleccionadas.filter((element) => element ==1);
-  if(data.length<1)
-  {
-    this.showMessage('error','Error','Seleccione mínimo una sucursal');
-    return;
-  }
 
   if(this.arr_pedidos.length== 0)
   {
@@ -229,13 +205,7 @@ return new Promise<void>((resolve, reject) => {
 
   this.loading = true; 
 
-  for(let i=0; i<this.sucursalesseleccionadas.length; i++)
-  {
-    if(this.sucursalesseleccionadas[i] == 1)
-    {
-      await this.save(this.catsucursales[i].cod);
-    }
-  }
+  await this.save(); 
 
   if(this.errorsave)
   {
@@ -243,7 +213,7 @@ return new Promise<void>((resolve, reject) => {
     this.loading=false; 
   } else
   {
-    this.quitarselecciones();
+
     this.arr_pedidos = [];
     this.newarrsemana(); 
     this.loading=false; 
@@ -270,6 +240,7 @@ getCalendarios()
 {
   this.apiserv.getCalendariosProv(this.proveedorsel!).subscribe({
     next: data => {
+      debugger
        this.calendarios=data;
        if(this.calendarios.length==0)
        {
@@ -277,9 +248,20 @@ getCalendarios()
         this.resultados =false; 
         return; 
        }
-       this.sucursal = this.calendarios[0].codsucursal;
+
+       this.calendariosupdate = []; 
+       for(let item of this.calendarios)
+        {
+          let nomsuc = ""; 
+          let sucursal = this.catsucursales.filter(x=> x.cod == item.codsucursal); 
+          nomsuc = sucursal.length>0 ? sucursal[0].name:""; 
+          this.calendariosupdate.push({id:item.id,nombresuc:nomsuc});
+        }
+
+      this.regsel = this.calendariosupdate[0].id; 
        this.arr_pedidos = JSON.parse(this.calendarios[0].jdata);
-       
+       this.especial = this.calendarios[0].especial; 
+
        let ids:number[]=[];
        for(let item of this.calendarios)
        {
@@ -291,16 +273,14 @@ getCalendarios()
       });
       this.catsucursales = sucursalfiltradas; 
 
-      this.sucursalesseleccionadas =[];
-      for (let index = 0; index < this.catsucursales.length; index++) {
-        this.sucursalesseleccionadas.push(0);
-     }
-
      if(this.calendarios.length>0)
      {
       this.resultados = true; 
      }
      this.loading = false;
+
+     this.getItemsprovp(this.proveedorsel!);
+     
      this.cdr.detectChanges();
     },
     error: error => {
@@ -320,9 +300,44 @@ reloadComponent() {
 
 changeCalendar()
 {
-  let objCalendar:Calendario[] = this.calendarios.filter(suc => suc.codsucursal == this.sucursal);
+  let objCalendar:Calendario[] = this.calendarios.filter(x => x.id == this.regsel);
+  this.especial = objCalendar[0].especial; 
   this.arr_pedidos = JSON.parse(objCalendar[0].jdata);
+ this.getItemsSel(objCalendar[0].id);
 }
 
+getItemsSel(idc:number)
+{
+  this.apiserv.getItemsCal(idc).subscribe({
+    next: data => {
+      this.selecteditems = []; 
+       this.selecteditems=data;
+       this.loading = false; 
+       console.log(this.catitems);
+       console.log(data);
+       this.cdr.detectChanges();
+    },
+    error: error => {
+       console.log(error);
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
+}
+
+getItemsprovp(idp:number)
+{
+  this.apiserv.getItemprovp(idp).subscribe({
+    next: data => {
+       this.catitems=data;
+       this.loading = false; 
+       this.getItemsSel(this.calendarios[0].id);
+       this.cdr.detectChanges();
+    },
+    error: error => {
+       console.log(error);
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
+}
 
 }

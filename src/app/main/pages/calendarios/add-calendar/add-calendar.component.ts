@@ -50,6 +50,8 @@ export default class AddCalendarComponent
   public catitems:Item[] = []; 
   public selecteditems:Item[] = []; 
 
+  public especial:boolean = false; 
+
 
   constructor(public apiserv:ApiService,private messageService: MessageService,public cdr:ChangeDetectorRef)
   {
@@ -228,7 +230,9 @@ async save(sucursal:number):Promise<void>
     Codsucursal: sucursal,
     Codproveedor: this.proveedorsel,
     Jdata: JSON.stringify(this.arr_pedidos),
-    articulos: JSON.stringify(this.selecteditems)
+    articulos: JSON.stringify(this.selecteditems),
+    Especial: this.especial
+
   }
 
 return new Promise<void>((resolve, reject) => {

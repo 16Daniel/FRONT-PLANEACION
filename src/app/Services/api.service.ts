@@ -59,6 +59,14 @@ export class ApiService {
       return this.http.post<any>(this.url+'Calendarios/saveCalendario',data,{headers:this.headers})
    }
 
+
+   updateCalendar(data:any):Observable<any>
+   {
+      return this.http.put<any>(this.url+'Calendarios/updateCalendar',data,{headers:this.headers})
+   }
+
+
+
    getCalendariosProv(codprov:number):Observable<Calendario[]>
    {
       return this.http.get<Calendario[]>(this.url+`Calendarios/getCalendarios/${codprov}`,{headers:this.headers})
@@ -257,9 +265,9 @@ export class ApiService {
       return this.http.get<Item[]>(this.url+`Catalogos/getItemsprovPlaneacion/${idp}`,{headers:this.headers})
    } 
 
-   getItemsCal(idp:number,ids:number):Observable<Item[]>
+   getItemsCal(idc:number):Observable<Item[]>
    {
-      return this.http.get<Item[]>(this.url+`Catalogos/getItemsCal/${idp}/${ids}`,{headers:this.headers})
+      return this.http.get<Item[]>(this.url+`Catalogos/getItemsCal/${idc}`,{headers:this.headers})
    } 
 
 

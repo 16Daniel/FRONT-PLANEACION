@@ -162,6 +162,13 @@
           </div>
 
           <div class="d-flex justify-content-end mt-3">
+          
+            <div class="form-check form-switch mt-3">
+              <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" style="width: 3rem; height: 2rem;" [(ngModel)]="especial">
+            </div>
+            <span style="line-height: 68px;" class="text-danger fs-5 fw-bold">&nbsp;CALENDARIO ESPECIAL &nbsp;&nbsp;</span>
+           
+
             <button class="btn bg-p-b p-3" style="width: 10rem;" (click)="saveAll()">
               <i class='bx bx-save bx-sm' ></i>
               &nbsp;GUARDAR</button>

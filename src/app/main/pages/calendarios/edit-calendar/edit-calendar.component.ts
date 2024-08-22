@@ -10,7 +10,7 @@ import { Consumo } from '../../../../Interfaces/Consumo';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { Dialog, DialogModule } from 'primeng/dialog';
-import { Calendario } from '../../../../Interfaces/Calendario';
+import { Calendario, CalendarioUpdate } from '../../../../Interfaces/Calendario';
 import { Router } from '@angular/router';
 import { Item } from '../../../../Interfaces/Item';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -47,15 +47,17 @@ export default class EditCalendarComponent {
 
   public proveedorsel:number | undefined; 
   public loading:boolean= true;
-  public sucursalesseleccionadas:number[] = []; 
   public errorsave:boolean=false; 
   public shadowModal:boolean = true; 
   public resultados:boolean = false;
-  public calendarios:Calendario[] = []; 
+  public calendarios:Calendario[] = [];
+  public calendariosupdate:CalendarioUpdate[] = [];  
   public provseleccionado:boolean = false; 
 
   public catitems:Item[] = []; 
   public selecteditems:Item[] = []; 
+  public especial:boolean = false; 
+  public regsel:number|undefined; 
 
 
   constructor(public apiserv:ApiService,private messageService: MessageService,public cdr:ChangeDetectorRef,public router:Router)
@@ -90,25 +92,6 @@ export default class EditCalendarComponent {
     this.arr_pedidos[index][dia] = 0;
   }
 
-  // marcar(index:number,dia:number)
-  // {
-  //   if(this.typedata==1)
-  //   {
-  //     this.setPedido(index,dia); 
-  //   }
-  //   if(this.typedata==2)
-  //   {
-  //     this.setConsumo(index,dia);
-  //   }
-  //   if(this.typedata==3)
-  //   {
-  //     this.arr_pedidos[index][dia] = 3;
-  //   }
-  //   if(this.typedata==0)
-  //   {
-  //       this.setEmpty(index,dia);
-  //   }
-  // }
 
   marcar(index:number,dia:number)
   {
@@ -186,11 +169,6 @@ export default class EditCalendarComponent {
      this.apiserv.getSucursales().subscribe({
       next: data => {
          this.catsucursales=data;
-
-         for (let index = 0; index < this.catsucursales.length; index++) {
-            this.sucursalesseleccionadas.push(0);
-         }
-
          this.cdr.detectChanges();
       },
       error: error => {
@@ -221,46 +199,23 @@ export default class EditCalendarComponent {
     this.messageService.add({ severity: sev, summary: summ, detail: det });
 }
 
-chageStatusSucursal(index:number)
-{
-  let status = this.sucursalesseleccionadas[index];
-  if(status == 1)
-  {
-    this.sucursalesseleccionadas[index] = 0;
-  } else 
-  {
-    this.sucursalesseleccionadas[index] = 1; 
-  }
-}
 
-seleccionarTodo()
+async save():Promise<void>
 {
-  for(let i =0; i< this.sucursalesseleccionadas.length; i++)
-  {
-      this.sucursalesseleccionadas[i] = 1; 
-  }
-}
 
-quitarselecciones()
-{
-  for(let i =0; i< this.sucursalesseleccionadas.length; i++)
-  {
-      this.sucursalesseleccionadas[i] = 0; 
-  }
-}
-
-async save(sucursal:number):Promise<void>
-{
+  let reg = this.calendarios.filter(x => x.id == this.regsel!)
   const data =
   {
-    Codsucursal: sucursal,
+    Id:reg[0].id,
+    Codsucursal: reg[0].codsucursal,
     Codproveedor: this.proveedorsel,
     Jdata: JSON.stringify(this.arr_pedidos),
-    articulos: JSON.stringify(this.selecteditems)
+    articulos: JSON.stringify(this.selecteditems),
+    Especial: this.especial
   }
 
 return new Promise<void>((resolve, reject) => {
-  this.apiserv.saveCalendar(data).subscribe({
+  this.apiserv.updateCalendar(data).subscribe({
       next: (data) => {
           resolve(); // Resuelve la promesa
       },
@@ -285,12 +240,6 @@ return new Promise<void>((resolve, reject) => {
     this.showMessage('error','Error',"Seleccione un proveedor");
     return;
   }
-  let data:number[] = this.sucursalesseleccionadas.filter((element) => element ==1);
-  if(data.length<1)
-  {
-    this.showMessage('error','Error','Seleccione mínimo una sucursal');
-    return;
-  }
 
   if(this.arr_pedidos.length== 0)
   {
@@ -306,22 +255,13 @@ return new Promise<void>((resolve, reject) => {
   }
 
   this.loading = true; 
-
-  for(let i=0; i<this.sucursalesseleccionadas.length; i++)
-  {
-    if(this.sucursalesseleccionadas[i] == 1)
-    {
-      await this.save(this.catsucursales[i].cod);
-    }
-  }
-
+  await this.save();
   if(this.errorsave)
   {
     this.showMessage('error',"Error","Error al procesar la solicitud");
     this.loading=false; 
   } else
   {
-    this.quitarselecciones();
     this.arr_pedidos = [];
     this.newarrsemana(); 
     this.loading=false; 
@@ -347,6 +287,7 @@ getCalendarios()
 {
   this.apiserv.getCalendariosProv(this.proveedorsel!).subscribe({
     next: data => {
+      debugger
        this.calendarios=data;
        if(this.calendarios.length==0)
        {
@@ -354,8 +295,19 @@ getCalendarios()
         this.resultados =false; 
         return; 
        }
-       this.sucursal = this.calendarios[0].codsucursal;
+
+       this.calendariosupdate = []; 
+       for(let item of this.calendarios)
+        {
+          let nomsuc = ""; 
+          let sucursal = this.catsucursales.filter(x=> x.cod == item.codsucursal); 
+          nomsuc = sucursal.length>0 ? sucursal[0].name:""; 
+          this.calendariosupdate.push({id:item.id,nombresuc:nomsuc});
+        }
+
+      this.regsel = this.calendariosupdate[0].id; 
        this.arr_pedidos = JSON.parse(this.calendarios[0].jdata);
+       this.especial = this.calendarios[0].especial; 
 
        let ids:number[]=[];
        for(let item of this.calendarios)
@@ -367,11 +319,6 @@ getCalendarios()
         return ids.includes(sucursal.cod)
       });
       this.catsucursales = sucursalfiltradas; 
-
-      this.sucursalesseleccionadas =[];
-      for (let index = 0; index < this.catsucursales.length; index++) {
-        this.sucursalesseleccionadas.push(0);
-     }
 
      if(this.calendarios.length>0)
      {
@@ -400,9 +347,10 @@ reloadComponent() {
 
 changeCalendar()
 {
-  let objCalendar:Calendario[] = this.calendarios.filter(suc => suc.codsucursal == this.sucursal);
+  let objCalendar:Calendario[] = this.calendarios.filter(x => x.id == this.regsel);
+  this.especial = objCalendar[0].especial; 
   this.arr_pedidos = JSON.parse(objCalendar[0].jdata);
- this.getItemsSel(this.proveedorsel!,this.sucursal!);
+ this.getItemsSel(objCalendar[0].id);
 }
 
 limpiarcalendario()
@@ -419,7 +367,7 @@ getItemsprovp(idp:number)
     next: data => {
        this.catitems=data;
        this.loading = false; 
-       this.getItemsSel(this.proveedorsel!,this.calendarios[0].codsucursal);
+       this.getItemsSel(this.calendarios[0].id);
        this.cdr.detectChanges();
     },
     error: error => {
@@ -429,9 +377,9 @@ getItemsprovp(idp:number)
 });
 }
 
-getItemsSel(idp:number, ids:number)
+getItemsSel(idc:number)
 {
-  this.apiserv.getItemsCal(idp,ids).subscribe({
+  this.apiserv.getItemsCal(idc).subscribe({
     next: data => {
       debugger
       this.selecteditems = []; 

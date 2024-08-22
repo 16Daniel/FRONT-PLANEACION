@@ -53,6 +53,9 @@ export interface ArticuloPedido
         factorseguridad:number;
         arraycalendario:number[];
         diasespeciales:DiasEspecialSuc[]; 
+
+        calendarioespecial:boolean,
+        unidadesextra:number
 }
 
 export interface ConsumoModel
