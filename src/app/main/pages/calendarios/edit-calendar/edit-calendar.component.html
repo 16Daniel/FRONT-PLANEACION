@@ -7,7 +7,7 @@
         <div class="row m-0">
           <div class="col-md-6">
             <p class="mt-3 fw-bold" >PROVEDOR</p>
-            <select class="form-select" [(ngModel)]="proveedorsel" disabled>
+            <select class="form-select" [(ngModel)]="proveedorsel" disabled style="height: 48px;">
               <input type="text">
                 <option *ngFor="let item of catproveedores" [value]="item.codproveedor">{{item.codproveedor +' - '+item.nombre}}</option>
             </select>
@@ -15,9 +15,22 @@
 
           <div class="col-md-6">
             <p class="mt-3 fw-bold" >CALENDARIO</p>
-            <select class="form-select" [(ngModel)]="regsel" (change)="changeCalendar()">
+            <!-- <select class="form-select" [(ngModel)]="regsel" (change)="changeCalendar()">
                 <option *ngFor="let item of calendariosupdate" [value]="item.id">{{item.nombresuc}}</option>
-            </select>
+            </select> -->
+            <p-dropdown 
+    [options]="calendariosupdate"
+    [(ngModel)]="regsel"
+    optionLabel="nombresuc"
+    [filter]="true"
+    filterBy="nombresuc" 
+    [showClear]="false"
+    placeholder="Select a Country"
+    [style]="{'width':'100%'}"
+    (onChange)="changeCalendar()"
+    >
+</p-dropdown>
+
     
           </div>
 
@@ -131,6 +144,8 @@
          <p class="mt-3 fw-bold">ARTICULOS</p>
          <p-multiSelect [options]="catitems" [(ngModel)]="selecteditems" optionLabel="descripcion" [style]="{'width':'100%'}"></p-multiSelect>
          
+         <p class="mt-3 fw-bold">SELECCIONAR CALENDARIOS</p>
+         <p-multiSelect [options]="calendariosupdate" [(ngModel)]="calendariosselccionados" optionLabel="nombresuc" [style]="{'width':'100%'}"></p-multiSelect>
 
           <div class="d-flex justify-content-end mt-3">
 

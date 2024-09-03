@@ -14,6 +14,8 @@ import { Calendario, CalendarioUpdate } from '../../../../Interfaces/Calendario'
 import { Router } from '@angular/router';
 import { Item } from '../../../../Interfaces/Item';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { DropdownModule } from 'primeng/dropdown';
+
 @Component({
   selector: 'app-edit-calendar',
   standalone: true,
@@ -24,7 +26,8 @@ import { MultiSelectModule } from 'primeng/multiselect';
     SkeletonModule,
     ToastModule,
     DialogModule,
-    MultiSelectModule
+    MultiSelectModule,
+    DropdownModule
   ],
   providers:[MessageService],
   templateUrl: './edit-calendar.component.html',
@@ -51,13 +54,14 @@ export default class EditCalendarComponent {
   public shadowModal:boolean = true; 
   public resultados:boolean = false;
   public calendarios:Calendario[] = [];
-  public calendariosupdate:CalendarioUpdate[] = [];  
+  public calendariosupdate:CalendarioUpdate[] = [];
+  public calendariosselccionados:CalendarioUpdate[] = [];  
   public provseleccionado:boolean = false; 
 
   public catitems:Item[] = []; 
   public selecteditems:Item[] = []; 
   public especial:boolean = false; 
-  public regsel:number|undefined; 
+  public regsel:CalendarioUpdate|undefined; 
 
 
   constructor(public apiserv:ApiService,private messageService: MessageService,public cdr:ChangeDetectorRef,public router:Router)
@@ -200,10 +204,10 @@ export default class EditCalendarComponent {
 }
 
 
-async save():Promise<void>
+async save(idc:number):Promise<void>
 {
 
-  let reg = this.calendarios.filter(x => x.id == this.regsel!)
+  let reg = this.calendarios.filter(x => x.id == idc)
   const data =
   {
     Id:reg[0].id,
@@ -254,14 +258,28 @@ return new Promise<void>((resolve, reject) => {
       return;
   }
 
+  if(this.calendariosselccionados.length==0)
+    {
+      this.showMessage('error','Error','Seleccionar uno o más calendarios para actualizar');
+        return;
+    }
+  
+
   this.loading = true; 
-  await this.save();
+  
+  for(let item of this.calendariosselccionados)
+    {
+      await this.save(item.id);
+    }
+
+
   if(this.errorsave)
   {
     this.showMessage('error',"Error","Error al procesar la solicitud");
     this.loading=false; 
   } else
   {
+    this.calendariosselccionados=[]; 
     this.arr_pedidos = [];
     this.newarrsemana(); 
     this.loading=false; 
@@ -302,10 +320,10 @@ getCalendarios()
           let nomsuc = ""; 
           let sucursal = this.catsucursales.filter(x=> x.cod == item.codsucursal); 
           nomsuc = sucursal.length>0 ? sucursal[0].name:""; 
-          this.calendariosupdate.push({id:item.id,nombresuc:nomsuc});
+          this.calendariosupdate.push({id:item.id,nombresuc: item.id +' - '+nomsuc});
         }
 
-      this.regsel = this.calendariosupdate[0].id; 
+      this.regsel = this.calendariosupdate[0]; 
        this.arr_pedidos = JSON.parse(this.calendarios[0].jdata);
        this.especial = this.calendarios[0].especial; 
 
@@ -347,7 +365,7 @@ reloadComponent() {
 
 changeCalendar()
 {
-  let objCalendar:Calendario[] = this.calendarios.filter(x => x.id == this.regsel);
+  let objCalendar:Calendario[] = this.calendarios.filter(x => x.id == this.regsel!.id);
   this.especial = objCalendar[0].especial; 
   this.arr_pedidos = JSON.parse(objCalendar[0].jdata);
  this.getItemsSel(objCalendar[0].id);

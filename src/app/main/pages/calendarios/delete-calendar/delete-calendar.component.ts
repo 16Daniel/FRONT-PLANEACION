@@ -14,6 +14,7 @@ import { Calendario, CalendarioUpdate } from '../../../../Interfaces/Calendario'
 import { Router } from '@angular/router';
 import { Item } from '../../../../Interfaces/Item';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'app-delete-calendar',
@@ -25,7 +26,8 @@ import { MultiSelectModule } from 'primeng/multiselect';
     SkeletonModule,
     ToastModule,
     DialogModule,
-    MultiSelectModule
+    MultiSelectModule,
+    DropdownModule
   ],
   providers:[MessageService],
   templateUrl: './delete-calendar.component.html',
@@ -53,12 +55,13 @@ export default class DeleteCalendarComponent {
   public resultados:boolean = false;
   public calendarios:Calendario[] = []; 
   public calendariosupdate:CalendarioUpdate[] = [];  
+  public calendariosselccionados:CalendarioUpdate[] = [];  
   public provseleccionado:boolean = false; 
 
   public catitems:Item[] = []; 
   public selecteditems:Item[] = []; 
   public especial:boolean = false; 
-  public regsel:number|undefined; 
+  public regsel:CalendarioUpdate|undefined; 
 
 
   constructor(public apiserv:ApiService,private messageService: MessageService,public cdr:ChangeDetectorRef,public router:Router)
@@ -160,9 +163,8 @@ export default class DeleteCalendarComponent {
 }
 
 
-async save():Promise<void>
+async save(id:number):Promise<void>
 {
-  let id:number = this.regsel!;
 return new Promise<void>((resolve, reject) => {
   this.apiserv.deleteCalendar(id).subscribe({
       next: (data) => {
@@ -203,9 +205,18 @@ return new Promise<void>((resolve, reject) => {
       return;
   }
 
+  if(this.calendariosselccionados.length==0)
+    {
+      this.showMessage('error','Error','Seleccionar uno o más calendarios para actualizar');
+        return;
+    }
+
   this.loading = true; 
 
-  await this.save(); 
+  for(let item of this.calendariosselccionados)
+    {
+      await this.save(item.id);
+    }
 
   if(this.errorsave)
   {
@@ -213,7 +224,7 @@ return new Promise<void>((resolve, reject) => {
     this.loading=false; 
   } else
   {
-
+this.calendariosselccionados=[]; 
     this.arr_pedidos = [];
     this.newarrsemana(); 
     this.loading=false; 
@@ -255,10 +266,10 @@ getCalendarios()
           let nomsuc = ""; 
           let sucursal = this.catsucursales.filter(x=> x.cod == item.codsucursal); 
           nomsuc = sucursal.length>0 ? sucursal[0].name:""; 
-          this.calendariosupdate.push({id:item.id,nombresuc:nomsuc});
+          this.calendariosupdate.push({id:item.id,nombresuc: item.id +' - '+nomsuc});
         }
 
-      this.regsel = this.calendariosupdate[0].id; 
+      this.regsel = this.calendariosupdate[0]; 
        this.arr_pedidos = JSON.parse(this.calendarios[0].jdata);
        this.especial = this.calendarios[0].especial; 
 
@@ -300,7 +311,7 @@ reloadComponent() {
 
 changeCalendar()
 {
-  let objCalendar:Calendario[] = this.calendarios.filter(x => x.id == this.regsel);
+  let objCalendar:Calendario[] = this.calendarios.filter(x => x.id == this.regsel!.id);
   this.especial = objCalendar[0].especial; 
   this.arr_pedidos = JSON.parse(objCalendar[0].jdata);
  this.getItemsSel(objCalendar[0].id);
