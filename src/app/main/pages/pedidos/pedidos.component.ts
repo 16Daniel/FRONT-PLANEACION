@@ -66,6 +66,10 @@ export default class PedidosComponent implements OnInit {
   public lineasrojas:ArticuloPedido[] = []; 
   public lineasrojassel:ArticuloPedido[] = []; 
 
+  public cartonesplaneacion:number =0; 
+  public diferenciacartones:number =0; 
+  public editarcartones:boolean = false; 
+  public cartonesupdate:number =0; 
   constructor(public apiserv:ApiService, public cdr:ChangeDetectorRef,private messageService: MessageService,private datePipe: DatePipe,private confirmationService: ConfirmationService)
   {
     this.userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
@@ -88,7 +92,6 @@ getPedidos()
        this.pedidos = data; 
        this.pedidosall = [...this.pedidos]; 
        this.loading = false; 
-       console.log(data);
        this.cdr.detectChanges();
     },
     error: error => {
@@ -131,6 +134,20 @@ getPedidos()
 
   detallesPedido(pedido:Pedido)
   {
+    this.cartonesplaneacion =0;
+    this.diferenciacartones =0;  
+    if(pedido.tieneretornables)
+      {
+        for(let item of pedido.articulos)
+          {
+            if(item.esretornable)
+              {
+                this.cartonesplaneacion = this.cartonesplaneacion + item.cajas; 
+              }
+          }
+          this.diferenciacartones = pedido.cartones - this.cartonesplaneacion;
+      }
+
       this.btnconfirmar = true
     for(let item of pedido.articulos)
       {
@@ -145,7 +162,7 @@ getPedidos()
       {
         this.showMessage('info',"Info","El pedido no se puede confirmar con líneas en negativo");
       }
-    
+    this.cdr.detectChanges(); 
   }
   
   showModalAdduds(item:ArticuloPedido)
@@ -1195,7 +1212,74 @@ tienelineasrojas(item:Pedido):boolean
     {
       tlr = true; 
     }
+
+    let cartonesplaneacion =0;
+    let diferenciacartones =0;  
+    if(item.tieneretornables)
+      {
+        for(let itemp of item.articulos)
+          {
+            if(itemp.esretornable)
+              {
+                cartonesplaneacion = this.cartonesplaneacion + itemp.cajas; 
+              }
+          }
+          diferenciacartones = item.cartones - cartonesplaneacion;
+      }
+
+      if(diferenciacartones<0)
+        {
+          tlr = true; 
+        }
   return tlr; 
+}
+
+showEditarCartones()
+{
+  this.editarcartones = true;
+  this.justificacion = "NO SE REALIZO EL INVENTARIO"; 
+  this.cartonesupdate = this.pedidosel!.cartones; 
+}
+
+cancelarEditarcartones()
+{
+  this.editarcartones = false;
+}
+
+updatecartones()
+{
+  this.loading = true;
+  this.apiserv.updateCartones(this.pedidosel!.id,this.cartonesupdate,this.justificacion).subscribe({
+    next: data => {
+      let i = this.pedidos.indexOf(this.pedidosel!); 
+      this.pedidosel!.cartones= this.cartonesupdate; 
+      this.pedidos[i] = this.pedidosel!; 
+      this.editarcartones = false; 
+      this.showMessage('success',"Success","Guardado correctamente"); 
+      this.loading = false;
+
+      this.cartonesplaneacion =0;
+      this.diferenciacartones =0;  
+      if(this.pedidosel!.tieneretornables)
+        {
+          for(let item of this.pedidosel!.articulos)
+            {
+              if(item.esretornable)
+                {
+                  this.cartonesplaneacion = this.cartonesplaneacion + item.cajas; 
+                }
+            }
+            this.diferenciacartones = this.pedidosel!.cartones - this.cartonesplaneacion;
+        }
+      this.cdr.detectChanges();
+      
+    },
+    error: error => {
+       console.log(error);
+       this.loading = false;
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
 }
 
 }

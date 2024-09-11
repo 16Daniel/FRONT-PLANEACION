@@ -12,6 +12,9 @@ export interface Pedido
     nombresucursal:string;
     status:number;
     rfc:string;
+    tieneretornables:boolean; 
+    cartones:number;
+    capturacartones:boolean; 
 }
 
 export interface PedidoH 
@@ -54,8 +57,9 @@ export interface ArticuloPedido
         arraycalendario:number[];
         diasespeciales:DiasEspecialSuc[]; 
 
-        calendarioespecial:boolean,
-        unidadesextra:number
+        calendarioespecial:boolean;
+        unidadesextra:number;
+        esretornable:boolean; 
 }
 
 export interface ConsumoModel

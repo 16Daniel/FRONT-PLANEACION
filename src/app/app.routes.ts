@@ -79,6 +79,11 @@ export const routes: Routes = [
             loadComponent: () => import('./main/pages/AsignarProveedores/AsignarProveedores.component')
         },
         {
+            path:'retornables',
+            title:'Retornables',
+            loadComponent: () => import('./main/pages/Cartones/Cartones.component')
+        },
+        {
             path: '',
             redirectTo: '/main/home',
             pathMatch: 'full'

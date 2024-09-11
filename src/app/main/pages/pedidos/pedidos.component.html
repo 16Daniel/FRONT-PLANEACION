@@ -130,6 +130,42 @@
         </div>
 
       </div>
+
+      <div class="d-flex justify-content-center" *ngIf="pedidosel != undefined && pedidosel!.tieneretornables">
+        <div class="p-3">
+          <p>CARTONES PLANEACIÓN</p>
+          <p class="bg-g-l p-1 rounded-3">{{cartonesplaneacion | number : '1.2-2'}}</p> 
+        </div>
+        <div class="p-3">
+          <p>CARTONES DISPONIBLES</p>
+          @if (pedidosel.capturacartones)
+          {
+            <p class="bg-g-l p-1 rounded-3" *ngIf="editarcartones==false">{{pedidosel.cartones}}</p> 
+            <input type="number" class="form-control text-center" [(ngModel)]="cartonesupdate" *ngIf="editarcartones">
+          } @else 
+          {
+            <p class="bg-g-l p-1 rounded-3">SIN CAPTURA</p> 
+          }
+          <div *ngIf="editarcartones">
+            <div class="m-1">JUSTIFICACIÓN</div>
+            <select class="form-select mb-3" [(ngModel)]="justificacion">
+              <option value="NO SE REALIZO EL INVENTARIO">NO SE REALIZO EL INVENTARIO</option>
+              <option value="MAL CONTEO DEL PRODUCTO">MAL CONTEO DEL PRODUCTO</option>
+              <option value="CARTONES POR CONSUMIR">CARTONES POR CONSUMIR</option> 
+            </select>
+          </div>
+          
+          <button class="btn bg-p-b" *ngIf="editarcartones == false" (click)="showEditarCartones()"><i class='bx bx-edit'></i></button>
+          <div class="d-flex justify-content-center gap-3" *ngIf="editarcartones">
+            <button class="btn bg-p-b" *ngIf="editarcartones" (click)="updatecartones()">ACTUALIZAR</button>
+            <button class="btn bg-p-b" *ngIf="editarcartones" (click)="cancelarEditarcartones()">CANCELAR</button>
+          </div>
+        </div>
+        <div class="p-3">
+          <p>DIFERENCIA</p>
+          <p class="bg-g-l p-1 rounded-3">{{diferenciacartones | number : '1.2-2'}}</p> 
+        </div>
+      </div>
     </div>
 
     <H5 class="text-center mt-3">ARTICULOS</H5>
@@ -149,7 +185,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let item of pedidosel?.articulos" [ngClass]="{'table-danger': item.total_linea <=0}">
+        <tr *ngFor="let item of pedidosel?.articulos" [ngClass]="{'table-danger': item.total_linea <=0 || diferenciacartones<0}">
           <th>{{item.nombre}}</th>
           <td>{{item.cajas}}</td>
           <td *ngIf="item.tienemultiplo == true">{{item.unidadescaja}}</td>
@@ -429,6 +465,7 @@
       <option value="VENTA EXTRAODINARIA">VENTA EXTRAODINARIA</option>
       <option value="STOCK POR ENCIMA DEL CONSUMO PROYECTADO">STOCK POR ENCIMA DEL CONSUMO PROYECTADO</option>
       <option value="STOCK EXACTO PARA CUBRIR VENTA">STOCK EXACTO PARA CUBRIR VENTA</option>
+      <option value="CARTONES INSUFICIENTES">CARTONES INSUFICIENTES</option>
     </select>
   </div>
   

@@ -17,6 +17,7 @@ import { Rol } from '../Interfaces/Rol';
 import { Ruta } from '../Interfaces/Ruta';
 import { Usuario, UsuarioLogin } from '../Interfaces/Usuario';
 import { Asignacion } from '../Interfaces/Asignacion.';
+import { Retornable } from '../Interfaces/Retornable.';
 
 @Injectable({
   providedIn: 'root'
@@ -429,7 +430,33 @@ export class ApiService {
       return this.http.get<any>(this.url+`Usuarios/logout/${idu}`,{headers:this.headers})
    }
 
+   saveRetornable(data:any):Observable<any>
+   {
+      return this.http.post<any>(this.url+'Retornables/AgregarArticulo',data,{headers:this.headers})
+   }
 
+   getDataRetornables():Observable<Retornable[]>
+   {
+      return this.http.get<Retornable[]>(this.url+`Retornables/getData`,{headers:this.headers})
+   }
+
+   deleteRetornable(id:number):Observable<any>
+   {
+      return this.http.delete<any>(this.url+`Retornables/DeleteArt/${id}`,{headers:this.headers})
+   }
+
+   updateCartones(idp:number,cartones:number,justificacion:string):Observable<any>
+   {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      let formdata = new FormData();
+      formdata.append("idu",idu); 
+      formdata.append("cartones",cartones.toString()); 
+      formdata.append("justificacion",justificacion); 
+      formdata.append("idp",idp.toString()); 
+
+      return this.http.post<any>(this.url+`Pedidos/UpdateCartonesPedido`,formdata,{headers:this.headers})
+   }
 
 }
 
