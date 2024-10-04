@@ -99,7 +99,8 @@
           <div class="mt-3 d-flex justify-content-end gap-3">
             <button class="btn bg-p-b p-3" (click)="confirmarrechazar($event)" [disabled]="loading == true || pedidosseleccionados.length == 0">RECHAZAR SELECCIONADOS</button>
             <button class="btn bg-p-b p-3" (click)="confirmartodo($event)" [disabled]="loading">ACEPTAR TODO</button>
-            <button class="btn bg-p-b p-3" (click)="refreshpedidos();" [disabled]="btnrefresh"><i class='bx bx-refresh bx-sm' ></i></button>
+            <!-- <button class="btn bg-p-b p-3" (click)="refreshpedidos();" [disabled]="btnrefresh"><i class='bx bx-refresh bx-sm' ></i></button> -->
+            <button class="btn bg-p-b p-3" (click)="opr.toggle($event)"><i class='bx bx-refresh bx-sm'></i></button>
           </div>
         </div>
       </div>
@@ -134,7 +135,7 @@
       <div class="d-flex justify-content-center" *ngIf="pedidosel != undefined && pedidosel!.tieneretornables">
         <div class="p-3">
           <p>CARTONES PLANEACIÓN</p>
-          <p class="bg-g-l p-1 rounded-3">{{cartonesplaneacion | number : '1.2-2'}}</p> 
+          <p class="bg-g-l p-1 rounded-3">{{pedidosel.cartonesplaneacion | number : '1.2-2'}}</p> 
         </div>
         <div class="p-3">
           <p>CARTONES DISPONIBLES</p>
@@ -163,7 +164,7 @@
         </div>
         <div class="p-3">
           <p>DIFERENCIA</p>
-          <p class="bg-g-l p-1 rounded-3">{{diferenciacartones | number : '1.2-2'}}</p> 
+          <p class="bg-g-l p-1 rounded-3">{{pedidosel.diferenciacartones | number : '1.2-2'}}</p> 
         </div>
       </div>
     </div>
@@ -180,12 +181,13 @@
           <th scope="col">IMPUESTO</th>
           <th scope="col">PRECIO</th>
           <th scope="col">TOTAL</th>
+          <th scope="col" *ngIf="pedidosel?.tieneretornables">RETORNABLE</th>
           <th scope="col">COMENTARIOS</th>
           <th scope="col"></th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let item of pedidosel?.articulos" [ngClass]="{'table-danger': item.total_linea <=0 || diferenciacartones<0}">
+        <tr *ngFor="let item of pedidosel?.articulos" [ngClass]="{'table-danger': item.total_linea <=0 || pedidosel!.diferenciacartones!<0}">
           <th>{{item.nombre}}</th>
           <td>{{item.cajas}}</td>
           <td *ngIf="item.tienemultiplo == true">{{item.unidadescaja}}</td>
@@ -194,6 +196,13 @@
           <td>{{item.tipoImpuesto}}</td>
           <td>{{item.precio | number : '1.2-2'}}</td>
           <td>{{item.total_linea | number : '1.2-2'}}</td>
+
+          @if (pedidosel?.tieneretornables)
+          {
+            <td *ngIf=" item.esretornable"><i class='bx bx-check-circle bx-sm text-success'></i></td>
+            <td *ngIf="item.esretornable == false"><i class='bx bx-x-circle bx-sm text-danger'></i></td>
+          }
+
           @if (item.tienemultiplo == false && item.hayinventario==false)
            {
             <td>FALTA UNIDAD DE MEDIDA<br>
@@ -501,11 +510,65 @@
   
 </p-dialog>
 
-
-
-
-
-
-
 <p-confirmDialog></p-confirmDialog>
 <p-toast [breakpoints]="{'920px': {width: '100%', right: '0', left: '0'}}" [showTransformOptions]="'translateY(100%)'" [showTransitionOptions]="'500ms'" [hideTransitionOptions]="'500ms'" [showTransformOptions]="'translateX(100%)'"></p-toast>
+
+
+<p-overlayPanel #opr>
+  <div class="justify-content-center p-3 rounded-3">
+      <p class="text-center fw-bold">RECALCULAR PEDIDOS</p>
+
+<div class="d-flex justify-content-center">
+  <div class="d-flex flex-wrap gap-3">
+      <div class="d-flex align-items-center">
+          <p-radioButton 
+              name="op1" 
+              value="1" 
+              [(ngModel)]="oprecalcular" 
+              inputId="rop1" />
+          <label for="rop1" class="ml-2">
+              TODOS
+          </label>
+      </div>
+      
+      <div class="d-flex align-items-center">
+          <p-radioButton 
+              name="op2" 
+              value="2" 
+              [(ngModel)]="oprecalcular" 
+              inputId="rop2" />
+          <label for="rop2" class="ml-2">
+              FILTRAR
+          </label>
+      </div>
+  </div>
+</div>
+
+<div class="p-3">
+  <div class="row mb-3">
+    <div class="col-6">
+      <p class="mt-3" >PROVEDOR</p>
+      <select class="form-select" [(ngModel)]="recfiltroproveedor" [disabled]="oprecalcular == 1">
+        <input type="text">
+        <option value="-999">TODOS</option>
+          <option *ngFor="let item of catproveedores" [value]="item.codproveedor">{{item.codproveedor +' - '+item.nombre}}</option>
+      </select>
+    </div>
+
+    <div class="col-6">
+      <p class="mt-3" >SUCURSAL</p>
+      <select class="form-select" [(ngModel)]="recfiltrosucursal" [disabled]="oprecalcular == 1">
+        <option value="-999">TODOS</option>
+          <option *ngFor="let item of catsucursales" [value]="item.cod">{{item.name}}</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="d-flex justify-content-center p-3">
+  <button class="btn bg-p-b p-2" (click)="refreshpedidos();" *ngIf="oprecalcular == 1"><i class='bx bx-play'></i>&nbsp;RECALCULAR</button>
+  <button class="btn bg-p-b p-2" (click)="refreshpedidosF();" *ngIf="oprecalcular == 2"><i class='bx bx-play'></i>&nbsp;RECALCULAR</button>
+</div>
+
+  </div>
+</p-overlayPanel>

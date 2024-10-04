@@ -6,7 +6,7 @@ import { Sucursal } from '../Interfaces/Sucursal';
 import { Proveedor } from '../Interfaces/Proveedor';
 import { Item } from '../Interfaces/Item';
 import { Consumo } from '../Interfaces/Consumo';
-import { Calendario } from '../Interfaces/Calendario';
+import { Calendario, CalendarioTemporal } from '../Interfaces/Calendario';
 import { DiasEspecial,DiasEspecialSuc,respuestaDiaEspecial } from '../Interfaces/DiasEspecial';
 import { Inventario } from '../Interfaces/inventario';
 import { Pedido, PedidoH } from '../Interfaces/pedido';
@@ -18,6 +18,7 @@ import { Ruta } from '../Interfaces/Ruta';
 import { Usuario, UsuarioLogin } from '../Interfaces/Usuario';
 import { Asignacion } from '../Interfaces/Asignacion.';
 import { Retornable } from '../Interfaces/Retornable.';
+import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 
 @Injectable({
   providedIn: 'root'
@@ -152,11 +153,26 @@ export class ApiService {
       return this.http.get<Pedido[]>(this.url+`Pedidos/getPedidos/${idu}`,{headers:this.headers})
    }
 
+   getPedidosT():Observable<Pedido[]>
+   {
+
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      return this.http.get<Pedido[]>(this.url+`PedidoTemporal/getPedidos/${idu}`,{headers:this.headers})
+   }
+
    refreshPedidos():Observable<Pedido[]>
    {
       let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
       let idu = userdata.id; 
       return this.http.get<Pedido[]>(this.url+`Pedidos/getPedidosHoy/${idu}`,{headers:this.headers})
+   }
+
+   refreshPedidosT():Observable<Pedido[]>
+   {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      return this.http.get<Pedido[]>(this.url+`PedidoTemporal/getPedidosHoy/${idu}`,{headers:this.headers})
    }
 
    saveumedida(data:any):Observable<any>
@@ -261,6 +277,16 @@ export class ApiService {
       return this.http.post<Pedido[]>(this.url+`Pedidos/getPedidosFecha`,formdata,{headers:this.headers})
    }
 
+   getPedidosTF(fechap:Date):Observable<Pedido[]>
+   {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      let formdata = new FormData();
+      formdata.append("fecha",fechap.toString());
+      formdata.append("idu",idu)
+      return this.http.post<Pedido[]>(this.url+`PedidoTemporal/getPedidosFecha`,formdata,{headers:this.headers})
+   }
+
    getItemprovp(idp:number):Observable<Item[]>
    {
       return this.http.get<Item[]>(this.url+`Catalogos/getItemsprovPlaneacion/${idp}`,{headers:this.headers})
@@ -350,6 +376,21 @@ export class ApiService {
             formdata.append("fecha",fecha.toString());
          }
       return this.http.post<any>(this.url+`Pedidos/AceptarTodo`,formdata,{headers:this.headers})
+   }
+
+   AceptaroTodosLosPedidosT(idprov:number,idsuc:number,fecha:Date|undefined):Observable<any>
+   {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      let formdata = new FormData();
+      formdata.append("proveedor",idprov.toString());
+      formdata.append("sucursal",idsuc.toString());
+      formdata.append("idu",idu); 
+      if(fecha != undefined)
+         {
+            formdata.append("fecha",fecha.toString());
+         }
+      return this.http.post<any>(this.url+`PedidoTemporal/AceptarTodo`,formdata,{headers:this.headers})
    }
 
    registroNotificacion(resp:number):Observable<any>
@@ -456,6 +497,41 @@ export class ApiService {
       formdata.append("idp",idp.toString()); 
 
       return this.http.post<any>(this.url+`Pedidos/UpdateCartonesPedido`,formdata,{headers:this.headers})
+   }
+
+   refreshPedidosf(filtroprov:number,filtrosuc:number):Observable<any>
+   {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      let formdata = new FormData();
+      formdata.append("idu",idu); 
+      formdata.append("filtroproveedor",filtroprov.toString()); 
+      formdata.append("filtrosucursal",filtrosuc.toString()); 
+
+      return this.http.post<any>(this.url+`Pedidos/recalcularpedidos`,formdata,{headers:this.headers})
+   }
+
+   refreshPedidosTf(filtroprov:number,filtrosuc:number):Observable<any>
+   {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      let formdata = new FormData();
+      formdata.append("idu",idu); 
+      formdata.append("filtroproveedor",filtroprov.toString()); 
+      formdata.append("filtrosucursal",filtrosuc.toString()); 
+
+      return this.http.post<any>(this.url+`PedidoTemporal/recalcularpedidos`,formdata,{headers:this.headers})
+   }
+
+   getCalendariosTemporales():Observable<CalendarioTemporal[]>
+   {
+      return this.http.get<CalendarioTemporal[]>(this.url+`Calendarios/getCalendariosTemporales`,{headers:this.headers})
+   }
+
+   
+   deleteCalendariosTemporales(jdata:string):Observable<any>
+   {
+      return this.http.delete<any>(this.url+`Calendarios/deleteCalendariostemporales/${jdata}`,{headers:this.headers})
    }
 
 }

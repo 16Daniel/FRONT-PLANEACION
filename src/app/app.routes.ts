@@ -39,6 +39,11 @@ export const routes: Routes = [
             loadComponent: () => import('./main/pages/pedidos/pedidos.component')
         },
         {
+            path:'pedidos-temp',
+            title:'Pedidos',
+            loadComponent: () => import('./main/pages/PedidoTemporal/PedidoTemporal.component')
+        },
+        {
             path:'edit-calendar',
             title:'Agregar calendario',
             loadComponent: () => import('./main/pages/calendarios/edit-calendar/edit-calendar.component')
@@ -47,6 +52,11 @@ export const routes: Routes = [
             path:'delete-calendar',
             title:'Agregar calendario',
             loadComponent: () => import('./main/pages/calendarios/delete-calendar/delete-calendar.component')
+        },
+        {
+            path:'calendar-temp',
+            title:'Agregar calendario',
+            loadComponent: () => import('./main/pages/calendarios/Temporales/Temporales.component')
         },
         {
             path:'especial-day',
@@ -82,6 +92,11 @@ export const routes: Routes = [
             path:'retornables',
             title:'Retornables',
             loadComponent: () => import('./main/pages/Cartones/Cartones.component')
+        },
+        {
+            path:'almacenaje',
+            title:'Almacenaje',
+            loadComponent: () => import('./main/pages/Almacen/Almacen.component')
         },
         {
             path: '',

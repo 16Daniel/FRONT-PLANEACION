@@ -1,7 +1,7 @@
 <nav class="navbar">
   <div class="logo_item">
     <i class="bx bx-menu" id="sidebarOpen"></i>
-   REBEL WINGS V1.27
+   REBEL WINGS V1.31
   </div>
   <div *ngIf="mensaje" class="p-1 bg-danger w-auto rounded-3 text-light fw-bold">
     ⚠️ HOY ES VIERNES: HOY SE TIENE QUE CARGAR LOS DÍAS ESPECIALES (SUCURSAL / ARTÍCULO) DE LA SIGUIENTE SEMANA</div>
@@ -122,6 +122,19 @@
         </a>
       </li>
 
+      <li class="item" *ngIf="comprobaracceso('/main/orders')">
+        <a
+        [routerLink]="'pedidos-temp'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-list-ul' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Pedidos Temporales</span>
+        </a>
+      </li>
+
+
       <li class="item" *ngIf="comprobaracceso('/main/h-orders')">
         <a
         [routerLink]="'h-orders'"
@@ -155,6 +168,18 @@
             <i class='bx bx-transfer-alt' [routerLinkActive]="'text-light'"></i>
           </span>
           <span class="navlink" [routerLinkActive]="'text-light'">Retornables</span>
+        </a>
+      </li>
+
+      <li class="item" *ngIf="comprobaracceso('/main/almacenaje')">
+        <a
+        [routerLink]="'almacenaje'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-store' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Almacenaje</span>
         </a>
       </li>
 
@@ -193,6 +218,18 @@
             <i class='bx bx-calendar-x' [routerLinkActive]="'text-light'"></i>
           </span>
           <span class="navlink" [routerLinkActive]="'text-light'">Eliminar</span>
+        </a>
+      </li>
+
+      <li class="item">
+        <a
+        [routerLink]="'calendar-temp'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-time' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Temporales</span>
         </a>
       </li>
 

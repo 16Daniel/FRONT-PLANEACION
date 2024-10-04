@@ -53,16 +53,20 @@ export default class AsignarProveedoresComponent {
   constructor(public apiserv:ApiService,private messageService: MessageService,public cdr:ChangeDetectorRef, private config: PrimeNGConfig,
     private confirmationService: ConfirmationService)
   {
-    this.getAsignaciones(); 
-    this.getProveedores();
-    this.getSucursales();
-    this.getusuarios(); 
+    
   }
 
   showMessage(sev:string,summ:string,det:string) {
     this.messageService.add({ severity: sev, summary: summ, detail: det });
 }
-  ngOnInit(): void { }
+  ngOnInit(): void 
+  {
+    this.getAsignaciones(); 
+    this.getProveedores();
+    this.getSucursales();
+    this.getusuarios(); 
+
+   }
 
 
   showAgregar()
@@ -237,7 +241,7 @@ export default class AsignarProveedoresComponent {
 
  seleccionartodo()
  {
-
+    this.registrosseleccionados = []; 
     for(let item of this.elementosfiltrados)
       {
         this.registrosseleccionados.push(item.id);

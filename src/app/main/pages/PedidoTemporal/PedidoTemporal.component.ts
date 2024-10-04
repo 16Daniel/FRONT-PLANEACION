@@ -17,8 +17,9 @@ import { UsuarioLogin } from '../../../Interfaces/Usuario';
 import { CheckboxModule } from 'primeng/checkbox';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { RadioButtonModule } from 'primeng/radiobutton';
+
 @Component({
-  selector: 'app-pedidos',
+  selector: 'app-pedido-temporal',
   standalone: true,
   imports: [
     CommonModule,
@@ -31,9 +32,9 @@ import { RadioButtonModule } from 'primeng/radiobutton';
     RadioButtonModule
   ],
   providers:[MessageService,DatePipe,ConfirmationService],
-  templateUrl: './pedidos.component.html',
+  templateUrl: './PedidoTemporal.component.html',
 })
-export default class PedidosComponent implements OnInit {
+export default class PedidoTemporalComponent implements OnInit {
   public catsucursales:Sucursal[] = [];
   public catproveedores:Proveedor[] = [];
   public proveedorsel:number = -999; 
@@ -95,7 +96,7 @@ export default class PedidosComponent implements OnInit {
 
 getPedidos()
 {
-  this.apiserv.getPedidos().subscribe({
+  this.apiserv.getPedidosT().subscribe({
     next: data => {
        this.pedidos = data; 
 
@@ -348,7 +349,7 @@ updatepedido()
       //this.verpedido = false; 
       if(this.filtrofecha == undefined)
         {
-                  this.apiserv.getPedidos().subscribe({
+                  this.apiserv.getPedidosT().subscribe({
                     next: data => {
                       this.pedidos = data; 
                       this.calcularcartones(); 
@@ -386,7 +387,7 @@ updatepedido()
         {
           this.loading = true;
 
-                this.apiserv.getPedidosF(this.filtrofecha).subscribe({
+                this.apiserv.getPedidosTF(this.filtrofecha).subscribe({
                   next: data => {
                     this.pedidos = data; 
                     this.calcularcartones(); 
@@ -501,7 +502,7 @@ refreshpedidos()
 
       if(data.status == 0)
         {
-          this.apiserv.refreshPedidos().subscribe({
+          this.apiserv.refreshPedidosT().subscribe({
             next: data => {
               this.showMessage('success',"Success","Lista de pedidos actualizada");
               this.btnrefresh = false; 
@@ -709,7 +710,7 @@ guardarac()
             this.comentarioajuste= ''; 
             if(this.filtrofecha == undefined)
               {
-                        this.apiserv.getPedidos().subscribe({
+                        this.apiserv.getPedidosT().subscribe({
                           next: data => {
                             this.pedidos = data; 
                             this.calcularcartones(); 
@@ -738,7 +739,7 @@ guardarac()
               {
                 this.loading = true;
   
-                      this.apiserv.getPedidosF(this.filtrofecha).subscribe({
+                      this.apiserv.getPedidosTF(this.filtrofecha).subscribe({
                         next: data => {
                           this.pedidos = data; 
                           this.calcularcartones(); 
@@ -793,7 +794,7 @@ borrarajuste()
       this.tieneajustefinal = false; 
       if(this.filtrofecha == undefined)
         {
-                  this.apiserv.getPedidos().subscribe({
+                  this.apiserv.getPedidosT().subscribe({
                     next: data => {
                       this.pedidos = data; 
                       this.calcularcartones(); 
@@ -830,7 +831,7 @@ borrarajuste()
         {
           this.loading = true;
 
-                this.apiserv.getPedidosF(this.filtrofecha).subscribe({
+                this.apiserv.getPedidosTF(this.filtrofecha).subscribe({
                   next: data => {
                     this.pedidos = data; 
                     this.calcularcartones(); 
@@ -882,7 +883,7 @@ getpedidosFecha()
       return;
     }
 
-    this.apiserv.getPedidosF(this.filtrofecha).subscribe({
+    this.apiserv.getPedidosTF(this.filtrofecha).subscribe({
       next: data => {
         this.pedidos = data; 
         this.calcularcartones(); 
@@ -940,7 +941,7 @@ aceptartodoBack()
       {
         sucursal = this.sucursal; 
       }
-  this.apiserv.AceptaroTodosLosPedidos(proveedor,sucursal,this.filtrofecha).subscribe({
+  this.apiserv.AceptaroTodosLosPedidosT(proveedor,sucursal,this.filtrofecha).subscribe({
     next: data => {
       this.loading = false; 
       if(this.filtrofecha == undefined)
@@ -1130,7 +1131,7 @@ EliminarLineaencero(idpedido:number,codart:number)
     next: data => {
       if(this.filtrofecha == undefined)
         {
-                  this.apiserv.getPedidos().subscribe({
+                  this.apiserv.getPedidosT().subscribe({
                     next: data => {
                       this.pedidos = data; 
                       this.calcularcartones(); 
@@ -1159,7 +1160,7 @@ EliminarLineaencero(idpedido:number,codart:number)
         {
           this.loading = true;
 
-                this.apiserv.getPedidosF(this.filtrofecha).subscribe({
+                this.apiserv.getPedidosTF(this.filtrofecha).subscribe({
                   next: data => {
                     this.pedidos = data; 
                     this.calcularcartones(); 
@@ -1228,7 +1229,7 @@ eliminarlineas()
          // this.verpedido = false; 
           if(this.filtrofecha == undefined)
             {
-                      this.apiserv.getPedidos().subscribe({
+                      this.apiserv.getPedidosT().subscribe({
                         next: data => {
                           this.pedidos = data; 
                           this.calcularcartones(); 
@@ -1257,7 +1258,7 @@ eliminarlineas()
             {
               this.loading = true;
 
-                    this.apiserv.getPedidosF(this.filtrofecha).subscribe({
+                    this.apiserv.getPedidosTF(this.filtrofecha).subscribe({
                       next: data => {
                         this.pedidos = data; 
                         this.calcularcartones(); 
@@ -1357,7 +1358,7 @@ updatecartones()
 
       if(this.filtrofecha == undefined)
         {
-                  this.apiserv.getPedidos().subscribe({
+                  this.apiserv.getPedidosT().subscribe({
                     next: data => {
                       this.pedidos = data; 
                       this.calcularcartones(); 
@@ -1395,7 +1396,7 @@ updatecartones()
         {
           this.loading = true;
 
-                this.apiserv.getPedidosF(this.filtrofecha).subscribe({
+                this.apiserv.getPedidosTF(this.filtrofecha).subscribe({
                   next: data => {
                     this.pedidos = data; 
                     this.calcularcartones(); 
@@ -1448,7 +1449,7 @@ refreshpedidosF()
 
       if(data.status == 0)
         {
-          this.apiserv.refreshPedidosf(this.recfiltroproveedor,this.recfiltrosucursal).subscribe({
+          this.apiserv.refreshPedidosTf(this.recfiltroproveedor,this.recfiltrosucursal).subscribe({
             next: data => {
               this.showMessage('success',"Success","Lista de pedidos actualizada");
               this.btnrefresh = false; 
@@ -1480,5 +1481,4 @@ refreshpedidosF()
 });
 
 }   
-
 }

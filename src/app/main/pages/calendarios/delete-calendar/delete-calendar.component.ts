@@ -61,6 +61,7 @@ export default class DeleteCalendarComponent {
   public catitems:Item[] = []; 
   public selecteditems:Item[] = []; 
   public especial:boolean = false; 
+  public temporal:boolean = false; 
   public regsel:CalendarioUpdate|undefined; 
 
 
@@ -266,12 +267,14 @@ getCalendarios()
           let nomsuc = ""; 
           let sucursal = this.catsucursales.filter(x=> x.cod == item.codsucursal); 
           nomsuc = sucursal.length>0 ? sucursal[0].name:""; 
-          this.calendariosupdate.push({id:item.id,nombresuc: item.id +' - '+nomsuc});
+          let strtemporal = item.temporal == true ? ' - TEMPORAL':''
+          this.calendariosupdate.push({id:item.id,nombresuc: item.id +' - '+nomsuc+strtemporal});
         }
 
       this.regsel = this.calendariosupdate[0]; 
        this.arr_pedidos = JSON.parse(this.calendarios[0].jdata);
        this.especial = this.calendarios[0].especial; 
+       this.temporal = this.calendarios[0].temporal; 
 
        let ids:number[]=[];
        for(let item of this.calendarios)
@@ -313,6 +316,7 @@ changeCalendar()
 {
   let objCalendar:Calendario[] = this.calendarios.filter(x => x.id == this.regsel!.id);
   this.especial = objCalendar[0].especial; 
+  this.temporal = objCalendar[0].temporal; 
   this.arr_pedidos = JSON.parse(objCalendar[0].jdata);
  this.getItemsSel(objCalendar[0].id);
 }

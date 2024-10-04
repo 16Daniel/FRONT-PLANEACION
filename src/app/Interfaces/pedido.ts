@@ -15,6 +15,8 @@ export interface Pedido
     tieneretornables:boolean; 
     cartones:number;
     capturacartones:boolean; 
+    cartonesplaneacion:number|undefined;
+    diferenciacartones:number|undefined; 
 }
 
 export interface PedidoH 
