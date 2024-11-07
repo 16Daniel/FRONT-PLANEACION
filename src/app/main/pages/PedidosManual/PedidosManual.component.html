@@ -1,0 +1,183 @@
+<h3 class="text-center mt-3 mb-3">PEDIDOS SUCURSAL</h3> 
+
+<div class="p-3 mt-3">
+    <button class="btn bg-p-b p-3" (click)="openmodaladd()" [disabled]="loading"><i class='bx bx-plus-circle' ></i> AGREGAR PEDIDO</button>
+    <button class="btn bg-p-b p-3 ms-3" (click)="openmodalconfig()" ><i class='bx bx-cog'></i> CONFIGURACIÓN</button>
+</div>
+
+
+<p-dialog 
+    header="AGREGAR PEDIDO" 
+    [modal]="true"
+    [(visible)]="modalagregar" 
+    [style]="{ width: '70rem' }" 
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
+    [maximizable]="true">
+  <div>
+    <p-dropdown 
+    [options]="catproveedores"
+    [(ngModel)]="provsel"
+    optionLabel="nombre"
+    [filter]="true"
+    filterBy="nombre" 
+    [showClear]="false"
+    placeholder="SELECCIONAR PROVEEDOR"
+    [style]="{'width':'100%'}"
+    (onChange)="getItemsprovpedsuc()"
+    >
+</p-dropdown>
+<p></p>
+    <p-dropdown 
+    [options]="catsucursales"
+    [(ngModel)]="sucursalsel"
+    optionLabel="name"
+    [filter]="true"
+    filterBy="nombre" 
+    [showClear]="false"
+    placeholder="SELECCIONAR SUCURSAL"
+    [style]="{'width':'100%'}"
+    (onChange)="getItemsprovpedsuc()"
+     [disabled]="true"
+    >
+</p-dropdown>
+<P></P>
+<p-multiSelect 
+[options]="catitems" 
+[(ngModel)]="selecteditems" 
+placeholder="SELECCIONAR ARTÍCULOS"
+optionLabel="descripcion" 
+[style]="{'width':'100%'}"
+[disabled]="sucursalsel == undefined"
+></p-multiSelect>
+
+<p></p>
+<p></p>
+
+<div style="min-height: 200px;">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">COD</th>
+        <th scope="col">ARTÍCULO</th>
+        <th scope="col">CANTIDAD</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of selecteditems">
+        <td>{{item.cod}}</td>
+        <td>{{item.descripcion}}</td>
+        <td><input type="number" value="0" class="form-control p-1 text-center"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<button class="btn bg-p-b p-3" [disabled]="provsel == undefined || sucursalsel == undefined || selecteditems.length ==0 " ><i class='bx bx-save'></i> GUARDAR</button>
+  </div>
+</p-dialog>
+
+<p-dialog 
+    header="CONFIGURACIÓN" 
+    [modal]="true"
+    [(visible)]="modalconfig" 
+    [style]="{ width: '70rem' }" 
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
+    [maximizable]="true">
+  <div style="min-height: 400px;">
+    <div class="d-flex justify-content-center" *ngIf="loading2">
+      <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+    </div>
+
+    <p-dropdown 
+    [options]="catproveedoresconf"
+    [(ngModel)]="provselconf"
+    optionLabel="nombre"
+    [filter]="true"
+    filterBy="nombre" 
+    [showClear]="false"
+    placeholder="SELECCIONAR PROVEEDOR"
+    [style]="{'width':'100%'}"
+    >
+</p-dropdown>
+
+<div class="mt-3">
+  <button class="btn bg-p-b p-3" [disabled]="provselconf == undefined" (click)="agregarprov()"><i class='bx bx-plus'></i> AGREGAR</button>
+</div>
+<p></p>
+<p></p>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">COD</th>
+      <th scope="col">NOMBRE</th>
+      <th scope="col">RFC</th>
+      <th scope="col"></th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of catproveedores">
+      <th>{{item.codproveedor}}</th>
+      <td>{{item.nombre}}</td>
+      <td>{{item.rfc}}</td>
+      <td><button class="btn btn-primary" (click)="openmodalconfigarts(item)"><i class='bx bx-edit'></i></button></td>
+      <td><button class="btn btn-danger" (click)="deleteprovpedsuc(item.codproveedor)"><i class='bx bx-trash' ></i></button></td>
+    </tr>
+  </tbody>
+</table>
+
+  </div>
+</p-dialog>
+
+
+<p-dialog 
+    header="ARTÍCULOS" 
+    [modal]="true"
+    [(visible)]="modalconfigarts" 
+    [style]="{ width: '70rem' }" 
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
+    [maximizable]="true">
+  <div style="min-height: 400px;" *ngIf="itemprovarts != undefined">
+    <div class="d-flex justify-content-center" *ngIf="loading3">
+      <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+    </div>
+    <h4 class="text-center">{{itemprovarts!.nombre}}</h4>
+
+    <p-multiSelect 
+    [options]="catitemsconf" 
+    [(ngModel)]="selecteditemsconf" 
+    placeholder="SELECCIONAR ARTÍCULOS"
+    optionLabel="descripcion" 
+    [style]="{'width':'100%'}"
+    ></p-multiSelect>
+
+    
+    <p></p>
+<p></p>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">COD</th>
+      <th scope="col">NOMBRE</th>
+      <th scope="col">MARCA</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of selecteditemsconf">
+      <th>{{item.cod}}</th>
+      <td>{{item.descripcion}}</td>
+      <td>{{item.marca}}</td>
+    </tr>
+  </tbody>
+</table>
+
+
+    <div class="mt-3 d-flex justify-content-end">
+      <button class="btn bg-p-b p-3" [disabled]="selecteditemsconf.length == 0" (click)="agregaritemsprov()"><i class='bx bx-save'></i> GUARDAR</button>
+    </div>
+  </div>
+</p-dialog>
+
+
+<p-confirmDialog></p-confirmDialog>
+<p-toast [breakpoints]="{'920px': {width: '100%', right: '0', left: '0'}}" [showTransformOptions]="'translateY(100%)'" [showTransitionOptions]="'500ms'" [hideTransitionOptions]="'500ms'" [showTransformOptions]="'translateX(100%)'"></p-toast>

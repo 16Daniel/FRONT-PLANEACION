@@ -207,7 +207,7 @@ export default class EditCalendarComponent {
 
 async save(idc:number):Promise<void>
 {
-
+ debugger
   let reg = this.calendarios.filter(x => x.id == idc)
   const data =
   {
@@ -216,8 +216,14 @@ async save(idc:number):Promise<void>
     Codproveedor: this.proveedorsel,
     Jdata: JSON.stringify(this.arr_pedidos),
     articulos: JSON.stringify(this.selecteditems),
-    Especial: this.especial
+    Especial: this.especial,
+    temporal: this.temporal
   }
+
+  if(data.temporal==null)
+    {
+      data.temporal = false; 
+    }
 
 return new Promise<void>((resolve, reject) => {
   this.apiserv.updateCalendar(data).subscribe({

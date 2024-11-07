@@ -1,7 +1,7 @@
 <nav class="navbar">
   <div class="logo_item">
     <i class="bx bx-menu" id="sidebarOpen"></i>
-   REBEL WINGS V1.31
+   REBEL WINGS V1.34
   </div>
   <div *ngIf="mensaje" class="p-1 bg-danger w-auto rounded-3 text-light fw-bold">
     ⚠️ HOY ES VIERNES: HOY SE TIENE QUE CARGAR LOS DÍAS ESPECIALES (SUCURSAL / ARTÍCULO) DE LA SIGUIENTE SEMANA</div>
@@ -183,6 +183,44 @@
         </a>
       </li>
 
+      <li class="item" *ngIf="comprobaracceso('/main/descuentos')">
+        <a
+        [routerLink]="'descuentos'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-dollar-circle' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Descuentos</span>
+        </a>
+      </li>
+
+
+      <li class="item" *ngIf="comprobaracceso('/main/diferencias')">
+        <a
+        [routerLink]="'diferencias'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-expand-horizontal' [routerLinkActive]="'text-light'"></i>
+
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Diferencias</span>
+        </a>
+      </li>
+     
+      <li class="item" *ngIf="comprobaracceso('/main/pedidos-manual')">
+        <a
+        [routerLink]="'pedidos-manual'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-list-ul' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Pedidos sucursal</span>
+        </a>
+      </li>
+
       <div class="menu_title menu_calendarios"></div> 
 
       <li class="item" *ngIf="comprobaracceso('/main/add-calendar')">
@@ -221,7 +259,7 @@
         </a>
       </li>
 
-      <li class="item">
+      <li class="item"  *ngIf="comprobaracceso('/main/calendar-temp')">
         <a
         [routerLink]="'calendar-temp'"
         [routerLinkActive]="'bg-p-l'"

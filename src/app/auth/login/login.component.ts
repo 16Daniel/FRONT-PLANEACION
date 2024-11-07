@@ -19,7 +19,6 @@ import { Router } from '@angular/router';
   providers:[MessageService],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class LoginComponent {
 public email:string = '';
@@ -94,9 +93,11 @@ showMessage(sev:string,summ:string,det:string) {
       if(this.showpass == true)
         {
           this.typei= 'text';
+          this.cdr.detectChanges();
         } else
         {
           this.typei= 'password';
+          this.cdr.detectChanges();
         }
   }
 

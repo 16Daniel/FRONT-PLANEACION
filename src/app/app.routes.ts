@@ -99,6 +99,21 @@ export const routes: Routes = [
             loadComponent: () => import('./main/pages/Almacen/Almacen.component')
         },
         {
+            path:'diferencias',
+            title:'Diferencias',
+            loadComponent: () => import('./main/pages/Diferencias/Diferencias.component')
+        },
+        {
+            path:'descuentos',
+            title:'Descuentos',
+            loadComponent: () => import('./main/pages/descuentos/descuentos.component')
+        },
+        {
+            path:'pedidos-manual',
+            title:'Pedidos',
+            loadComponent: () => import('./main/pages/PedidosManual/PedidosManual.component')
+        },
+        {
             path: '',
             redirectTo: '/main/home',
             pathMatch: 'full'

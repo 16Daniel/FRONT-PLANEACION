@@ -15,8 +15,12 @@ export interface Pedido
     tieneretornables:boolean; 
     cartones:number;
     capturacartones:boolean; 
+    tienedescuento:boolean|undefined; 
+    cantidaddescuento:number|undefined; 
+
     cartonesplaneacion:number|undefined;
     diferenciacartones:number|undefined; 
+
 }
 
 export interface PedidoH 
@@ -34,6 +38,8 @@ export interface PedidoH
     rfc:string;
     numpedido:string; 
     notificado:boolean; 
+    tienedescuento:boolean|undefined; 
+    cantidaddescuento:number|undefined; 
 }
 
 export interface ArticuloPedido 
@@ -62,6 +68,10 @@ export interface ArticuloPedido
         calendarioespecial:boolean;
         unidadesextra:number;
         esretornable:boolean; 
+
+        tienelimitealmacen:boolean;
+        capacidadalmfinal:number; 
+
 }
 
 export interface ConsumoModel

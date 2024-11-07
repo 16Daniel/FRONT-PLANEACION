@@ -19,6 +19,8 @@ import { Usuario, UsuarioLogin } from '../Interfaces/Usuario';
 import { Asignacion } from '../Interfaces/Asignacion.';
 import { Retornable } from '../Interfaces/Retornable.';
 import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
+import { Almacenaje } from '../Interfaces/Almacenaje';
+import { Diferencia } from '../Interfaces/Diferencia';
 
 @Injectable({
   providedIn: 'root'
@@ -287,9 +289,9 @@ export class ApiService {
       return this.http.post<Pedido[]>(this.url+`PedidoTemporal/getPedidosFecha`,formdata,{headers:this.headers})
    }
 
-   getItemprovp(idp:number):Observable<Item[]>
+   getItemprovp(idp:number):Observable<any>
    {
-      return this.http.get<Item[]>(this.url+`Catalogos/getItemsprovPlaneacion/${idp}`,{headers:this.headers})
+      return this.http.get<any>(this.url+`Catalogos/getItemsprovPlaneacion/${idp}`,{headers:this.headers})
    } 
 
    getItemsCal(idc:number):Observable<Item[]>
@@ -532,6 +534,167 @@ export class ApiService {
    deleteCalendariosTemporales(jdata:string):Observable<any>
    {
       return this.http.delete<any>(this.url+`Calendarios/deleteCalendariostemporales/${jdata}`,{headers:this.headers})
+   }
+
+   saveDatatAlmacen(data:any):Observable<any>
+   {
+      return this.http.post<any>(this.url+'Almacenaje/Savedata',data,{headers:this.headers})
+   }
+
+
+   getDataAlmacenaje():Observable<Almacenaje[]>
+   {
+      return this.http.get<Almacenaje[]>(this.url+`Almacenaje/getdata`,{headers:this.headers})
+   }
+
+   deleteAlmacenajes(jdata:string):Observable<any>
+   {
+      return this.http.delete<any>(this.url+`Almacenaje/deleteData/${jdata}`,{headers:this.headers})
+   }
+
+   getDiferencias(fecha:Date):Observable<Diferencia[]>
+   {
+    let formdata = new FormData();
+    formdata.append("fecha",fecha.toISOString());
+    return this.http.post<Diferencia[]>(this.url+'Diferencias/getDiferencias',formdata,{headers:this.headers})
+   }
+
+   getMermasSuc(fecha:Date,ids:string,codart:number):Observable<any[]>
+   {
+    let formdata = new FormData();
+    formdata.append("fecha",fecha.toISOString());
+    formdata.append("sucursal",ids);
+    formdata.append("codart",codart.toString());
+    return this.http.post<any[]>(this.url+'Diferencias/getMermasSucursal',formdata,{headers:this.headers})
+   }
+
+   getLineaInv(fecha:Date,ids:string,codart:number):Observable<any[]>
+   {
+     
+    let formdata = new FormData();
+    formdata.append("sucursal",ids);
+    formdata.append("articulo",codart.toString());
+    formdata.append("fecha",fecha.toISOString());
+    return this.http.post<any[]>(this.url+'Diferencias/getLineaInv',formdata,{headers:this.headers})
+   }
+
+   UpdateInv(id:number,unidades:number):Observable<any[]>
+   {
+       let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+    let formdata = new FormData();
+    formdata.append("id",id.toString());
+    formdata.append("unidades",unidades.toString());
+    formdata.append("idu",idu); 
+    return this.http.post<any[]>(this.url+'Diferencias/UpdateUnidades',formdata,{headers:this.headers})
+   }
+
+   addInv(codalm:string,unidades:number,codart:number,fecha:Date):Observable<any[]>
+   {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+    let formdata = new FormData();
+    formdata.append("codalm",codalm);
+    formdata.append("unidades",unidades.toString());
+    formdata.append("codart",codart.toString()); 
+    formdata.append("idu",idu); 
+    formdata.append("fecha",fecha.toISOString()); 
+    return this.http.post<any[]>(this.url+'Diferencias/AddInv',formdata,{headers:this.headers})
+   }
+
+   updatemermas(codalm:string,unidadesanterior:number,unidades:number,codart:number,fecha:Date):Observable<any[]>
+   {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      let data = 
+      {
+         codalmacen: codalm,
+         codarticulo: codart,
+         cantidadanterior: unidadesanterior,
+         nuevacantidad: unidades,
+         fecha: fecha,
+         idu: idu.toString()
+      }
+    return this.http.post<any[]>(this.url+'Diferencias/updateMermas',data,{headers:this.headers})
+   }
+
+   getDescuentos():Observable<any[]>
+   {
+      return this.http.get<any[]>(this.url+`Descuentos/getProveedoresDescuentos`,{headers:this.headers})
+   }
+   deleteDescuento(id:number):Observable<any>
+   {
+      return this.http.delete<any>(this.url+`Descuentos/deleteDescuento/${id}`,{headers:this.headers})
+   } 
+
+   addDescuento(codprov:number):Observable<any[]>
+   {
+    return this.http.post<any[]>(this.url+'Descuentos/addDescuento/'+codprov,{headers:this.headers})
+   }
+
+   updateDescuentoPed(idp:number,descuento:number):Observable<any[]>
+   {
+      let formdata = new FormData();
+      formdata.append("idp",idp.toString());
+      formdata.append("descuento",descuento.toString());
+    return this.http.post<any[]>(this.url+'Descuentos/UpdateDescuentoPedido',formdata,{headers:this.headers})
+   }
+
+
+   getDiferenciaLin(fecha:Date,codalm:string,codart:number):Observable<Diferencia[]>
+   {
+    let formdata = new FormData();
+    formdata.append("fecha",fecha.toISOString());
+    formdata.append("codalm",codalm);
+    formdata.append("codart",codart.toString());
+    return this.http.post<Diferencia[]>(this.url+'Diferencias/getDiferenciaLin',formdata,{headers:this.headers})
+   }
+
+   getProveedoresPedSuc():Observable<Proveedor[]>
+   {
+      return this.http.get<Proveedor[]>(this.url+'PedidosSucursal/getProveedoresPedSuc',{headers:this.headers})
+   }
+
+   getItemprovPedSuc(idprov:number):Observable<Item[]>
+   {
+      return this.http.get<Item[]>(this.url+'PedidosSucursal/getItemsprovPedSuc/'+idprov,{headers:this.headers})
+   } 
+
+   getProveedoresPedSucConfig():Observable<Proveedor[]>
+   {
+      return this.http.get<Proveedor[]>(this.url+'PedidosSucursal/getProveedores',{headers:this.headers})
+   }
+
+   getItemprovPedSucConfig(idprov:number):Observable<Item[]>
+   {
+      return this.http.get<Item[]>(this.url+'PedidosSucursal/getItemsprov/'+idprov,{headers:this.headers})
+   } 
+
+   addProvPedSuc(idprov:number):Observable<Diferencia[]>
+   {
+    let formdata = new FormData();
+    formdata.append("idprov",idprov.toString());
+    return this.http.post<Diferencia[]>(this.url+'PedidosSucursal/agregarProveedor',formdata,{headers:this.headers})
+   }
+
+   deleteprovpedsuc(id:number):Observable<any>
+   {
+      return this.http.delete<any>(this.url+`PedidosSucursal/deleteProvPedSuc/${id}`,{headers:this.headers})
+   }
+
+   agregaritemsprovpedsuc(idprov:number,jdata:string):Observable<any>
+   {
+    let formdata = new FormData();
+    formdata.append("idprov",idprov.toString());
+    formdata.append("jdata",jdata);
+    return this.http.post<any>(this.url+'PedidosSucursal/agregarItems',formdata,{headers:this.headers})
+   }
+
+   getSucursaluser():Observable<Sucursal>
+   {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      return this.http.get<Sucursal>(this.url+`PedidosSucursal/getSucUser/${idu}`,{headers:this.headers})
    }
 
 }

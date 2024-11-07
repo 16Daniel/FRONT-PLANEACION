@@ -17,6 +17,8 @@ import { UsuarioLogin } from '../../../Interfaces/Usuario';
 import { CheckboxModule } from 'primeng/checkbox';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { RadioButtonModule } from 'primeng/radiobutton';
+import { KnobModule } from 'primeng/knob';
+
 
 @Component({
   selector: 'app-pedido-temporal',
@@ -29,7 +31,8 @@ import { RadioButtonModule } from 'primeng/radiobutton';
     ConfirmDialogModule,
     CheckboxModule,
     OverlayPanelModule,
-    RadioButtonModule
+    RadioButtonModule,
+    KnobModule
   ],
   providers:[MessageService,DatePipe,ConfirmationService],
   templateUrl: './PedidoTemporal.component.html',
@@ -79,6 +82,7 @@ export default class PedidoTemporalComponent implements OnInit {
   public oprecalcular:number = 1; 
   public recfiltroproveedor = -999; 
   public recfiltrosucursal = -999; 
+  public fdescuento:number = 0; 
   constructor(public apiserv:ApiService, public cdr:ChangeDetectorRef,private messageService: MessageService,private datePipe: DatePipe,private confirmationService: ConfirmationService)
   {
     this.userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
@@ -196,8 +200,15 @@ calcularcartones()
               this.btnconfirmar = false; 
             }
       }
-    this.pedidosel = pedido; 
-
+      this.pedidosel = undefined; 
+      this.pedidosel = pedido; 
+  
+      if(pedido.cantidaddescuento)
+        {
+          this.fdescuento = pedido.cantidaddescuento; 
+        } else{ this.fdescuento = 0;}
+        
+  
     this.verpedido = true; 
     if(this.btnconfirmar == false)
       {
@@ -1329,6 +1340,18 @@ tienelineasrojas(item:Pedido):boolean
         {
           tlr = true; 
         }
+
+      
+        for(let art of item.articulos)
+          {
+              if(art.tienelimitealmacen)
+                {
+                  if(art.unidadestotales>art.capacidadalmfinal)
+                    {
+                      tlr = true; 
+                    }
+                }
+          }
   return tlr; 
 }
 
@@ -1481,4 +1504,101 @@ refreshpedidosF()
 });
 
 }   
+
+updateDescuentoPed()
+{
+  this.loading = true; 
+  this.apiserv.updateDescuentoPed(this.pedidosel!.id,this.fdescuento).subscribe({
+    next: data => {
+      this.showMessage('success',"Success","Actualizado correctamente");
+      this.refreshdataped();
+
+      this.loading = false;
+    },
+    error: error => {
+      this.loading = false; 
+      this.showMessage('error',"Error","Error al procesar la solicitud");
+       console.log(error);
+    }
+});
+}
+
+refreshdataped()
+{
+  if(this.filtrofecha == undefined)
+    {
+              this.apiserv.getPedidos().subscribe({
+                next: data => {
+                  this.pedidos = data; 
+                  this.calcularcartones(); 
+                  this.pedidosall = [...this.pedidos]; 
+                  this.loading = false; 
+            
+                  if(this.pedidosel != undefined)
+                    {
+                      let pedidoupdate = this.pedidos.filter(x =>x.id == this.pedidosel?.id);
+                      if(pedidoupdate.length>0)
+                       {
+                         this.pedidosel = pedidoupdate[0];
+                        if(this.itemdetalles != undefined)
+                          {
+                            let tempitem = this.pedidosel.articulos.filter(x => x.codArticulo == this.itemdetalles?.codArticulo);
+                            if(tempitem.length>0)
+                              {
+                                this.itemdetalles = tempitem[0]; 
+                              }
+                          }
+
+                       }
+                      this.cdr.detectChanges();
+                    }
+            
+                  this.cdr.detectChanges();
+                },
+                error: error => {
+                  console.log(error);
+                  this.showMessage('error',"Error","Error al procesar la solicitud");
+                }
+            });
+
+    } else 
+    {
+      this.loading = true;
+
+            this.apiserv.getPedidosF(this.filtrofecha).subscribe({
+              next: data => {
+                this.pedidos = data; 
+                this.calcularcartones(); 
+              this.pedidosall = [...this.pedidos]; 
+              this.loading = false; 
+
+               if(this.pedidosel != undefined)
+                {
+                   let pedidoupdate = this.pedidos.filter(x =>x.id == this.pedidosel?.id);
+                   if(pedidoupdate.length>0)
+                    {
+                      this.pedidosel = pedidoupdate[0];
+                      if(this.itemdetalles != undefined)
+                        {
+                          let tempitem = this.pedidosel.articulos.filter(x => x.codArticulo == this.itemdetalles?.codArticulo);
+                          if(tempitem.length>0)
+                            {
+                              this.itemdetalles = tempitem[0]; 
+                            }
+                        }
+                    }
+                   this.cdr.detectChanges();
+                }
+
+              
+              },
+              error: error => {
+                console.log(error);
+                this.showMessage('error',"Error","Error al procesar la solicitud");
+              }
+          });
+    }
+  
+}
+
 }
