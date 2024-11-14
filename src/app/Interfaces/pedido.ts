@@ -79,3 +79,40 @@ export interface ConsumoModel
     dia:number
     consumo:number
 }
+
+export interface ArticuloPedSuc {
+    codArticulo: number;
+    nombre: string;
+    precio: number;
+    numlinea: number;
+  
+    cajas: number;
+    unidadescaja: number;
+    unidadestotales: number;
+    tipoImpuesto: number;
+  
+    iva: number;
+    total_linea: number;
+    codigoAlmacen: string;
+  
+    tienemultiplo: boolean;
+  }
+
+  export interface PedidoSuc {
+    id: number;
+    idSucursal: string;
+    nombresucursal: string;
+    nombreproveedor: string;
+    codProveedor: number;
+    fecha:Date; 
+    fechaEntrega: Date;
+    total: number;
+    status: number;
+    rfc: string;
+    articulos: ArticuloPedSuc[];
+    nombresolicitante: string;
+
+    tienedescuento:boolean|undefined; 
+    cantidaddescuento:number|undefined; 
+    numpedido:string|undefined; 
+  }

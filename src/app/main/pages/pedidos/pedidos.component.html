@@ -60,7 +60,7 @@
             <td><input class="form-check-input" type="checkbox" (change)="checkpedido(item.id)"></td>
             <td>{{item.nombresucursal}}</td>
             <td>{{item.nombreproveedor}}</td>
-            <td>{{ item.cantidaddescuento ? (item.total-item.cantidaddescuento) : item.total | number : '1.2-2'}}</td>
+            <td>{{ (item.cantidaddescuento ? (item.total-item.cantidaddescuento) : item.total) | number : '1.2-2'}}</td>
             <td>{{item.fechaEntrega | date}}</td>
             @if(item.status == 1)
             {

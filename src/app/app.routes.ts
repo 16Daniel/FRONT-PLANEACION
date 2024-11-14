@@ -114,6 +114,11 @@ export const routes: Routes = [
             loadComponent: () => import('./main/pages/PedidosManual/PedidosManual.component')
         },
         {
+            path:'invt',
+            title:'Inventario teórico',
+            loadComponent: () => import('./main/pages/InventarioTeorico/InventarioTeorico.component')
+        },
+        {
             path: '',
             redirectTo: '/main/home',
             pathMatch: 'full'

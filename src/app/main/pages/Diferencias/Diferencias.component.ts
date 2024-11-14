@@ -11,6 +11,8 @@ import { ApiService } from '../../../Services/api.service';
 import { Diferencia } from '../../../Interfaces/Diferencia';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
+import { TagModule } from 'primeng/tag';
+import { DropdownModule } from 'primeng/dropdown';
 @Component({
   selector: 'app-diferencias',
   standalone: true,
@@ -21,7 +23,9 @@ import { DialogModule } from 'primeng/dialog';
     FormsModule,
     CalendarModule,
     TableModule,
-    DialogModule
+    DialogModule,
+    TagModule,
+    DropdownModule
   ],
   providers:[MessageService],
   templateUrl: './Diferencias.component.html',
@@ -43,6 +47,7 @@ export default class DiferenciasComponent implements OnInit {
 
   public mermasitem:any[] = []; 
   public itemInv:any; 
+  public filterstatus:string = ""; 
 
   ngOnInit(): void { }
 
@@ -64,6 +69,12 @@ getdata()
      this.apiserv.getDiferencias(this.fechaini).subscribe({
       next: data => {
          this.arr_data = data; 
+         
+         for(let item of this.arr_data)
+          {
+            item.status = this.getstatusdif(item.diferencia); 
+          }
+
          this.loading = false;
          console.log(this.arr_data);
          this.cdr.detectChanges();
@@ -273,19 +284,55 @@ getBG(value:number):string
 
   if(value>-16 && value<16)
     {
-      bgcolor = '#a7ff77';
+      bgcolor = '#22c55e';
     }
 
     if(value>15)
       {
-        bgcolor = '#fffd6b';
+        bgcolor = '#f97316';
       }
 
     if(value<-15)
       {
-        bgcolor = '#ff7777';
+        bgcolor = '#ef4444';
       }
  return bgcolor; 
+}
+
+getstatusdif(value:number):string
+{
+  let st = ""; 
+
+  if(value>-16 && value<16)
+    {
+      st = "SUCCESS";
+    }
+
+    if(value>15)
+      {
+        st = "WARNING";
+      }
+
+    if(value<-15)
+      {
+        st = "DANGER";
+      }
+ return st; 
+}
+
+getSeverity(status: string):string {
+  switch (status) {
+      case 'DANGER':
+          return 'danger';
+
+      case 'SUCCESS':
+          return 'success';
+
+      case 'WARNING':
+          return 'warning';
+  }
+
+  return ''; 
 }
 
 }

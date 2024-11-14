@@ -4,12 +4,12 @@ import { catchError, Observable, throwError, timeout } from "rxjs";
 import { environment } from '../../environments/enviroments';
 import { Sucursal } from '../Interfaces/Sucursal';
 import { Proveedor } from '../Interfaces/Proveedor';
-import { Item } from '../Interfaces/Item';
+import { Item, ItemPS } from '../Interfaces/Item';
 import { Consumo } from '../Interfaces/Consumo';
 import { Calendario, CalendarioTemporal } from '../Interfaces/Calendario';
 import { DiasEspecial,DiasEspecialSuc,respuestaDiaEspecial } from '../Interfaces/DiasEspecial';
 import { Inventario } from '../Interfaces/inventario';
-import { Pedido, PedidoH } from '../Interfaces/pedido';
+import { ArticuloPedSuc, Pedido, PedidoH, PedidoSuc } from '../Interfaces/pedido';
 import { ItProducto } from '../Interfaces/ItProducto';
 import { Parametro } from '../Interfaces/Parametro';
 import { Modioficacion } from '../Interfaces/Modioficacion';
@@ -655,9 +655,9 @@ export class ApiService {
       return this.http.get<Proveedor[]>(this.url+'PedidosSucursal/getProveedoresPedSuc',{headers:this.headers})
    }
 
-   getItemprovPedSuc(idprov:number):Observable<Item[]>
+   getItemprovPedSuc(idprov:number):Observable<ItemPS[]>
    {
-      return this.http.get<Item[]>(this.url+'PedidosSucursal/getItemsprovPedSuc/'+idprov,{headers:this.headers})
+      return this.http.get<ItemPS[]>(this.url+'PedidosSucursal/getItemsprovPedSuc/'+idprov,{headers:this.headers})
    } 
 
    getProveedoresPedSucConfig():Observable<Proveedor[]>
@@ -665,9 +665,9 @@ export class ApiService {
       return this.http.get<Proveedor[]>(this.url+'PedidosSucursal/getProveedores',{headers:this.headers})
    }
 
-   getItemprovPedSucConfig(idprov:number):Observable<Item[]>
+   getItemprovPedSucConfig(idprov:number):Observable<ItemPS[]>
    {
-      return this.http.get<Item[]>(this.url+'PedidosSucursal/getItemsprov/'+idprov,{headers:this.headers})
+      return this.http.get<ItemPS[]>(this.url+'PedidosSucursal/getItemsprov/'+idprov,{headers:this.headers})
    } 
 
    addProvPedSuc(idprov:number):Observable<Diferencia[]>
@@ -697,5 +697,76 @@ export class ApiService {
       return this.http.get<Sucursal>(this.url+`PedidosSucursal/getSucUser/${idu}`,{headers:this.headers})
    }
 
+   previewpedidosuc(data:any):Observable<ArticuloPedSuc[]>
+   {
+    return this.http.post<ArticuloPedSuc[]>(this.url+'PedidosSucursal/PreviewPedido',data,{headers:this.headers})
+   }
+
+   guardarpedidosuc(data:any):Observable<any>
+   {
+    return this.http.post<any>(this.url+'PedidosSucursal/GuardarPedido',data,{headers:this.headers})
+   }
+
+   getPedidosSuc(idsuc:number):Observable<PedidoSuc[]>
+   {
+      return this.http.get<PedidoSuc[]>(this.url+`PedidosSucursal/getPedidos/${idsuc}`,{headers:this.headers})
+   }
+
+   RechazarPedidoSuc(id:number):Observable<any>
+   {
+      return this.http.get<any>(this.url+`PedidosSucursal/rechazarPedido/${id}`,{headers:this.headers})
+   }
+
+   getPedidosSucH(idsuc:number,fechaini:Date,fechafin:Date):Observable<PedidoSuc[]>
+   {
+      let formdata = new FormData();
+      formdata.append("fechaini",fechaini.toISOString());
+      formdata.append("fechafin",fechafin.toISOString());
+      formdata.append("idsuc",idsuc.toString()); 
+      return this.http.post<PedidoSuc[]>(this.url+`PedidosSucursal/getPedidosH`,formdata,{headers:this.headers})
+   }
+
+   updateDescuentoPedSuc(idp:number,descuento:number):Observable<any[]>
+   {
+      let formdata = new FormData();
+      formdata.append("idp",idp.toString());
+      formdata.append("descuento",descuento.toString());
+    return this.http.post<any[]>(this.url+'Descuentos/UpdateDescuentoPedidoSuc',formdata,{headers:this.headers})
+   }
+
+   eliminarItemPedidoSuc(idp:number,codart:number):Observable<any>
+   {
+      return this.http.delete<any>(this.url+`PedidosSucursal/eliminarItem/${idp}/${codart}`,{headers:this.headers})
+   }
+
+   updateItemPedSuc(idp:number,codart:number,cajas:number,unidades:number):Observable<PedidoSuc[]>
+   {
+      let formdata = new FormData();
+      formdata.append("idp",idp.toString());
+      formdata.append("codart",codart.toString());
+      formdata.append("cajas",cajas.toString());
+      formdata.append("unidades",unidades.toString()); 
+
+      return this.http.post<PedidoSuc[]>(this.url+`PedidosSucursal/updateitemPedSuc`,formdata,{headers:this.headers})
+   }
+
+   ConfirmarPedidoSuc(id:number):Observable<any>
+   {
+      return this.http.get<any>(this.url+`PedidosSucursal/ConfirmarPedido/${id}`,{headers:this.headers})
+   }
+
+   getSucursalesInvT():Observable<any[]>
+   {
+      return this.http.get<any[]>(this.url+'Inventarioteorico/getSucsinvt',{headers:this.headers})
+   }
+   deletesucursalInvt(id:number):Observable<any[]>
+   {
+      return this.http.get<any[]>(this.url+'Inventarioteorico/deleteSuc/'+id,{headers:this.headers})
+   }
+
+   addsucursalInvt(id:number):Observable<any[]>
+   {
+      return this.http.get<any[]>(this.url+'Inventarioteorico/addSuc/'+id,{headers:this.headers})
+   }
 }
 

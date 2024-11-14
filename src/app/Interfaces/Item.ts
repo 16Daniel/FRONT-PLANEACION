@@ -4,3 +4,11 @@ export interface Item
     descripcion:string;
     marca:number
  }
+
+
+ export interface ItemPS 
+{
+    cod:number;
+    descripcion:string;
+    referencia:string; 
+ }

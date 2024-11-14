@@ -1,0 +1,44 @@
+<h4 class="text-center mt-3">SUCURSALES CON INVENTARIO TEÓRICO</h4>
+
+<div class="p-3">
+    <p-dropdown 
+[options]="catsucursales"
+[(ngModel)]="sucursalsel"
+optionLabel="name"
+[filter]="true"
+filterBy="name" 
+[showClear]="false"
+placeholder="SELECCIONAR SUCURSAL"
+[style]="{'width':'100%'}"
+>
+</p-dropdown>
+</div>
+
+<div class="d-flex justify-content-start mb-3 ms-3">
+    <button class="btn bg-p-b p-3" [disabled]="sucursalsel == undefined" (click)="addSuc()"> <i class='bx bx-plus'></i> AGREGAR</button>
+    </div>
+
+    <div class="d-flex justify-content-center mt-3 mb-3" *ngIf="loading">
+        <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+      </div>
+
+<p-table [value]="arr_data" [tableStyle]="{ 'min-width': '50rem' }">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>ID FRONT</th>
+            <th>NOMBRE</th>
+            <th></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+        <tr>
+            <td>{{ item.idfront }}</td>
+            <td>{{ item.nombresuc }}</td>
+            <td><button class="btn btn-danger" (click)="deletesuc(item.idfront)"><i class='bx bx-trash'></i></button></td>
+        </tr>
+    </ng-template>
+</p-table>
+
+
+<p-confirmDialog></p-confirmDialog>
+<p-toast [breakpoints]="{'920px': {width: '100%', right: '0', left: '0'}}" [showTransformOptions]="'translateY(100%)'" [showTransitionOptions]="'500ms'" [hideTransitionOptions]="'500ms'" [showTransformOptions]="'translateX(100%)'"></p-toast>

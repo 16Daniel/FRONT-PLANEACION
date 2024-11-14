@@ -221,6 +221,18 @@
         </a>
       </li>
 
+      <li class="item" *ngIf="comprobaracceso('/main/invt')">
+        <a
+        [routerLink]="'invt'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-math' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Inventario teórico</span>
+        </a>
+      </li>
+
       <div class="menu_title menu_calendarios"></div> 
 
       <li class="item" *ngIf="comprobaracceso('/main/add-calendar')">

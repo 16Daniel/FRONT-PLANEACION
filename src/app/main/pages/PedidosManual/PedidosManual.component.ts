@@ -8,12 +8,15 @@ import { Sucursal } from '../../../Interfaces/Sucursal';
 import { Proveedor } from '../../../Interfaces/Proveedor';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
-import { Item } from '../../../Interfaces/Item';
+import { Item, ItemPS } from '../../../Interfaces/Item';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { PickListModule } from 'primeng/picklist';
+import { CalendarModule } from 'primeng/calendar';
+import { ArticuloPedSuc, PedidoSuc } from '../../../Interfaces/pedido';
+import { TableModule } from 'primeng/table';
 
 @Component({
   selector: 'app-pedidos-manual',
@@ -27,7 +30,9 @@ import { PickListModule } from 'primeng/picklist';
     MultiSelectModule,
     ToastModule,
     ConfirmDialogModule,
-    PickListModule
+    PickListModule,
+    CalendarModule,
+    TableModule
   ],
   providers:[MessageService,ConfirmationService],
   templateUrl: './PedidosManual.component.html',
@@ -36,6 +41,7 @@ export default class PedidosManualComponent implements OnInit {
 public modalagregar:boolean = false; 
 public modalconfig:boolean = false; 
 public modalconfigarts:boolean = false; 
+public modalhistorial:boolean = false; 
 public catsucursales:Sucursal[] = [];
 public catproveedores:Proveedor[] = [];
 public catproveedoresconf:Proveedor[] = [];
@@ -46,14 +52,30 @@ public provsel:Proveedor|undefined;
 public provselconf:Proveedor|undefined;
 public sucursalsel:Sucursal|undefined; 
 
-public catitems:Item[] = []; 
-public selecteditems:Item[] = []; 
-public catitemsconf:Item[] = []; 
-public selecteditemsconf:Item[] = []; 
-public datatable:any[] = []; 
+public catitems:ItemPS[] = []; 
+public selecteditems:ItemPS[] = []; 
+public catitemsconf:ItemPS[] = []; 
+public selecteditemsconf:ItemPS[] = []; 
+public datatable:ArticuloPedSuc[] = []; 
 
+public nombreuserped:string = ""; 
+public fechaentrega:Date = new Date();
 public itemprovarts:Proveedor|undefined; 
+public step2:boolean = false; 
 
+public arr_data:PedidoSuc[] = []; 
+public arr_dataH:PedidoSuc[] = []; 
+public verpedido:boolean = false; 
+public pedidosel:PedidoSuc|undefined; 
+public fdescuento:number = 0; 
+
+public fechainiH:Date = new Date();
+public fechafinH:Date = new Date();
+
+public modalajusteItem:boolean = false;
+public itemdetalles:ArticuloPedSuc|undefined; 
+public unidadesajustec:number = 0; 
+public idRol:number = 0; 
   ngOnInit(): void { }
 
   constructor(public apiserv:ApiService,private messageService: MessageService,public cdr:ChangeDetectorRef,private confirmationService: ConfirmationService)
@@ -61,6 +83,9 @@ public itemprovarts:Proveedor|undefined;
     this.getSucursales();
     this.getProveedores();
     this.getProveedoresConfig(); 
+
+    let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+    this.idRol = this.idRol = userdata.idRol; 
   }
 
   showMessage(sev:string,summ:string,det:string) {
@@ -69,6 +94,9 @@ public itemprovarts:Proveedor|undefined;
 
 openmodaladd()
 {
+  this.step2 = false; 
+  this.provsel = undefined; 
+  this.selecteditems = []; 
   this.modalagregar = true; 
 }
 
@@ -95,6 +123,32 @@ openmodalconfigarts(item:Proveedor)
   this.modalconfigarts = true; 
 }
 
+getPedidoshoySuc(idsuc:number)
+{
+  
+  this.loading = true; 
+   this.apiserv.getPedidosSuc(idsuc).subscribe({
+    next: data => {
+       this.arr_data=data;
+
+       if(this.pedidosel != undefined)
+        {
+          let idp = this.pedidosel!.id; 
+          this.pedidosel = undefined; 
+          this.pedidosel = this.arr_data.find(x => x.id == idp);
+        }
+
+       this.loading = false; 
+     this.cdr.detectChanges();
+    },
+    error: error => {
+       console.log(error);
+       this.loading = false
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
+
+}
 
 getProveedores()
 {
@@ -156,7 +210,14 @@ getSucursalUser()
       if(data.cod >0)
         {
           this.sucursalsel=data;
+          this.getPedidoshoySuc(this.sucursalsel!.cod); 
         }
+
+        if(this.idRol>18 && this.idRol<22)
+          {
+            this.getPedidoshoySuc(-1); 
+          }
+   
         this.loading = false; 
        this.cdr.detectChanges();
     },
@@ -171,6 +232,8 @@ getSucursalUser()
 
 getItemsprovpedsuc()
 {
+  this.loading = true; 
+  this.selecteditems = [];
   this.apiserv.getItemprovPedSuc(this.provsel!.codproveedor).subscribe({
     next: data => {
        this.catitems=data;
@@ -179,6 +242,7 @@ getItemsprovpedsuc()
     },
     error: error => {
        console.log(error);
+       this.loading = false; 
        this.showMessage('error',"Error","Error al procesar la solicitud");
     }
 });
@@ -201,21 +265,6 @@ getItemsprovconf()
 });
 }
 
-updatetable()
-{
-  this.datatable = []; 
-
-  for(let item of this.selecteditems)
-    {
-      this.datatable.push(
-        {
-          cod:item.cod,
-          name:item.descripcion,
-          cantidad:0
-        });
-    }
-  
-}  
 
 agregarprov()
 {
@@ -296,5 +345,266 @@ agregaritemsprov()
     }
 });
 }
+
+setstep1()
+{
+  this.step2 = false;
+}
+
+setstep2()
+{
+  this.loading = true; 
+  this.step2 = true;
+  let idarts:number[] = [];
+  for(let item of this.selecteditems)
+    {
+      idarts.push(item.cod);
+    }
+
+  let data = 
+  {
+    idprov: this.provsel!.codproveedor,
+    idsuc: this.sucursalsel!.cod,
+    nombresuc: this.sucursalsel!.name,
+    jdataart: JSON.stringify(idarts)
+  }
+  this.apiserv.previewpedidosuc(data).subscribe({
+    next: data => {
+       this.datatable=data;
+       this.loading = false; 
+       this.cdr.detectChanges();
+    },
+    error: error => {
+       console.log(error);
+       this.loading = false; 
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
+}
+
+
+guardarpedido()
+{
+  for(let item of this.datatable)
+    {
+      if(item.cajas <= 0)
+        {
+          this.showMessage('info',"Error","Todos los articulos deben tener más de 0 unidades");
+          return;
+        }
+    }
+
+    this.loading = true; 
+    let data = 
+    {
+      idprov: this.provsel!.codproveedor,
+      idsuc: this.sucursalsel!.cod,
+      nombresuc: this.sucursalsel!.name,
+      jdataart: JSON.stringify(this.datatable),
+      fechaentrega: this.fechaentrega,
+      nombresolicitante: this.nombreuserped.toUpperCase()
+    }
+
+    this.apiserv.guardarpedidosuc(data).subscribe({
+      next: data => {
+         this.loading = false; 
+         this.modalagregar = false; 
+         this.getPedidoshoySuc(this.sucursalsel!.cod); 
+         this.showMessage('success',"Success","Guardado correctamente");
+         this.nombreuserped = ""; 
+         this.cdr.detectChanges();
+      },
+      error: error => {
+         console.log(error);
+         this.loading = false;
+         this.showMessage('error',"Error","Error al procesar la solicitud");
+      }
+  });
+
+}
+
+detallespedido(pedido:PedidoSuc)
+{
+  this.pedidosel= pedido; 
+  this.fdescuento = pedido.cantidaddescuento!; 
+  console.log(pedido); 
+  this.verpedido = true; 
+}
+
+rechazarPedido()
+{
+  this.loading = true;
+  this.apiserv.RechazarPedidoSuc(this.pedidosel!.id).subscribe({
+    next: data => {
+      this.loading = false; 
+       this.verpedido= false;
+       this.pedidosel = undefined; 
+       this.getPedidoshoySuc(this.sucursalsel!.cod)
+        this.showMessage('info',"Info","Pedido rechazado");
+       this.cdr.detectChanges();
+    },
+    error: error => {
+      this.loading = false; 
+       console.log(error);
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
+}
+
+abrirhistorial()
+{
+  this.getpedidosSucH();
+  this.modalhistorial = true; 
+}
+
+getpedidosSucH()
+{
+  this.loading2 = true; 
+  let idsuc:number = 0; 
+  if(this.idRol>18 && this.idRol<22)
+    {
+      idsuc = -1; 
+    } else
+    {
+      idsuc = this.sucursalsel!.cod;
+    }
+  this.apiserv.getPedidosSucH(idsuc,this.fechainiH,this.fechafinH).subscribe({
+   next: data => {
+      this.arr_dataH=data;
+      this.loading2 = false; 
+    this.cdr.detectChanges();
+   },
+   error: error => {
+      console.log(error);
+      this.loading2 = false
+      this.showMessage('error',"Error","Error al procesar la solicitud");
+   }
+});
+}
+
+updateDescuentoPedSuc()
+{
+  this.loading = true; 
+  this.apiserv.updateDescuentoPedSuc(this.pedidosel!.id,this.fdescuento).subscribe({
+    next: data => {
+      this.showMessage('success',"Success","Actualizado correctamente");
+      this.getPedidoshoySuc(this.sucursalsel!.cod); 
+      this.loading = false;
+    },
+    error: error => {
+      this.loading = false; 
+      this.showMessage('error',"Error","Error al procesar la solicitud");
+       console.log(error);
+    }
+});
+}
+
+
+eliminaritempedsuc(codart:number)
+{
+
+  this.confirmationService.confirm({
+    header: 'Confirmación',
+    message: '¿Está segur@ que desea eliminar?',
+    acceptIcon: 'pi pi-check mr-2',
+    rejectIcon: 'pi pi-times mr-2',
+    acceptButtonStyleClass:"btn bg-p-b p-3",
+    rejectButtonStyleClass:"btn btn-light me-3 p-3",
+    accept: () => {
+     
+      this.loading2 = true;
+      this.apiserv.eliminarItemPedidoSuc(this.pedidosel!.id,codart).subscribe({
+        next: data => {
+           this.loading2 = false; 
+           this.pedidosel!.articulos = this.pedidosel!.articulos.filter( x => x.codArticulo != codart); 
+           this.showMessage('success',"Success","Eliminado correctamente");
+           this.cdr.detectChanges();
+           this.getPedidoshoySuc(this.sucursalsel!.cod); 
+        },
+        error: error => {
+           console.log(error);
+           this.loading2 = false;
+           this.showMessage('error',"Error","Error al procesar la solicitud");
+        }
+    });
+
+    },
+    reject: () => {
+        
+    }
+}); 
+}
+
+
+showmodalajustec(item:ArticuloPedSuc)
+{
+  this.itemdetalles = item; 
+  this.modalajusteItem = true; 
+  this.unidadesajustec = this.itemdetalles!.cajas; 
+}
+
+aumentarac()
+{
+  this.unidadesajustec = this.unidadesajustec + 1;
+}
+
+restarac()
+{
+  if( (this.unidadesajustec - 1) >= 0)
+    {
+      this.unidadesajustec = this.unidadesajustec - 1;
+    } else
+    {
+      this.showMessage('info',"Error","La cantidad de cajas debe ser mayor o igual a cero");
+    }
+ 
+}
+
+calcularuds()
+{  
+  let uds = (this.unidadesajustec * this.itemdetalles!.unidadescaja);
+  return uds;
+}
+
+updateItemPedSuc()
+{
+  this.modalajusteItem = false; 
+  this.loading2 = true; 
+  this.apiserv.updateItemPedSuc(this.pedidosel!.id,this.itemdetalles!.codArticulo,this.unidadesajustec,this.calcularuds()).subscribe({
+    next: data => {
+     
+      this.showMessage('success',"Success","Actualizado correctamente");
+      this.getPedidoshoySuc(this.sucursalsel!.cod); 
+      this.loading2 = false;
+    },
+    error: error => {
+      this.loading2 = false; 
+      this.showMessage('error',"Error","Error al procesar la solicitud");
+       console.log(error);
+    }
+});
+}
+
+confirmarpedidoSuc()
+{
+  this.loading = true;
+  this.apiserv.ConfirmarPedidoSuc(this.pedidosel!.id).subscribe({
+    next: data => {
+      this.verpedido = false; 
+      this.showMessage('success',"Success","Procesado correctamente");
+      this.pedidosel = undefined; 
+      this.loading = false;
+      this.getPedidoshoySuc(this.sucursalsel!.cod); 
+       this.cdr.detectChanges();
+    },
+    error: error => {
+       console.log(error);
+       this.loading = false;
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
+
+}
+
 
 }

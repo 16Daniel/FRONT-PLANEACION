@@ -14,4 +14,5 @@ export interface Diferencia
     seccion: string;
     mermasayer?: number;
     codart:number
+    status:string; 
  }

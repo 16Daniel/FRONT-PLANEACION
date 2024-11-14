@@ -1,10 +1,52 @@
 <h3 class="text-center mt-3 mb-3">PEDIDOS SUCURSAL</h3> 
 
 <div class="p-3 mt-3">
-    <button class="btn bg-p-b p-3" (click)="openmodaladd()" [disabled]="loading"><i class='bx bx-plus-circle' ></i> AGREGAR PEDIDO</button>
-    <button class="btn bg-p-b p-3 ms-3" (click)="openmodalconfig()" ><i class='bx bx-cog'></i> CONFIGURACIÓN</button>
+    <button class="btn bg-p-b p-3" (click)="openmodaladd()" [disabled]="loading" *ngIf="idRol == 22"><i class='bx bx-plus-circle' ></i> AGREGAR PEDIDO</button>
+    <button class="btn bg-p-b p-3 ms-3"[disabled]="loading" (click)="abrirhistorial()"><i class='bx bx-history'></i> HISTORIAL DE PEDIDOS</button>
+    <button class="btn bg-p-b p-3 ms-3" (click)="openmodalconfig()" *ngIf="idRol > 18 && idRol < 22"><i class='bx bx-cog'></i> CONFIGURACIÓN</button>
 </div>
 
+<div class="d-flex justify-content-center mt-3 mb-3" *ngIf="loading">
+  <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+</div>
+
+<div class="bg-white p-3 rounded-3 shadow-sm" style="overflow: auto;">
+  <p-table
+  [value]="arr_data"
+  [paginator]="true"
+  [rows]="20"
+  [tableStyle]="{ 'min-width': '50rem' }"
+>
+  <ng-template pTemplate="header">
+      <tr>
+        <th scope="col">SUCURSAL</th>
+        <th scope="col">PROVEEDOR</th>
+        <th scope="col">TOTAL</th>
+        <th scope="col">ENTREGA</th>
+        <th scope="col">ESTATUS</th>
+        <th scope="col">SOLICITANTE</th>
+        <th scope="col"></th>
+      </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-item>
+      <tr class="bg-warning bg-opacity-25 text-dark">
+        <td>{{item.nombresucursal}}</td>
+        <td>{{item.nombreproveedor}}</td>
+        <td>{{ (item.cantidaddescuento ? (item.total-item.cantidaddescuento) : item.total) | number : '1.2-2'}}</td>
+        <td>{{item.fechaEntrega | date}}</td>
+        <td>POR ACEPTAR</td>
+        <td>{{item.nombresolicitante}}</td>
+        <td><button class="btn p-1" (click)="detallespedido(item)" [id]="item.id"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+          <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+          <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+        </svg></button></td>
+      </tr>
+  </ng-template>
+</p-table>
+
+</div>
+
+<!-- -------------------------------------------------------------------------------------------------------------- -->
 
 <p-dialog 
     header="AGREGAR PEDIDO" 
@@ -14,65 +56,124 @@
     [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
     [maximizable]="true">
   <div>
-    <p-dropdown 
-    [options]="catproveedores"
-    [(ngModel)]="provsel"
-    optionLabel="nombre"
-    [filter]="true"
-    filterBy="nombre" 
-    [showClear]="false"
-    placeholder="SELECCIONAR PROVEEDOR"
-    [style]="{'width':'100%'}"
-    (onChange)="getItemsprovpedsuc()"
-    >
-</p-dropdown>
-<p></p>
-    <p-dropdown 
-    [options]="catsucursales"
-    [(ngModel)]="sucursalsel"
-    optionLabel="name"
-    [filter]="true"
-    filterBy="nombre" 
-    [showClear]="false"
-    placeholder="SELECCIONAR SUCURSAL"
-    [style]="{'width':'100%'}"
-    (onChange)="getItemsprovpedsuc()"
-     [disabled]="true"
-    >
-</p-dropdown>
+
+    <div class="d-flex justify-content-center mt-3 mb-3" *ngIf="loading">
+      <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+    </div>
+
+    <div *ngIf="step2== false">
+      <p-dropdown 
+      [options]="catproveedores"
+      [(ngModel)]="provsel"
+      optionLabel="nombre"
+      [filter]="true"
+      filterBy="nombre" 
+      [showClear]="false"
+      placeholder="SELECCIONAR PROVEEDOR"
+      [style]="{'width':'100%'}"
+      (onChange)="getItemsprovpedsuc()"
+      >
+  </p-dropdown>
+
+<p></p>   
 <P></P>
-<p-multiSelect 
-[options]="catitems" 
-[(ngModel)]="selecteditems" 
-placeholder="SELECCIONAR ARTÍCULOS"
-optionLabel="descripcion" 
-[style]="{'width':'100%'}"
-[disabled]="sucursalsel == undefined"
-></p-multiSelect>
 
-<p></p>
-<p></p>
+<div class="p-3 rounded-3" style="background-color: #eee;">
+<p-pickList 
+[source]="catitems" 
+[target]="selecteditems" 
+sourceHeader="ARTICULOS DISPONIBLES"
+targetHeader="SELECCIONADOS" 
+[dragdrop]="true" 
+[responsive]="true"
+[sourceStyle]="{ height: '25rem' }" 
+[targetStyle]="{ height: '25rem' }" 
+filterBy="descripcion" 
+sourceFilterPlaceholder="Buscar" 
+targetFilterPlaceholder="Buscar" 
+breakpoint="1400px">
+    <ng-template let-item pTemplate="item">
+        <div class="">
+          <i class='bx bx-cube bx-sm bx-tada' ></i>&nbsp;
+          {{item.descripcion}}
+        </div>
+    </ng-template>
+</p-pickList>
 
-<div style="min-height: 200px;">
-  <table class="table">
-    <thead>
-      <tr>
-        <th scope="col">COD</th>
-        <th scope="col">ARTÍCULO</th>
-        <th scope="col">CANTIDAD</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of selecteditems">
-        <td>{{item.cod}}</td>
-        <td>{{item.descripcion}}</td>
-        <td><input type="number" value="0" class="form-control p-1 text-center"></td>
-      </tr>
-    </tbody>
-  </table>
 </div>
 
-<button class="btn bg-p-b p-3" [disabled]="provsel == undefined || sucursalsel == undefined || selecteditems.length ==0 " ><i class='bx bx-save'></i> GUARDAR</button>
+
+<p></p>
+<p></p>
+
+<div class="row">
+<div class="col-md-6">
+  <p class="fw-bold">NOMBRE</p>
+  <input class="form-control p-3" type="text" placeholder="INGRESE SU NOMBRE" [(ngModel)]="nombreuserped">
+</div>
+<div class="col-md-6">
+  <P>FECHA ENTREGA</P>
+  <!-- <input type="date" class="form-control p-3" [(ngModel)]="fechaentrega"> -->
+  <p-calendar 
+  [(ngModel)]="fechaentrega" 
+  [iconDisplay]="'input'" 
+  [showIcon]="true" 
+  inputId="icondisplay" 
+  [style]="{'width':'100%','height':'58px'}"/>
+</div>
+</div>
+
+<div class="mt-3 d-flex justify-content-end">
+<button class="btn bg-p-b p-3" 
+[disabled]="provsel == undefined || selecteditems.length == 0 || nombreuserped == ''" 
+(click)="setstep2()"
+>SIGUIENTE <i class='bx bx-right-arrow-alt' ></i></button>
+</div>
+    </div>
+
+  <div *ngIf="step2 && loading == false">
+    
+    <h5 class="text-center">{{provsel!.nombre}}</h5>
+    <h5 class="text-center">{{sucursalsel!.name}}</h5>
+    <P></P>
+
+      <div style="min-height: 200px;">
+        <table class="table text-center table-bordered">
+          <thead>
+            <tr class="table-light">
+              <th scope="col">DESCRIPCION</th>
+              <th scope="col">CAJAS</th>
+              <th scope="col">UDS/CAJA</th>
+              <th scope="col">UDS TOTALES</th>
+              <!-- <th scope="col">IMPUESTO</th>
+              <th scope="col">PRECIO</th>
+              <th scope="col">TOTAL</th> -->
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of datatable">
+              <th>{{item.nombre}}</th>
+              <td><input class="form-control P-2 text-center" type="number" [(ngModel)]="item.cajas"></td>
+              <td *ngIf="item.tienemultiplo == true">{{item.unidadescaja}}</td>
+              <td *ngIf="item.tienemultiplo == false">SIN REGISTRO</td>
+              <td>{{(item.cajas * item.unidadescaja) | number : '1.2-2'}}</td>
+              <!-- <td>{{item.tipoImpuesto}}</td>
+              <td>{{item.precio | number : '1.2-2'}}</td>
+              <td>{{item.total_linea | number : '1.2-2'}}</td> -->
+            </tr>
+    
+          </tbody>
+        </table>
+
+</div>
+
+<div class="d-flex justify-content-between mt-3">
+  <button class="btn bg-p-b p-3" (click)="setstep1()" ><i class='bx bx-left-arrow-alt' ></i> ANTERIOR</button>
+  <button class="btn bg-p-b p-3" [disabled]="provsel == undefined || sucursalsel == undefined || selecteditems.length ==0 " 
+  (click)="guardarpedido()"><i class='bx bx-save'></i> GUARDAR</button>
+</div>
+  </div>
+
   </div>
 </p-dialog>
 
@@ -158,15 +259,17 @@ optionLabel="descripcion"
   <thead>
     <tr>
       <th scope="col">COD</th>
+      <th scope="col">REFERENCIA</th>
       <th scope="col">NOMBRE</th>
-      <th scope="col">MARCA</th>
+      
     </tr>
   </thead>
   <tbody>
     <tr *ngFor="let item of selecteditemsconf">
       <th>{{item.cod}}</th>
+      <td>{{item.referencia}}</td>
       <td>{{item.descripcion}}</td>
-      <td>{{item.marca}}</td>
+      
     </tr>
   </tbody>
 </table>
@@ -176,6 +279,220 @@ optionLabel="descripcion"
       <button class="btn bg-p-b p-3" [disabled]="selecteditemsconf.length == 0" (click)="agregaritemsprov()"><i class='bx bx-save'></i> GUARDAR</button>
     </div>
   </div>
+</p-dialog>
+
+
+<p-dialog header="" [(visible)]="verpedido" [style]="{width: '75vw'}" [maximizable]="true" [modal]="true">
+  
+  <div class="m-3 p-3 text-center">
+    <h4 class="text-center">DETALLES DEL PEDIDO</h4>
+    <div class="row justify-content-center">
+      <div class="col-auto p-3">
+        <p class="fw-bold">SUCURSAL</p>
+        <p class="bg-g-l p-3 rounded-3 text-danger">{{pedidosel?.nombresucursal}}</p>
+      </div>
+      <div class="col-auto p-3">
+        <p class="fw-bold">PROVEEDOR</p>
+        <p class="bg-g-l p-3 rounded-3 text-danger">{{pedidosel?.nombreproveedor}}</p>
+      </div>
+      <div class="col-auto p-3">
+        <p class="fw-bold">FECHA DE ENTREGA</p>
+        <p class="bg-g-l text-danger p-3 rounded-3">{{pedidosel?.fechaEntrega | date}}</p>
+      </div>
+
+      <div class="col-auto p-3" *ngIf="pedidosel != undefined && pedidosel!.tienedescuento">
+        <p class="fw-bold">SUBTOTAL</p>
+        <p class="bg-g-l text-danger p-3 rounded-3">{{pedidosel!.total | number : '1.2-2'}}</p>
+      </div>
+      <div class="col-auto p-3" *ngIf="pedidosel != undefined && pedidosel!.tienedescuento">
+        <p class="fw-bold">DESCUENTO</p>
+        <input type="number" class="form-control p-1 text-center" [(ngModel)]="fdescuento" [disabled]="pedidosel.status != 1 || idRol < 19 || idRol > 21">
+        <button *ngIf="pedidosel.status == 1 && idRol > 18 && idRol < 22" class="btn btn-danger m-1" (click)="updateDescuentoPedSuc()"><i class='bx bx-save bx-sm'></i></button>
+      </div>
+      <div class="col-auto p-3" *ngIf="pedidosel != undefined && pedidosel!.cantidaddescuento != undefined">
+        <p class="fw-bold">TOTAL</p>
+        <p class="bg-g-l text-danger fw-bold p-3 rounded-3">{{(pedidosel!.total - fdescuento) | number : '1.2-2'}}</p>
+      </div>
+
+      <div class="col-auto p-3" *ngIf="pedidosel != undefined && pedidosel!.cantidaddescuento == undefined">
+        <p class="fw-bold">TOTAL</p>
+        <p class="bg-g-l text-danger fw-bold p-3 rounded-3">{{pedidosel!.total | number : '1.2-2'}}</p>
+      </div>
+     
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-center mt-3 mb-3" *ngIf="loading">
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+  </div>
+  
+
+  <H5 class="text-center mt-3">ARTICULOS</H5>
+
+  <table class="table text-center table-bordered" *ngIf="pedidosel!=undefined">
+    <thead>
+      <tr class="table-light">
+        <th scope="col">DESCRIPCION</th>
+        <th scope="col">CAJAS</th>
+        <th scope="col">UDS/CAJA</th>
+        <th scope="col">UDS</th>
+        <th scope="col">IMPUESTO</th>
+        <th scope="col">PRECIO</th>
+        <th scope="col">TOTAL</th>
+        <th scope="col" *ngIf="pedidosel.status == 1 && idRol > 18 && idRol < 22"></th>
+        <th scope="col" *ngIf="pedidosel.status == 1 && idRol > 18 && idRol < 22"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of pedidosel!.articulos">
+        <th>{{item.nombre}}</th>
+        <td>{{item.cajas}}</td>
+        <td *ngIf="item.tienemultiplo == true">{{item.unidadescaja}}</td>
+        <td *ngIf="item.tienemultiplo == false">SIN REGISTRO</td>
+        <td>{{item.unidadestotales | number : '1.2-2'}}</td>
+        <td>{{item.tipoImpuesto}}</td>
+        <td>{{item.precio | number : '1.2-2'}}</td>
+        <td>{{item.total_linea | number : '1.2-2'}}</td>
+        <td *ngIf="pedidosel.status == 1 && idRol > 18 && idRol < 22"><button class="btn btn-primary" (click)="showmodalajustec(item)"><i class='bx bx-edit' ></i></button></td>
+        <td *ngIf="pedidosel.status == 1 && idRol > 18 && idRol < 22"><button class="btn btn-danger" (click)="eliminaritempedsuc(item.codArticulo)"><i class='bx bx-trash' ></i></button></td>
+      </tr>
+
+    </tbody>
+  </table>
+  
+
+  <div class="d-flex justify-content-center mt-3 gap-3">
+    <button class="btn bg-p-b p-3" *ngIf="pedidosel?.status ==1 && loading == false && idRol > 18 && idRol < 22 && pedidosel!.articulos!.length>0" (click)="confirmarpedidoSuc()">CONFIRMAR PEDIDO</button>
+    <button class="btn bg-p-b p-3" *ngIf="pedidosel?.status ==1 && loading == false && idRol > 18 && idRol < 22" (click)="rechazarPedido()">RECHAZAR PEDIDO</button>
+  </div>
+</p-dialog>
+
+
+<p-dialog 
+    header="HISTORIAL DE PEDIDOS" 
+    [modal]="true"
+    [(visible)]="modalhistorial" 
+    [style]="{ width: '90%' }" 
+    [maximizable]="true"
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
+    >
+  <div style="min-height: 600px;">
+
+    <div class="row">
+      <div class="col-auto">
+        <P>FECHA INICIAL</P>
+        <p-calendar 
+        [(ngModel)]="fechainiH" 
+        [iconDisplay]="'input'" 
+        [showIcon]="true" 
+        inputId="icondisplay" 
+        [style]="{'width':'100%','height':'58px'}"/>
+      </div>
+      <div class="col-auto">
+        <P>FECHA FINAL</P>
+        <p-calendar 
+        [(ngModel)]="fechafinH" 
+        [iconDisplay]="'input'" 
+        [showIcon]="true" 
+        inputId="icondisplay" 
+        [style]="{'width':'100%','height':'58px'}"/>
+      </div>
+      <div class="col-auto">
+        <p>&nbsp;</p>
+        <button class="btn bg-p-b p-3" (click)="getpedidosSucH()"><i class='bx bx-search' ></i>&nbsp;BUSCAR</button>
+      </div>
+    </div>
+ 
+    <p></p>
+    <div class="d-flex justify-content-center" *ngIf="loading2">
+      <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+    </div>
+    <p></p>
+
+    <p-table
+    [value]="arr_dataH"
+    [paginator]="true"
+    [rows]="5"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    [rowsPerPageOptions]="[5, 10, 20]"
+>
+    <ng-template pTemplate="header">
+        <tr>
+          <th scope="col">NUM PEDIDO</th>
+          <th scope="col">SUCURSAL</th>
+          <th scope="col">PROVEEDOR</th>
+          <th scope="col">TOTAL</th>
+          <th scope="col">FECHA</th>
+          <th scope="col">ENTREGA</th>
+          <th scope="col">ESTATUS</th>
+          <th scope="col">SOLICITANTE</th>
+          <th scope="col"></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+        <tr class="bg-opacity-25 text-dark" [ngClass]="{'bg-danger': item.status == 4, 'bg-success' : item.status ==3 }">
+          <td>{{item.numpedido}}</td>
+          <td>{{item.nombresucursal}}</td>
+          <td>{{item.nombreproveedor}}</td>
+          <td>{{ (item.cantidaddescuento ? (item.total-item.cantidaddescuento) : item.total) | number : '1.2-2'}}</td>
+          <td>{{item.fecha | date}}</td>
+          <td>{{item.fechaEntrega | date}}</td>
+          @if(item.status == 3)
+          {
+            <td>AUTORIZADO</td>
+          }
+          @if(item.status == 4)
+          {
+            <td>RECHAZADO</td>
+          }
+          <td>{{item.nombresolicitante}}</td>
+          <td><button class="btn p-1" (click)="detallespedido(item)" ><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+          </svg></button></td>
+        </tr>
+    </ng-template>
+</p-table>
+
+  </div>
+</p-dialog>
+
+
+<p-dialog header="AJUSTE COMPRAS" [(visible)]="modalajusteItem" [style]="{width: '50vw'}" [maximizable]="false" [modal]="true">
+ 
+  <div class="text-center fw-bold">CAJAS</div>
+  <div class="d-flex justify-content-center p-3 gap-3">
+   <button class="btn btn-danger" (click)="restarac()"><i class='bx bx-minus-circle'></i></button>
+   <input type="number" class="form-control text-center" style="max-width: 10rem;" [(ngModel)]="unidadesajustec"  disabled>
+   <button class="btn btn-success" (click)="aumentarac()"><i class='bx bx-plus-circle'></i></button>
+
+ 
+  </div>
+
+  <div class="mt-3" *ngIf="itemdetalles != undefined">
+    <div class="text-center fw-bold">UNIDADES</div>
+    <div class="d-flex justify-content-center"><div class="text-center p-2 bg-g-l rounded-3">{{calcularuds() | number : '1.2-2' }}</div></div>
+   </div>
+   
+  <!-- <P>JUSTIFICACIÓN</P>
+  <div class="mt-3 mb-3">
+    <select class="form-select" [(ngModel)]="comentarioajuste">
+      <option value="ALMACENAJE LIMITADO">ALMACENAJE LIMITADO</option>
+      <option value="NUEVA PROMOCION">NUEVA PROMOCION</option>
+      <option value="VENTA EXTRAODINARIA">VENTA EXTRAODINARIA</option>
+      <option value="STOCK POR ENCIMA DEL CONSUMO PROYECTADO">STOCK POR ENCIMA DEL CONSUMO PROYECTADO</option>
+      <option value="STOCK EXACTO PARA CUBRIR VENTA">STOCK EXACTO PARA CUBRIR VENTA</option>
+      <option value="CARTONES INSUFICIENTES">CARTONES INSUFICIENTES</option>
+    </select>
+  </div>
+   -->
+  <!-- <P>COMENTARIO</P>
+  <textarea class="form-control" [(ngModel)]="justificacionac"></textarea> -->
+  
+  <div class="d-flex justify-content-end mt-3">
+    <button class="btn bg-p-b p-3" (click)="updateItemPedSuc()">GUARDAR</button>
+  </div>
+  
 </p-dialog>
 
 
