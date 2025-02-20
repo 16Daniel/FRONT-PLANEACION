@@ -126,24 +126,20 @@
             <p class="bg-g-l text-danger p-3 rounded-3">{{pedidosel?.fechaEntrega | date}}</p>
           </div>
   
-          <div class="col-auto p-3" *ngIf="pedidosel != undefined && pedidosel!.tienedescuento">
+        
+          <div class="col-auto p-3" *ngIf="pedidosel != undefined">
             <p class="fw-bold">SUBTOTAL</p>
             <p class="bg-g-l text-danger p-3 rounded-3">{{pedidosel!.total | number : '1.2-2'}}</p>
           </div>
-          <div class="col-auto p-3" *ngIf="pedidosel != undefined && pedidosel!.tienedescuento">
-            <p class="fw-bold">DESCUENTO</p>
-            <input type="number" class="form-control p-1" [(ngModel)]="fdescuento">
-            <button class="btn btn-danger m-1" (click)="updateDescuentoPed()"><i class='bx bx-save bx-sm'></i></button>
+          <div class="col-auto p-3" *ngIf="pedidosel != undefined">
+            <p class="fw-bold">IVA</p>
+            <p class="bg-g-l text-danger p-3 rounded-3">{{pedidosel!.totiva| number : '1.2-2'}}</p>
           </div>
-          <div class="col-auto p-3" *ngIf="pedidosel != undefined && pedidosel!.cantidaddescuento != undefined">
+          <div class="col-auto p-3" *ngIf="pedidosel != undefined">
             <p class="fw-bold">TOTAL</p>
-            <p class="bg-g-l text-danger fw-bold p-3 rounded-3">{{(pedidosel!.total - fdescuento) | number : '1.2-2'}}</p>
+            <p class="bg-g-l text-danger fw-bold p-3 rounded-3">{{((pedidosel!.total + pedidosel!.totiva)) | number : '1.2-2'}}</p>
           </div>
-  
-          <div class="col-auto p-3" *ngIf="pedidosel != undefined && pedidosel!.cantidaddescuento == undefined">
-            <p class="fw-bold">TOTAL</p>
-            <p class="bg-g-l text-danger fw-bold p-3 rounded-3">{{pedidosel!.total | number : '1.2-2'}}</p>
-          </div>
+         
           
         </div>
   
@@ -204,7 +200,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let item of pedidosel?.articulos" [ngClass]="{'table-danger': item.total_linea <=0 || pedidosel!.diferenciacartones!<0 || (item.tienelimitealmacen == true && item.capacidadalmfinal<item.unidadestotales)}">
+          <tr *ngFor="let item of pedidosel?.articulos" [ngClass]="{'table-danger': item.total_linea <=0 || pedidosel!.diferenciacartones!<0 || (item.tienelimitealmacen == true && (item.capacidadalmfinal + getConsumodp(item))<(item.unidadestotales+ item.inventariohoy))}">
             <th>{{item.nombre}}</th>
             <td>{{item.cajas}}</td>
             <td *ngIf="item.tienemultiplo == true">{{item.unidadescaja}}</td>
@@ -222,14 +218,15 @@
 
             @if(item.tienelimitealmacen)
             {
-              <td *ngIf="item.unidadestotales>item.capacidadalmfinal">
-                <i class='bx bxs-chevron-up text-danger' ></i>
-                {{(item.unidadestotales-item.capacidadalmfinal) | number : '1.2-2' }}
+              <td *ngIf="(item.unidadestotales+ item.inventariohoy)>(item.capacidadalmfinal + getConsumodp(item))">
+                <!-- <i class='bx bxs-chevron-up text-danger' ></i>
+                {{((item.unidadestotales+ item.inventariohoy)-(item.capacidadalmfinal + getConsumodp(item))) | number : '1.2-2' }} -->
+                <div pTooltip="-{{((item.unidadestotales+ item.inventariohoy)-(item.capacidadalmfinal + getConsumodp(item))) | number : '1.2-2'}}"> 0 </div>
                 </td>   
 
-                <td *ngIf="item.unidadestotales<=item.capacidadalmfinal">
+                <td *ngIf="item.unidadestotales<=(item.capacidadalmfinal + getConsumodp(item))">
                   <i class='bx bxs-chevron-down text-success' ></i>
-                  {{(item.capacidadalmfinal - item.unidadestotales) | number : '1.2-2'}}
+                  {{((item.capacidadalmfinal + getConsumodp(item)) - (item.unidadestotales+ item.inventariohoy)) | number : '1.2-2'}}
                   </td>  
               
             }@else
@@ -311,6 +308,11 @@
     
       </div>
   
+      <div class="alert alert-primary text-center sticky-top" role="alert" *ngIf="itemdetalles.invformulado">
+        <i class='bx bx-info-circle'></i>&nbsp;LA PROYECCIÓN DE ESTE ARTÍCULO UTILIZA EL INVENTARIO TEÓRICO
+      </div>
+
+      
       <h5 class="text-center mb-3">CONSUMOS PROMEDIO</h5>
       <table class="tableR text-center">
         <thead>
@@ -503,7 +505,7 @@
         <option value="NUEVA PROMOCION">NUEVA PROMOCION</option>
         <option value="VENTA EXTRAODINARIA">VENTA EXTRAODINARIA</option>
         <option value="STOCK POR ENCIMA DEL CONSUMO PROYECTADO">STOCK POR ENCIMA DEL CONSUMO PROYECTADO</option>
-        <option value="STOCK EXACTO PARA CUBRIR VENTA">STOCK EXACTO PARA CUBRIR VENTA</option>
+        <option value="PEDIDO EXACTO PARA CUBRIR VENTA">PEDIDO EXACTO PARA CUBRIR VENTA</option>
         <option value="CARTONES INSUFICIENTES">CARTONES INSUFICIENTES</option>
       </select>
     </div>

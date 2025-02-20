@@ -134,6 +134,7 @@ getPedidos()
   detallesPedido(pedido:PedidoH)
   {
     this.pedidosel = pedido; 
+    console.log(pedido);
     this.verpedido = true; 
   }
   

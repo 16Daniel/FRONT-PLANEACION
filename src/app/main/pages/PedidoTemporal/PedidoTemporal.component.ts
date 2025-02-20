@@ -18,7 +18,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { KnobModule } from 'primeng/knob';
-
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-pedido-temporal',
@@ -32,7 +32,8 @@ import { KnobModule } from 'primeng/knob';
     CheckboxModule,
     OverlayPanelModule,
     RadioButtonModule,
-    KnobModule
+    KnobModule,
+    TooltipModule
   ],
   providers:[MessageService,DatePipe,ConfirmationService],
   templateUrl: './PedidoTemporal.component.html',
@@ -1599,6 +1600,17 @@ refreshdataped()
           });
     }
   
+}
+
+getConsumodp(item:ArticuloPedido):number
+{
+  let consumo = 0
+  let index = item.arraycalendario.indexOf(1); 
+  if(index>-1)
+    {
+      consumo = item.consumospromedios[index].consumo; 
+    }
+return consumo;
 }
 
 }

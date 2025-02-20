@@ -153,6 +153,7 @@ export class ApiService {
       let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
       let idu = userdata.id; 
       return this.http.get<Pedido[]>(this.url+`Pedidos/getPedidos/${idu}`,{headers:this.headers})
+      //return this.http.get<Pedido[]>(this.url+`Pedidosprueba/getPedidos/${idu}`,{headers:this.headers})
    }
 
    getPedidosT():Observable<Pedido[]>
@@ -185,6 +186,11 @@ export class ApiService {
    getMedidasuds():Observable<ItProducto[]>
    {
       return this.http.get<ItProducto[]>(this.url+`Pedidos/GetMedidasUds`,{headers:this.headers})
+   }
+
+   getMedidasudsSucursales():Observable<ItProducto[]>
+   {
+      return this.http.get<ItProducto[]>(this.url+`Pedidos/GetMedidasUdsSucursales`,{headers:this.headers})
    }
 
    deleteUmedida(id:string):Observable<any>
@@ -277,6 +283,15 @@ export class ApiService {
       formdata.append("fecha",fechap.toString());
       formdata.append("idu",idu)
       return this.http.post<Pedido[]>(this.url+`Pedidos/getPedidosFecha`,formdata,{headers:this.headers})
+   }
+
+   getPedidosSucF(fechap:Date,ids:number):Observable<PedidoSuc[]>
+   {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let formdata = new FormData();
+      formdata.append("fecha",fechap.toString());
+      formdata.append("ids",ids.toString())
+      return this.http.post<PedidoSuc[]>(this.url+`PedidosSucursal/getPedidosFecha`,formdata,{headers:this.headers})
    }
 
    getPedidosTF(fechap:Date):Observable<Pedido[]>
@@ -405,9 +420,9 @@ export class ApiService {
       return this.http.get<any>(this.url+`Pedidos/getNotificacion`,{headers:this.headers})
    }
 
-   login(data:any):Observable<UsuarioLogin>
+   login(data:any):Observable<any>
    {
-      return this.http.post<UsuarioLogin>(this.url+`Usuarios/Login`,data,{headers:this.headers})
+      return this.http.post<any>(this.url+`Usuarios/Login`,data,{headers:this.headers})
    }
 
    EliminarLineaPedido(idp:number,codart:number):Observable<any>
@@ -511,6 +526,7 @@ export class ApiService {
       formdata.append("filtrosucursal",filtrosuc.toString()); 
 
       return this.http.post<any>(this.url+`Pedidos/recalcularpedidos`,formdata,{headers:this.headers})
+      //return this.http.post<any>(this.url+`Pedidosprueba/recalcularpedidos`,formdata,{headers:this.headers})
    }
 
    refreshPedidosTf(filtroprov:number,filtrosuc:number):Observable<any>
@@ -670,10 +686,16 @@ export class ApiService {
       return this.http.get<ItemPS[]>(this.url+'PedidosSucursal/getItemsprov/'+idprov,{headers:this.headers})
    } 
 
-   addProvPedSuc(idprov:number):Observable<Diferencia[]>
+   getSucursalesProvPedSucConfig(idprov:number):Observable<Sucursal[]>
+   {
+      return this.http.get<Sucursal[]>(this.url+'PedidosSucursal/getSucursalesProvPedSuc/'+idprov,{headers:this.headers})
+   } 
+
+   addProvPedSuc(idprov:number,jdata:string):Observable<Diferencia[]>
    {
     let formdata = new FormData();
     formdata.append("idprov",idprov.toString());
+    formdata.append("jdata",jdata);
     return this.http.post<Diferencia[]>(this.url+'PedidosSucursal/agregarProveedor',formdata,{headers:this.headers})
    }
 
@@ -736,17 +758,23 @@ export class ApiService {
 
    eliminarItemPedidoSuc(idp:number,codart:number):Observable<any>
    {
-      return this.http.delete<any>(this.url+`PedidosSucursal/eliminarItem/${idp}/${codart}`,{headers:this.headers})
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      return this.http.delete<any>(this.url+`PedidosSucursal/eliminarItem/${idp}/${codart}/${idu}`,{headers:this.headers})
    }
 
-   updateItemPedSuc(idp:number,codart:number,cajas:number,unidades:number):Observable<PedidoSuc[]>
+   updateItemPedSuc(idp:number,codart:number,cajas:number,unidades:number,justificacion:string,comentario:string):Observable<PedidoSuc[]>
    {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
       let formdata = new FormData();
       formdata.append("idp",idp.toString());
       formdata.append("codart",codart.toString());
       formdata.append("cajas",cajas.toString());
       formdata.append("unidades",unidades.toString()); 
-
+      formdata.append("idu",idu.toString());
+      formdata.append("justificacion",justificacion);
+      formdata.append("comentario",comentario);
       return this.http.post<PedidoSuc[]>(this.url+`PedidosSucursal/updateitemPedSuc`,formdata,{headers:this.headers})
    }
 
@@ -759,14 +787,50 @@ export class ApiService {
    {
       return this.http.get<any[]>(this.url+'Inventarioteorico/getSucsinvt',{headers:this.headers})
    }
+
+   getProvsSucinvT(ids:number):Observable<any[]>
+   {
+      return this.http.get<any[]>(this.url+'Inventarioteorico/getProvsSuc/'+ids,{headers:this.headers})
+   }
+
    deletesucursalInvt(id:number):Observable<any[]>
    {
       return this.http.get<any[]>(this.url+'Inventarioteorico/deleteSuc/'+id,{headers:this.headers})
    }
 
-   addsucursalInvt(id:number):Observable<any[]>
+   addsucursalInvt(id:number,jdata:string):Observable<any[]>
    {
-      return this.http.get<any[]>(this.url+'Inventarioteorico/addSuc/'+id,{headers:this.headers})
+      return this.http.get<any[]>(this.url+'Inventarioteorico/addSuc/'+id+'/'+jdata,{headers:this.headers})
    }
+
+   getItemsDisponiblesPed(id:number):Observable<ArticuloPedSuc[]>
+   {
+      return this.http.get<ArticuloPedSuc[]>(this.url+'PedidosSucursal/getItemsDisponibles/'+id,{headers:this.headers})
+   }
+
+   addItemPedSuc(idp:number,items:ArticuloPedSuc[]):Observable<PedidoSuc[]>
+   {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      let formdata = new FormData();
+      formdata.append("idp",idp.toString());
+      formdata.append("items",JSON.stringify(items));
+      formdata.append("idu",idu.toString());
+      return this.http.post<PedidoSuc[]>(this.url+`PedidosSucursal/addItemPed`,formdata,{headers:this.headers})
+   }
+
+   validarToken():Observable<any>
+   {
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      let token = "no-data"; 
+
+      if(userdata.token != undefined)
+         {
+            token = userdata.token; 
+         }
+      return this.http.get<any>(this.url+`Usuarios/ValidarToken/${idu}/${token}`,{headers:this.headers})
+   }
+
 }
 

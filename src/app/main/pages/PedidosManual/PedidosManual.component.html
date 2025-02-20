@@ -10,6 +10,16 @@
   <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
 </div>
 
+<div class="m-3 bg-white rounded-3 p-3">
+  <div class="d-flex justify-content-end align-items-center gap-3">
+    <button class="btn btn-success p-3" (click)="notificarProv()" [disabled]="loading"><i class='bx bx-bell'></i> NOTIFICAR A PROVEEDORES</button>
+    <div class="col-auto">
+      <input class="form-control" type="date" [(ngModel)]="filtrofecha"></div>
+    <div class="col-auto"><button class="btn bg-p-b p-3" (click)="getpedidosFecha();">BUSCAR</button></div>
+    
+  </div>
+</div>
+
 <div class="bg-white p-3 rounded-3 shadow-sm" style="overflow: auto;">
   <p-table
   [value]="arr_data"
@@ -78,6 +88,20 @@
 <p></p>   
 <P></P>
 
+<div class="bg-g-l p-3 rounded-3 text-center" *ngIf="shownota">
+<p class="fw-bold fs-5">NOTA</p>
+Los artículos que aparecen con <p-tag 
+          [value]="'ERROR'" 
+          [severity]="'danger'" /> son artículos que no cuentan con una unidad de medida, por lo tanto, no se pueden agregar al pedido.
+<p class="fw-bold text-center">
+  FAVOR DE NOTIFICARLO CON EL ÁREA DE COMPRAS.
+</p>
+</div>
+
+<p></p>   
+<P></P>
+
+
 <div class="p-3 rounded-3" style="background-color: #eee;">
 <p-pickList 
 [source]="catitems" 
@@ -91,12 +115,24 @@ targetHeader="SELECCIONADOS"
 filterBy="descripcion" 
 sourceFilterPlaceholder="Buscar" 
 targetFilterPlaceholder="Buscar" 
-breakpoint="1400px">
+breakpoint="1400px"
+(onMoveAllToSource)="articulosmezclados()"
+(onMoveAllToTarget)="articulosmezclados()"
+(onMoveToSource)="articulosmezclados()"
+(onMoveToTarget)="articulosmezclados()">
     <ng-template let-item pTemplate="item">
         <div class="">
-          <i class='bx bx-cube bx-sm bx-tada' ></i>&nbsp;
+          <p-tag 
+          [value]="item.tudm ? 'OK':'ERROR'" 
+          [severity]="item.tudm ? 'success':'danger'" />
+          &nbsp;
+          <p-tag 
+          [value]="item.fiscal? 'FISCAL':'NO FISCAL'" 
+          [severity]="item.fiscal ? 'info':'warning'" />
+          &nbsp;
           {{item.descripcion}}
         </div>
+        
     </ng-template>
 </p-pickList>
 
@@ -112,10 +148,11 @@ breakpoint="1400px">
   <input class="form-control p-3" type="text" placeholder="INGRESE SU NOMBRE" [(ngModel)]="nombreuserped">
 </div>
 <div class="col-md-6">
-  <P>FECHA ENTREGA</P>
+  <P>FECHA ENTREGA:</P>
   <!-- <input type="date" class="form-control p-3" [(ngModel)]="fechaentrega"> -->
   <p-calendar 
   [(ngModel)]="fechaentrega" 
+  dateFormat="dd/mm/yy"
   [iconDisplay]="'input'" 
   [showIcon]="true" 
   inputId="icondisplay" 
@@ -123,9 +160,16 @@ breakpoint="1400px">
 </div>
 </div>
 
+<div class="bg-g-l p-3 rounded-3 text-center mt-3" *ngIf="showmezclapedido">
+  <p-tag 
+          [value]="'INFO'" 
+          [severity]="'info'" />&nbsp;
+  NO ES POSIBLE GENERAR EL PEDIDO CON ARTÍCULOS FISCALES Y NO FISCALES, FAVOR DE SELECCIONAR ARTÍCULOS DE UN SOLO TIPO 
+  </div>
+
 <div class="mt-3 d-flex justify-content-end">
 <button class="btn bg-p-b p-3" 
-[disabled]="provsel == undefined || selecteditems.length == 0 || nombreuserped == ''" 
+[disabled]="provsel == undefined || selecteditems.length == 0 || nombreuserped == '' || descativarbotton() || showmezclapedido" 
 (click)="setstep2()"
 >SIGUIENTE <i class='bx bx-right-arrow-alt' ></i></button>
 </div>
@@ -135,6 +179,9 @@ breakpoint="1400px">
     
     <h5 class="text-center">{{provsel!.nombre}}</h5>
     <h5 class="text-center">{{sucursalsel!.name}}</h5>
+    <div class="d-flex justify-content-center gap-3">
+      <span class="p-3 bg-g-l rounded-3">FECHA DE CREACIÓN: {{fechahoy | date}}</span>
+       <span class="p-3 bg-g-l rounded-3">FECHA DE ENTREGA {{fechaentrega | date}}</span></div>
     <P></P>
 
       <div style="min-height: 200px;">
@@ -144,6 +191,7 @@ breakpoint="1400px">
               <th scope="col">DESCRIPCION</th>
               <th scope="col">CAJAS</th>
               <th scope="col">UDS/CAJA</th>
+              <th scope="col">U. MEDIDA</th>
               <th scope="col">UDS TOTALES</th>
               <!-- <th scope="col">IMPUESTO</th>
               <th scope="col">PRECIO</th>
@@ -156,6 +204,7 @@ breakpoint="1400px">
               <td><input class="form-control P-2 text-center" type="number" [(ngModel)]="item.cajas"></td>
               <td *ngIf="item.tienemultiplo == true">{{item.unidadescaja}}</td>
               <td *ngIf="item.tienemultiplo == false">SIN REGISTRO</td>
+              <td>{{item.udm}}</td>
               <td>{{(item.cajas * item.unidadescaja) | number : '1.2-2'}}</td>
               <!-- <td>{{item.tipoImpuesto}}</td>
               <td>{{item.precio | number : '1.2-2'}}</td>
@@ -169,7 +218,7 @@ breakpoint="1400px">
 
 <div class="d-flex justify-content-between mt-3">
   <button class="btn bg-p-b p-3" (click)="setstep1()" ><i class='bx bx-left-arrow-alt' ></i> ANTERIOR</button>
-  <button class="btn bg-p-b p-3" [disabled]="provsel == undefined || sucursalsel == undefined || selecteditems.length ==0 " 
+  <button class="btn bg-p-b p-3" [disabled]="provsel == undefined || sucursalsel == undefined || selecteditems.length ==0" 
   (click)="guardarpedido()"><i class='bx bx-save'></i> GUARDAR</button>
 </div>
   </div>
@@ -199,10 +248,19 @@ breakpoint="1400px">
     placeholder="SELECCIONAR PROVEEDOR"
     [style]="{'width':'100%'}"
     >
-</p-dropdown>
+</p-dropdown>  
+<p></p>
+<p-multiSelect 
+[options]="catsucursales" 
+[(ngModel)]="sucursalesselconf" 
+optionLabel="name" 
+placeholder="SUCURSALES" 
+[style]="{'width':'100%'}"
+/>
+
 
 <div class="mt-3">
-  <button class="btn bg-p-b p-3" [disabled]="provselconf == undefined" (click)="agregarprov()"><i class='bx bx-plus'></i> AGREGAR</button>
+  <button class="btn bg-p-b p-3" [disabled]="provselconf == undefined && sucursalesselconf.length ==0 " (click)="agregarprov()"><i class='bx bx-plus'></i> AGREGAR</button>
 </div>
 <p></p>
 <p></p>
@@ -244,6 +302,16 @@ breakpoint="1400px">
     </div>
     <h4 class="text-center">{{itemprovarts!.nombre}}</h4>
 
+    <p>SUCURSALES</p>
+    <p-multiSelect 
+    [options]="catsucursales" 
+    [(ngModel)]="sucursalesselconf" 
+    optionLabel="name" 
+    placeholder="SUCURSALES" 
+    [style]="{'width':'100%'}"
+    />
+    <P></P>
+    <p>ARTÍCULOS</p>
     <p-multiSelect 
     [options]="catitemsconf" 
     [(ngModel)]="selecteditemsconf" 
@@ -261,7 +329,7 @@ breakpoint="1400px">
       <th scope="col">COD</th>
       <th scope="col">REFERENCIA</th>
       <th scope="col">NOMBRE</th>
-      
+      <th scope="col">FISCAL</th>
     </tr>
   </thead>
   <tbody>
@@ -269,7 +337,13 @@ breakpoint="1400px">
       <th>{{item.cod}}</th>
       <td>{{item.referencia}}</td>
       <td>{{item.descripcion}}</td>
-      
+      <td>
+        <!-- <div class="p-3 rounded-3" style="background-color:#ddd;"><input class="form-check-input" type="checkbox" role="switch"  [(ngModel)]="item.fiscal"></div> -->
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" [(ngModel)]="item.fiscal" >
+          <label class="form-check-label" for="flexSwitchCheckDefault"></label>
+        </div>
+      </td>
     </tr>
   </tbody>
 </table>
@@ -299,26 +373,21 @@ breakpoint="1400px">
         <p class="fw-bold">FECHA DE ENTREGA</p>
         <p class="bg-g-l text-danger p-3 rounded-3">{{pedidosel?.fechaEntrega | date}}</p>
       </div>
-
-      <div class="col-auto p-3" *ngIf="pedidosel != undefined && pedidosel!.tienedescuento">
+<!-- 
+      <div class="col-auto p-3" *ngIf="pedidosel != undefined">
         <p class="fw-bold">SUBTOTAL</p>
         <p class="bg-g-l text-danger p-3 rounded-3">{{pedidosel!.total | number : '1.2-2'}}</p>
-      </div>
-      <div class="col-auto p-3" *ngIf="pedidosel != undefined && pedidosel!.tienedescuento">
+      </div> -->
+      <!-- <div class="col-auto p-3" *ngIf="pedidosel">
         <p class="fw-bold">DESCUENTO</p>
         <input type="number" class="form-control p-1 text-center" [(ngModel)]="fdescuento" [disabled]="pedidosel.status != 1 || idRol < 19 || idRol > 21">
         <button *ngIf="pedidosel.status == 1 && idRol > 18 && idRol < 22" class="btn btn-danger m-1" (click)="updateDescuentoPedSuc()"><i class='bx bx-save bx-sm'></i></button>
-      </div>
-      <div class="col-auto p-3" *ngIf="pedidosel != undefined && pedidosel!.cantidaddescuento != undefined">
+      </div> -->
+      <div class="col-auto p-3" *ngIf="pedidosel != undefined">
         <p class="fw-bold">TOTAL</p>
-        <p class="bg-g-l text-danger fw-bold p-3 rounded-3">{{(pedidosel!.total - fdescuento) | number : '1.2-2'}}</p>
+        <p class="bg-g-l text-danger fw-bold p-3 rounded-3">{{(pedidosel!.total) | number : '1.2-2'}}</p>
       </div>
 
-      <div class="col-auto p-3" *ngIf="pedidosel != undefined && pedidosel!.cantidaddescuento == undefined">
-        <p class="fw-bold">TOTAL</p>
-        <p class="bg-g-l text-danger fw-bold p-3 rounded-3">{{pedidosel!.total | number : '1.2-2'}}</p>
-      </div>
-     
     </div>
   </div>
 
@@ -328,7 +397,9 @@ breakpoint="1400px">
   
 
   <H5 class="text-center mt-3">ARTICULOS</H5>
-
+  <div class="mt-3 mb-3" *ngIf="pedidosel != undefined && pedidosel!.status == 1 && idRol > 18 && idRol < 22">
+    <button class="btn bg-p-b p-3" (click)="openmodalagregaritem()"><i class='bx bx-plus'></i> AGREGAR</button>
+  </div>
   <table class="table text-center table-bordered" *ngIf="pedidosel!=undefined">
     <thead>
       <tr class="table-light">
@@ -383,6 +454,7 @@ breakpoint="1400px">
         <P>FECHA INICIAL</P>
         <p-calendar 
         [(ngModel)]="fechainiH" 
+        dateFormat="dd/mm/yy"
         [iconDisplay]="'input'" 
         [showIcon]="true" 
         inputId="icondisplay" 
@@ -392,6 +464,7 @@ breakpoint="1400px">
         <P>FECHA FINAL</P>
         <p-calendar 
         [(ngModel)]="fechafinH" 
+        dateFormat="dd/mm/yy"
         [iconDisplay]="'input'" 
         [showIcon]="true" 
         inputId="icondisplay" 
@@ -408,6 +481,7 @@ breakpoint="1400px">
       <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
     </div>
     <p></p>
+    
 
     <p-table
     [value]="arr_dataH"
@@ -462,10 +536,9 @@ breakpoint="1400px">
  
   <div class="text-center fw-bold">CAJAS</div>
   <div class="d-flex justify-content-center p-3 gap-3">
-   <button class="btn btn-danger" (click)="restarac()"><i class='bx bx-minus-circle'></i></button>
-   <input type="number" class="form-control text-center" style="max-width: 10rem;" [(ngModel)]="unidadesajustec"  disabled>
-   <button class="btn btn-success" (click)="aumentarac()"><i class='bx bx-plus-circle'></i></button>
-
+   <!-- <button class="btn btn-danger" (click)="restarac()"><i class='bx bx-minus-circle'></i></button> -->
+   <input type="number" class="form-control text-center" style="max-width: 10rem;" [(ngModel)]="unidadesajustec" >
+   <!-- <button class="btn btn-success" (click)="aumentarac()"><i class='bx bx-plus-circle'></i></button> -->
  
   </div>
 
@@ -474,27 +547,76 @@ breakpoint="1400px">
     <div class="d-flex justify-content-center"><div class="text-center p-2 bg-g-l rounded-3">{{calcularuds() | number : '1.2-2' }}</div></div>
    </div>
    
-  <!-- <P>JUSTIFICACIÓN</P>
+  <P>JUSTIFICACIÓN</P>
   <div class="mt-3 mb-3">
-    <select class="form-select" [(ngModel)]="comentarioajuste">
+    <select class="form-select" [(ngModel)]="justificacionajuste">
       <option value="ALMACENAJE LIMITADO">ALMACENAJE LIMITADO</option>
       <option value="NUEVA PROMOCION">NUEVA PROMOCION</option>
       <option value="VENTA EXTRAODINARIA">VENTA EXTRAODINARIA</option>
       <option value="STOCK POR ENCIMA DEL CONSUMO PROYECTADO">STOCK POR ENCIMA DEL CONSUMO PROYECTADO</option>
-      <option value="STOCK EXACTO PARA CUBRIR VENTA">STOCK EXACTO PARA CUBRIR VENTA</option>
+      <option value="PEDIDO EXACTO PARA CUBRIR VENTA">PEDIDO EXACTO PARA CUBRIR VENTA</option>
       <option value="CARTONES INSUFICIENTES">CARTONES INSUFICIENTES</option>
     </select>
   </div>
-   -->
-  <!-- <P>COMENTARIO</P>
-  <textarea class="form-control" [(ngModel)]="justificacionac"></textarea> -->
+  
+  <P>COMENTARIO</P>
+  <textarea class="form-control" [(ngModel)]="comentarioajuste"></textarea>
   
   <div class="d-flex justify-content-end mt-3">
-    <button class="btn bg-p-b p-3" (click)="updateItemPedSuc()">GUARDAR</button>
+    <button class="btn bg-p-b p-3" (click)="updateItemPedSuc()" [disabled]="justificacionajuste == '' || unidadesajustec<0">GUARDAR</button>
   </div>
   
 </p-dialog>
 
+
+<p-dialog header="AGREGAR ARTÍCULOS" [(visible)]="modalagregaritem" [style]="{width: '50vw'}" [maximizable]="false" [modal]="true">
+  <div class="d-flex justify-content-center" *ngIf="loading">
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+  </div>
+
+  <div class="m-3 text-center" *ngIf="loading == false && datatable.length == 0">
+    TODOS LOS ARTÍCULOS DISPONIBLES DEL PROVEEDOR YA SE ENCUENTRAN EN EL PEDIDO
+  </div>
+  <div style="min-height: 200px;" *ngIf="loading == false && datatable.length>0">
+    <table class="table text-center table-bordered">
+      <thead>
+        <tr class="table-light">
+          <th>SELECCIONAR</th>
+          <th scope="col">DESCRIPCION</th>
+          <th scope="col">CAJAS</th>
+          <th scope="col">UDS/CAJA</th>
+          <th scope="col">U. MEDIDA</th>
+          <th scope="col">UDS TOTALES</th>
+          <!-- <th scope="col">IMPUESTO</th>
+          <th scope="col">PRECIO</th>
+          <th scope="col">TOTAL</th> -->
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of datatable">
+          <th><input class="form-check-input" type="checkbox" (change)="checkitem(item)" [checked]="getCheck(item)" [disabled]="item.tienemultiplo == false"></th>
+          <th>{{item.nombre}}</th>
+          <td><input class="form-control P-2 text-center" type="number" [(ngModel)]="item.cajas"></td>
+          <td *ngIf="item.tienemultiplo == true">{{item.unidadescaja}}</td>
+          <td *ngIf="item.tienemultiplo == false">SIN REGISTRO</td>
+          <td>{{item.udm}}</td>
+          <td>{{(item.cajas * item.unidadescaja) | number : '1.2-2'}}</td>
+          <!-- <td>{{item.tipoImpuesto}}</td>
+          <td>{{item.precio | number : '1.2-2'}}</td>
+          <td>{{item.total_linea | number : '1.2-2'}}</td> -->
+        </tr>
+
+      </tbody>
+    </table>
+
+</div>
+
+
+  <div class="d-flex justify-content-end mt-3">
+    <button class="btn bg-p-b p-3" [disabled]="loading == true || arr_itemsadd.length == 0" (click)="additemsped()">AGREGAR</button>
+  </div>
+  
+</p-dialog>
 
 <p-confirmDialog></p-confirmDialog>
 <p-toast [breakpoints]="{'920px': {width: '100%', right: '0', left: '0'}}" [showTransformOptions]="'translateY(100%)'" [showTransitionOptions]="'500ms'" [hideTransitionOptions]="'500ms'" [showTransformOptions]="'translateX(100%)'"></p-toast>

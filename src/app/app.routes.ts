@@ -69,6 +69,11 @@ export const routes: Routes = [
             loadComponent: () => import('./main/pages/medidas-uds/medidas-uds.component')
         },
         {
+            path:'medidas-uds-sucursales',
+            title:'Medidas',
+            loadComponent: () => import('./main/pages/medidas-uds-sucursales/medidas-uds-sucursales.component')
+        },
+        {
             path:'parameters',
             title:'Parametros',
             loadComponent: () => import('./main/pages/parametros/parametros.component')

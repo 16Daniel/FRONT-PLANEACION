@@ -15,12 +15,12 @@ export interface Pedido
     tieneretornables:boolean; 
     cartones:number;
     capturacartones:boolean; 
-    tienedescuento:boolean|undefined; 
     cantidaddescuento:number|undefined; 
 
     cartonesplaneacion:number|undefined;
     diferenciacartones:number|undefined; 
 
+    totiva:number; 
 }
 
 export interface PedidoH 
@@ -38,7 +38,6 @@ export interface PedidoH
     rfc:string;
     numpedido:string; 
     notificado:boolean; 
-    tienedescuento:boolean|undefined; 
     cantidaddescuento:number|undefined; 
 }
 
@@ -71,6 +70,7 @@ export interface ArticuloPedido
 
         tienelimitealmacen:boolean;
         capacidadalmfinal:number; 
+        invformulado:boolean;
 
 }
 
@@ -96,6 +96,7 @@ export interface ArticuloPedSuc {
     codigoAlmacen: string;
   
     tienemultiplo: boolean;
+    udm:string; 
   }
 
   export interface PedidoSuc {
@@ -111,8 +112,7 @@ export interface ArticuloPedSuc {
     rfc: string;
     articulos: ArticuloPedSuc[];
     nombresolicitante: string;
-
-    tienedescuento:boolean|undefined; 
+    
     cantidaddescuento:number|undefined; 
     numpedido:string|undefined; 
   }

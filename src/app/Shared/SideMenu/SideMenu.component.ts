@@ -166,6 +166,21 @@ if (window.innerWidth < 768) {
         }
     });
 
+    this.apiserv.validarToken().subscribe({
+      next: data => {
+        if(data==false)
+          {
+            localStorage.removeItem("rwuserdata");
+            localStorage.removeItem("catRutas");
+            
+            this.router.navigate(["/auth/login"]);
+          }
+      },
+      error: error => {
+        console.log(error); 
+      }
+  });
+
     }, 10000);
 
    }

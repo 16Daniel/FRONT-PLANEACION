@@ -59,8 +59,8 @@ showMessage(sev:string,summ:string,det:string) {
 
         this.apiserv.login(data).subscribe({
           next: data => {
-            debugger
-            let user:UsuarioLogin = data; 
+            let user:UsuarioLogin = data.usuario; 
+            user.token = data.token; 
             localStorage.setItem("rwuserdata",JSON.stringify(user));
              this.loading = false; 
             this.getRutas(user.idRol);
@@ -71,12 +71,7 @@ showMessage(sev:string,summ:string,det:string) {
              if(error.status == 404)
               {
                 this.showMessage('error',"Error","Credenciales incorrectas");
-              }
-
-              if(error.status == 423)
-                {
-                  this.showMessage('error',"Error","Hay una sesión iniciada con este usuario");
-                }else
+              }else
                 {
                   this.showMessage('error',"Error","Error al procesar la solicitud");
                 }

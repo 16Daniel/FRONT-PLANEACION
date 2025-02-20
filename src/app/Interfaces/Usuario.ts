@@ -18,4 +18,5 @@ export interface Usuario
     apellidoM:string;
     idRol:number;
     email:string;
+    token:string|undefined; 
  }

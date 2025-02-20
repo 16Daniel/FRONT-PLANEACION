@@ -17,6 +17,7 @@ import { PickListModule } from 'primeng/picklist';
 import { CalendarModule } from 'primeng/calendar';
 import { ArticuloPedSuc, PedidoSuc } from '../../../Interfaces/pedido';
 import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-pedidos-manual',
@@ -32,7 +33,8 @@ import { TableModule } from 'primeng/table';
     ConfirmDialogModule,
     PickListModule,
     CalendarModule,
-    TableModule
+    TableModule,
+    TagModule
   ],
   providers:[MessageService,ConfirmationService],
   templateUrl: './PedidosManual.component.html',
@@ -43,6 +45,7 @@ public modalconfig:boolean = false;
 public modalconfigarts:boolean = false; 
 public modalhistorial:boolean = false; 
 public catsucursales:Sucursal[] = [];
+public sucursalesselconf:Sucursal[] = [];
 public catproveedores:Proveedor[] = [];
 public catproveedoresconf:Proveedor[] = [];
 public loading:boolean = false; 
@@ -76,7 +79,17 @@ public modalajusteItem:boolean = false;
 public itemdetalles:ArticuloPedSuc|undefined; 
 public unidadesajustec:number = 0; 
 public idRol:number = 0; 
-  ngOnInit(): void { }
+public fechahoy:Date = new Date(); 
+public shownota:boolean = false; 
+public justificacionajuste:string = ""; 
+public comentarioajuste:string = ""; 
+
+public modalagregaritem:boolean = false; 
+
+public arr_itemsadd:ArticuloPedSuc[] = []; 
+
+public showmezclapedido:boolean = false; 
+public filtrofecha:Date | undefined; 
 
   constructor(public apiserv:ApiService,private messageService: MessageService,public cdr:ChangeDetectorRef,private confirmationService: ConfirmationService)
   {
@@ -87,6 +100,28 @@ public idRol:number = 0;
     let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
     this.idRol = this.idRol = userdata.idRol; 
   }
+
+  ngOnInit(): void 
+  {
+    // if(this.idRol > 18 && this.idRol < 22)
+    //   {
+    //     const intervalId = setInterval(() => {
+    //       this.apiserv.getPedidosSuc(-1).subscribe({
+    //        next: data => {
+    //           this.arr_data=data;
+    //         this.cdr.detectChanges();
+    //        },
+    //        error: error => {
+    //           console.log(error);
+    //           this.loading = false
+    //           this.showMessage('error',"Error","Error al procesar la solicitud");
+    //        }
+    //    });
+       
+    //        }, 10000);
+    //   }
+   
+   }
 
   showMessage(sev:string,summ:string,det:string) {
     this.messageService.add({ severity: sev, summary: summ, detail: det });
@@ -108,10 +143,11 @@ openmodalconfig()
 openmodalconfigarts(item:Proveedor)
 {
   this.itemprovarts = item; 
-  this.getItemsprovconf();
+  this.getSucursalesConf()
   this.apiserv.getItemprovPedSuc(item.codproveedor).subscribe({
     next: data => {
        this.selecteditemsconf=data;
+       console.log(this.selecteditemsconf)
        this.loading = false; 
        this.cdr.detectChanges();
     },
@@ -232,11 +268,21 @@ getSucursalUser()
 
 getItemsprovpedsuc()
 {
+  this.shownota = false; 
   this.loading = true; 
   this.selecteditems = [];
   this.apiserv.getItemprovPedSuc(this.provsel!.codproveedor).subscribe({
     next: data => {
        this.catitems=data;
+
+       for(let item of this.catitems)
+        {
+          if(item.tudm == false)
+            {
+              this.shownota = true; 
+            }
+        }
+
        this.loading = false; 
        this.cdr.detectChanges();
     },
@@ -266,12 +312,35 @@ getItemsprovconf()
 }
 
 
+getSucursalesConf()
+{
+  this.loading3= true; 
+  this.apiserv.getSucursalesProvPedSucConfig(this.itemprovarts!.codproveedor).subscribe({
+    next: data => {
+       this.sucursalesselconf=data;
+       this.getItemsprovconf();
+       this.cdr.detectChanges();
+    },
+    error: error => {
+       console.log(error);
+       this.loading3 = false; 
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
+}
+
 agregarprov()
 {
+  let sucursales:number[] = [];
+  for(let item of this.sucursalesselconf)
+    {
+      sucursales.push(item.cod); 
+    } 
   this.loading2 = true;
-  this.apiserv.addProvPedSuc(this.provselconf!.codproveedor).subscribe({
+  this.apiserv.addProvPedSuc(this.provselconf!.codproveedor,JSON.stringify(sucursales)).subscribe({
     next: data => {
        this.loading2 = false; 
+       this.sucursalesselconf = []; 
        this.showMessage('success',"Success","Agregado correctamente");
        this.cdr.detectChanges();
        this.getProveedores(); 
@@ -325,10 +394,10 @@ agregaritemsprov()
 {
   this.loading3 = true;
 
-  let data:number[] = []; 
+  let data:any[] = []; 
   for(let item of this.selecteditemsconf)
     {
-      data.push(item.cod); 
+      data.push({id:item.cod,fiscal:item.fiscal}); 
     }
 
   this.apiserv.agregaritemsprovpedsuc(this.itemprovarts!.codproveedor,JSON.stringify(data)).subscribe({
@@ -409,7 +478,13 @@ guardarpedido()
       next: data => {
          this.loading = false; 
          this.modalagregar = false; 
-         this.getPedidoshoySuc(this.sucursalsel!.cod); 
+         if(this.filtrofecha != undefined)
+          {
+            this.getpedidosFecha()
+          } else 
+          {
+            this.getPedidoshoySuc(this.sucursalsel!.cod); 
+          }
          this.showMessage('success',"Success","Guardado correctamente");
          this.nombreuserped = ""; 
          this.cdr.detectChanges();
@@ -439,7 +514,22 @@ rechazarPedido()
       this.loading = false; 
        this.verpedido= false;
        this.pedidosel = undefined; 
-       this.getPedidoshoySuc(this.sucursalsel!.cod)
+       let idsuc:number = 0; 
+       if(this.idRol>18 && this.idRol<22)
+         {
+           idsuc = -1; 
+         } else
+         {
+           idsuc = this.sucursalsel!.cod;
+         }
+         if(this.filtrofecha != undefined)
+          {
+            this.getpedidosFecha()
+          } else 
+          {
+            this.getPedidoshoySuc(this.sucursalsel!.cod); 
+          }
+       
         this.showMessage('info',"Info","Pedido rechazado");
        this.cdr.detectChanges();
     },
@@ -488,7 +578,22 @@ updateDescuentoPedSuc()
   this.apiserv.updateDescuentoPedSuc(this.pedidosel!.id,this.fdescuento).subscribe({
     next: data => {
       this.showMessage('success',"Success","Actualizado correctamente");
-      this.getPedidoshoySuc(this.sucursalsel!.cod); 
+      let idsuc:number = 0; 
+      if(this.idRol>18 && this.idRol<22)
+        {
+          idsuc = -1; 
+        } else
+        {
+          idsuc = this.sucursalsel!.cod;
+        }
+        if(this.filtrofecha != undefined)
+          {
+            this.getpedidosFecha()
+          } else 
+          {
+            this.getPedidoshoySuc(this.sucursalsel!.cod); 
+          }
+        
       this.loading = false;
     },
     error: error => {
@@ -519,7 +624,22 @@ eliminaritempedsuc(codart:number)
            this.pedidosel!.articulos = this.pedidosel!.articulos.filter( x => x.codArticulo != codart); 
            this.showMessage('success',"Success","Eliminado correctamente");
            this.cdr.detectChanges();
-           this.getPedidoshoySuc(this.sucursalsel!.cod); 
+           let idsuc:number = 0; 
+            if(this.idRol>18 && this.idRol<22)
+              {
+                idsuc = -1; 
+              } else
+              {
+                idsuc = this.sucursalsel!.cod;
+              }
+              if(this.filtrofecha != undefined)
+                {
+                  this.getpedidosFecha()
+                } else 
+                {
+                  this.getPedidoshoySuc(this.sucursalsel!.cod); 
+                }
+             
         },
         error: error => {
            console.log(error);
@@ -570,11 +690,27 @@ updateItemPedSuc()
 {
   this.modalajusteItem = false; 
   this.loading2 = true; 
-  this.apiserv.updateItemPedSuc(this.pedidosel!.id,this.itemdetalles!.codArticulo,this.unidadesajustec,this.calcularuds()).subscribe({
+  this.apiserv.updateItemPedSuc(this.pedidosel!.id,this.itemdetalles!.codArticulo,this.unidadesajustec,this.calcularuds(),this.justificacionajuste,this.comentarioajuste).subscribe({
     next: data => {
-     
+     this.justificacionajuste = "";
+     this.comentarioajuste = ""; 
       this.showMessage('success',"Success","Actualizado correctamente");
-      this.getPedidoshoySuc(this.sucursalsel!.cod); 
+      let idsuc:number = 0; 
+      if(this.idRol>18 && this.idRol<22)
+        {
+          idsuc = -1; 
+        } else
+        {
+          idsuc = this.sucursalsel!.cod;
+        }
+        if(this.filtrofecha != undefined)
+          {
+            this.getpedidosFecha()
+          } else 
+          {
+            this.getPedidoshoySuc(this.sucursalsel!.cod); 
+          }
+       
       this.loading2 = false;
     },
     error: error => {
@@ -594,7 +730,22 @@ confirmarpedidoSuc()
       this.showMessage('success',"Success","Procesado correctamente");
       this.pedidosel = undefined; 
       this.loading = false;
-      this.getPedidoshoySuc(this.sucursalsel!.cod); 
+      let idsuc:number = 0; 
+      if(this.idRol>18 && this.idRol<22)
+        {
+          idsuc = -1; 
+        } else
+        {
+          idsuc = this.sucursalsel!.cod;
+        }
+        if(this.filtrofecha != undefined)
+          {
+            this.getpedidosFecha()
+          } else 
+          {
+            this.getPedidoshoySuc(this.sucursalsel!.cod); 
+          }
+       
        this.cdr.detectChanges();
     },
     error: error => {
@@ -606,5 +757,211 @@ confirmarpedidoSuc()
 
 }
 
+descativarbotton():boolean
+{
+  let val:boolean = false;
 
+  for(let item of this.selecteditems)
+    {
+      if(item.tudm == false)
+        {
+          val = true; 
+        }
+    }
+
+  return val; 
+}
+
+openmodalagregaritem()
+{
+  this.arr_itemsadd = []; 
+  this.datatable = [];
+  this.modalagregaritem = true; 
+this.loading = true;
+  this.apiserv.getItemsDisponiblesPed(this.pedidosel!.id).subscribe({
+    next: data => {
+       this.datatable=data;
+       this.loading = false; 
+       this.cdr.detectChanges();
+    },
+    error: error => {
+       console.log(error);
+       this.loading = false; 
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
+
+}
+
+checkitem(item:ArticuloPedSuc)
+{
+  let temp = this.arr_itemsadd.filter(x => x.codArticulo == item.codArticulo);
+  if(temp.length == 0)
+    {
+      this.arr_itemsadd.push(item);
+    }else
+    {
+      this.arr_itemsadd = this.arr_itemsadd.filter(x => x.codArticulo != item.codArticulo);
+    }
+}
+
+
+getCheck(item:ArticuloPedSuc):boolean
+{
+
+  let temp = this.arr_itemsadd.filter(x => x.codArticulo == item.codArticulo);
+  if(temp.length == 0)
+    {
+      return false;
+    } else
+    {
+      return true; 
+    }
+
+}
+
+additemsped()
+{
+  for(let item of this.arr_itemsadd)
+    {
+      if(item.cajas <= 0)
+        {
+          this.showMessage('info',"Error","Todos los articulos deben tener más de 0 unidades");
+          return;
+        }
+    }
+
+  this.loading = true;
+  this.apiserv.addItemPedSuc(this.pedidosel!.id,this.arr_itemsadd).subscribe({
+    next: data => {
+       this.loading = false;
+       let idsuc:number = 0; 
+      if(this.idRol>18 && this.idRol<22)
+        {
+          idsuc = -1; 
+        } else
+        {
+          idsuc = this.sucursalsel!.cod;
+        }
+        if(this.filtrofecha != undefined)
+          {
+            this.getpedidosFecha()
+          } else 
+          {
+            this.getPedidoshoySuc(this.sucursalsel!.cod); 
+          }
+       
+       this.showMessage('success',"Success","Actualizado correctamente");
+       this.arr_itemsadd = []; 
+       this.modalagregaritem = false; 
+       this.cdr.detectChanges();
+    },
+    error: error => {
+       console.log(error);
+       this.loading = false; 
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
+}
+
+articulosmezclados()
+{
+  debugger
+  let tienefiscal:boolean = false; 
+  let tienenofiscal:boolean = false; 
+  for(let item of this.selecteditems)
+    {
+        if(item.fiscal)
+          {
+            tienefiscal = true; 
+          }else
+          {
+            tienenofiscal = true; 
+          }
+    }
+
+    if(tienefiscal && tienenofiscal)
+      {
+        this.showmezclapedido = true; 
+      } else 
+      {
+        this.showmezclapedido = false; 
+      }
+      this.cdr.detectChanges();
+}
+
+getpedidosFecha()
+{
+  this.loading = true;
+  if(this.filtrofecha == undefined)
+    {
+      this.loading = false; 
+      this.showMessage('info',"Error","Favor de seleccionar un fecha");
+      return;
+    }
+      
+    let ids = -1;
+    if(this.idRol > 18 && this.idRol < 22)
+      {
+          ids = -1;
+      } else { ids = this.sucursalsel!.cod; }
+    this.apiserv.getPedidosSucF(this.filtrofecha,ids).subscribe({
+      next: data => {
+        this.arr_data=data;
+
+       if(this.pedidosel != undefined)
+        {
+          let idp = this.pedidosel!.id; 
+          this.pedidosel = undefined; 
+          this.pedidosel = this.arr_data.find(x => x.id == idp);
+        }
+
+        this.loading = false; 
+        this.cdr.detectChanges();
+      },
+      error: error => {
+         console.log(error);
+         this.showMessage('error',"Error","Error al procesar la solicitud");
+      }
+  });
+}
+
+notificarProv()
+{
+  this.loading = true;
+    this.apiserv.enviarNotificaciones().subscribe({
+      next: data => {
+       if(data.success == true)
+        {
+          this.loading = false; 
+          this.registrarnotificacion(1); 
+          this.showMessage('success',"Success","Enviado correctamente");
+
+        } else
+        {
+          this.loading = false; 
+          this.showMessage('error',"Error",data.error);
+        }
+      },
+      error: error => {
+        this.loading = false; 
+        this.registrarnotificacion(0); 
+         console.log(error);
+         this.showMessage('error',"Error","Error al procesar la solicitud");
+      }
+  });
+}
+
+registrarnotificacion(resp:number)
+{
+  this.apiserv.registroNotificacion(resp).subscribe({
+    next: data => {
+      this.loading = false;
+    },
+    error: error => {
+      this.loading = false; 
+       console.log(error);
+    }
+});
+}
 }

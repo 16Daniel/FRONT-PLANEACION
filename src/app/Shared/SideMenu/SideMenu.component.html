@@ -1,7 +1,7 @@
 <nav class="navbar">
   <div class="logo_item">
     <i class="bx bx-menu" id="sidebarOpen"></i>
-   REBEL WINGS V1.34
+   REBEL WINGS V1.39
   </div>
   <div *ngIf="mensaje" class="p-1 bg-danger w-auto rounded-3 text-light fw-bold">
     ⚠️ HOY ES VIERNES: HOY SE TIENE QUE CARGAR LOS DÍAS ESPECIALES (SUCURSAL / ARTÍCULO) DE LA SIGUIENTE SEMANA</div>
@@ -158,6 +158,19 @@
           <span class="navlink" [routerLinkActive]="'text-light'">Medidas UDS</span>
         </a>
       </li>
+
+      <li class="item" *ngIf="comprobaracceso('/main/medidas-uds-sucursales')">
+        <a
+        [routerLink]="'medidas-uds-sucursales'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-package' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Medidas UDS Sucursal</span>
+        </a>
+      </li>
+
 
       <li class="item" *ngIf="comprobaracceso('/main/retornables')">
         <a

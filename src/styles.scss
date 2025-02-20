@@ -424,7 +424,7 @@ ul {
   color: white;
 }
 
-.p-button
+.p-picklist-buttons .p-button
 {
   color: #ffffff;
     background: #000000;
@@ -434,4 +434,14 @@ ul {
 
 ol, ul {
   padding: 1rem;
+}
+
+.p-picklist-target-wrapper
+{
+  border: 3px solid #00ff2a;
+}
+
+.p-picklist-source-wrapper
+{
+  border: 3px solid #ff0000;
 }
