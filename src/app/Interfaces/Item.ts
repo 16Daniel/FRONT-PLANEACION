@@ -13,4 +13,5 @@ export interface Item
     referencia:string; 
     tudm:boolean; 
     fiscal:boolean; 
+    tieneTarifa:boolean; 
  }

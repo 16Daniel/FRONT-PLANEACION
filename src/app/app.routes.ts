@@ -124,6 +124,11 @@ export const routes: Routes = [
             loadComponent: () => import('./main/pages/InventarioTeorico/InventarioTeorico.component')
         },
         {
+            path:'asignaciones-ped-suc',
+            title:'Asignaciones',
+            loadComponent: () => import('./main/pages/Asignaciones-pedidos-sucursal/Asignaciones-pedidos-sucursal.component')
+        },
+        {
             path: '',
             redirectTo: '/main/home',
             pathMatch: 'full'

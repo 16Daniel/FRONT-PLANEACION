@@ -70,7 +70,7 @@ export default class MedidasUdsComponent implements OnInit {
   
   getProveedores()
   {
-     this.apiserv.getProveedoresPedSuc().subscribe({
+     this.apiserv.getProveedoresPedSuc(-2,-1).subscribe({
       next: data => {
          this.catproveedores=data;
          this.cdr.detectChanges();
@@ -87,7 +87,7 @@ export default class MedidasUdsComponent implements OnInit {
   {
     this.catitems = []; 
     this.loading2 = true; 
-     this.apiserv.getItemprovPedSuc(this.proveedorsel).subscribe({
+     this.apiserv.getItemprovPedSuc(this.proveedorsel,-1).subscribe({
       next: data => {
          this.catitems=data;
          this.loading2 = false; 

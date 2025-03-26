@@ -47,6 +47,10 @@ export class ApiService {
    {
       return this.http.get<Proveedor[]>(this.url+'Catalogos/getProveedores',{headers:this.headers})
    }
+   getProveedoresAllPedSuc():Observable<Proveedor[]>
+   {
+      return this.http.get<Proveedor[]>(this.url+'Catalogos/getProveedoresPedSuc',{headers:this.headers})
+   }
 
    getItemprov():Observable<Item[]>
    {
@@ -286,11 +290,13 @@ export class ApiService {
    }
 
    getPedidosSucF(fechap:Date,ids:number):Observable<PedidoSuc[]>
-   {
+   {  
       let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id;
       let formdata = new FormData();
       formdata.append("fecha",fechap.toString());
-      formdata.append("ids",ids.toString())
+      formdata.append("ids",ids.toString());
+      formdata.append("idu",idu.toString())
       return this.http.post<PedidoSuc[]>(this.url+`PedidosSucursal/getPedidosFecha`,formdata,{headers:this.headers})
    }
 
@@ -469,9 +475,24 @@ export class ApiService {
       return this.http.post<any>(this.url+'AsignacionProv/addAsignacionProv',formdata,{headers:this.headers})
    }
 
+   guardarAsignacionesPedSuc(idprov:number, idu:number, sucursales:string):Observable<any>
+   {
+      let formdata = new FormData();
+      formdata.append("idprov",idprov.toString());
+      formdata.append("idu",idu.toString());
+      formdata.append("jdsucursales",sucursales);
+      return this.http.post<any>(this.url+'AsignacionProv/addAsignacionProvPedSuc',formdata,{headers:this.headers})
+   }
+
+
    getAsignaiones():Observable<Asignacion[]>
    {
       return this.http.get<Asignacion[]>(this.url+`AsignacionProv/getAsignaciones`,{headers:this.headers})
+   }
+
+   getPedSucAsignaiones():Observable<Asignacion[]>
+   {
+      return this.http.get<Asignacion[]>(this.url+`AsignacionProv/getAsignacionesPedSuc`,{headers:this.headers})
    }
 
 
@@ -479,6 +500,12 @@ export class ApiService {
    {
       let formdata = new FormData();
       return this.http.delete<any>(this.url+`AsignacionProv/deleteAsignacionesProv/${jdata}`,{headers:this.headers})
+   }
+
+   deleteAsignacionesPedSuc(jdata:string):Observable<any>
+   {
+      let formdata = new FormData();
+      return this.http.delete<any>(this.url+`AsignacionProv/deleteAsignacionesProvPedSuc/${jdata}`,{headers:this.headers})
    }
 
    logout():Observable<any>
@@ -666,14 +693,14 @@ export class ApiService {
     return this.http.post<Diferencia[]>(this.url+'Diferencias/getDiferenciaLin',formdata,{headers:this.headers})
    }
 
-   getProveedoresPedSuc():Observable<Proveedor[]>
+   getProveedoresPedSuc(idperfil:number,idsuc:number):Observable<Proveedor[]>
    {
-      return this.http.get<Proveedor[]>(this.url+'PedidosSucursal/getProveedoresPedSuc',{headers:this.headers})
+      return this.http.get<Proveedor[]>(this.url+'PedidosSucursal/getProveedoresPedSuc/'+idperfil+'/'+idsuc,{headers:this.headers})
    }
 
-   getItemprovPedSuc(idprov:number):Observable<ItemPS[]>
+   getItemprovPedSuc(idprov:number,idperfil:number):Observable<ItemPS[]>
    {
-      return this.http.get<ItemPS[]>(this.url+'PedidosSucursal/getItemsprovPedSuc/'+idprov,{headers:this.headers})
+      return this.http.get<ItemPS[]>(this.url+'PedidosSucursal/getItemsprovPedSuc/'+idprov+'/'+idperfil,{headers:this.headers})
    } 
 
    getProveedoresPedSucConfig():Observable<Proveedor[]>
@@ -686,29 +713,32 @@ export class ApiService {
       return this.http.get<ItemPS[]>(this.url+'PedidosSucursal/getItemsprov/'+idprov,{headers:this.headers})
    } 
 
-   getSucursalesProvPedSucConfig(idprov:number):Observable<Sucursal[]>
+   getSucursalesProvPedSucConfig(idprov:number,idperfil:number):Observable<Sucursal[]>
    {
-      return this.http.get<Sucursal[]>(this.url+'PedidosSucursal/getSucursalesProvPedSuc/'+idprov,{headers:this.headers})
+      return this.http.get<Sucursal[]>(this.url+'PedidosSucursal/getSucursalesProvPedSuc/'+idprov+'/'+idperfil,{headers:this.headers})
    } 
 
-   addProvPedSuc(idprov:number,jdata:string):Observable<Diferencia[]>
+   addProvPedSuc(idprov:number,jdata:string,idperfil:number):Observable<Diferencia[]>
    {
     let formdata = new FormData();
     formdata.append("idprov",idprov.toString());
     formdata.append("jdata",jdata);
+    formdata.append("idperfil",idperfil.toString(9)); 
     return this.http.post<Diferencia[]>(this.url+'PedidosSucursal/agregarProveedor',formdata,{headers:this.headers})
    }
 
-   deleteprovpedsuc(id:number):Observable<any>
+   deleteprovpedsuc(id:number,idperfil:number):Observable<any>
    {
-      return this.http.delete<any>(this.url+`PedidosSucursal/deleteProvPedSuc/${id}`,{headers:this.headers})
+      return this.http.delete<any>(this.url+`PedidosSucursal/deleteProvPedSuc/${id}/${idperfil}`,{headers:this.headers})
    }
 
-   agregaritemsprovpedsuc(idprov:number,jdata:string):Observable<any>
+   agregaritemsprovpedsuc(idprov:number,jdata:string,idperfil:number,sucursales:string):Observable<any>
    {
     let formdata = new FormData();
     formdata.append("idprov",idprov.toString());
     formdata.append("jdata",jdata);
+    formdata.append("idperfil",idperfil.toString()); 
+    formdata.append("sucursales",sucursales); 
     return this.http.post<any>(this.url+'PedidosSucursal/agregarItems',formdata,{headers:this.headers})
    }
 
@@ -731,7 +761,10 @@ export class ApiService {
 
    getPedidosSuc(idsuc:number):Observable<PedidoSuc[]>
    {
-      return this.http.get<PedidoSuc[]>(this.url+`PedidosSucursal/getPedidos/${idsuc}`,{headers:this.headers})
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id;
+
+      return this.http.get<PedidoSuc[]>(this.url+`PedidosSucursal/getPedidos/${idsuc}/${idu}`,{headers:this.headers})
    }
 
    RechazarPedidoSuc(id:number):Observable<any>

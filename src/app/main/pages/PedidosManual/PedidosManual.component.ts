@@ -47,6 +47,7 @@ public modalhistorial:boolean = false;
 public catsucursales:Sucursal[] = [];
 public sucursalesselconf:Sucursal[] = [];
 public catproveedores:Proveedor[] = [];
+public catproveedoresPedSuc:Proveedor[] = [];
 public catproveedoresconf:Proveedor[] = [];
 public loading:boolean = false; 
 public loading2:boolean = false; 
@@ -68,6 +69,7 @@ public step2:boolean = false;
 
 public arr_data:PedidoSuc[] = []; 
 public arr_dataH:PedidoSuc[] = []; 
+public arr_dataH_all:PedidoSuc[] = []; 
 public verpedido:boolean = false; 
 public pedidosel:PedidoSuc|undefined; 
 public fdescuento:number = 0; 
@@ -90,11 +92,13 @@ public arr_itemsadd:ArticuloPedSuc[] = [];
 
 public showmezclapedido:boolean = false; 
 public filtrofecha:Date | undefined; 
+public proveedorsel:number = -999; 
+public sucursal:number = -999; 
+public perfilconfig:number = 1; 
 
   constructor(public apiserv:ApiService,private messageService: MessageService,public cdr:ChangeDetectorRef,private confirmationService: ConfirmationService)
   {
     this.getSucursales();
-    this.getProveedores();
     this.getProveedoresConfig(); 
 
     let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
@@ -129,6 +133,7 @@ public filtrofecha:Date | undefined;
 
 openmodaladd()
 {
+  this.getProveedores();
   this.step2 = false; 
   this.provsel = undefined; 
   this.selecteditems = []; 
@@ -137,31 +142,39 @@ openmodaladd()
 
 openmodalconfig()
 {
+  this.getprovedoresPedSuc();
   this.modalconfig = true; 
+}
+
+getprovedoresPedSuc()
+{
+  let ids = this.sucursalsel == undefined ? -1: this.sucursalsel.cod; 
+  this.loading2 = true;
+  this.apiserv.getProveedoresPedSuc(this.perfilconfig,ids).subscribe({
+    next: data => {
+       this.catproveedoresPedSuc=data;
+       this.loading2 = false; 
+     this.cdr.detectChanges();
+    },
+    error: error => {
+       console.log(error);
+       this.loading2 = false
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
 }
 
 openmodalconfigarts(item:Proveedor)
 {
+
   this.itemprovarts = item; 
   this.getSucursalesConf()
-  this.apiserv.getItemprovPedSuc(item.codproveedor).subscribe({
-    next: data => {
-       this.selecteditemsconf=data;
-       console.log(this.selecteditemsconf)
-       this.loading = false; 
-       this.cdr.detectChanges();
-    },
-    error: error => {
-       console.log(error);
-       this.showMessage('error',"Error","Error al procesar la solicitud");
-    }
-});
   this.modalconfigarts = true; 
 }
 
 getPedidoshoySuc(idsuc:number)
 {
-  
+  if(idsuc == undefined){ idsuc = -1}
   this.loading = true; 
    this.apiserv.getPedidosSuc(idsuc).subscribe({
     next: data => {
@@ -188,8 +201,11 @@ getPedidoshoySuc(idsuc:number)
 
 getProveedores()
 {
+  this.provsel = undefined; 
+  this.selecteditems = []; 
+  let ids = this.sucursalsel == undefined ? -1: this.sucursalsel.cod; 
   this.loading2 = true; 
-   this.apiserv.getProveedoresPedSuc().subscribe({
+   this.apiserv.getProveedoresPedSuc(-1,ids).subscribe({
     next: data => {
        this.catproveedores=data;
        this.loading2 = false; 
@@ -271,13 +287,13 @@ getItemsprovpedsuc()
   this.shownota = false; 
   this.loading = true; 
   this.selecteditems = [];
-  this.apiserv.getItemprovPedSuc(this.provsel!.codproveedor).subscribe({
+  this.apiserv.getItemprovPedSuc(this.provsel!.codproveedor,-1).subscribe({
     next: data => {
        this.catitems=data;
 
        for(let item of this.catitems)
         {
-          if(item.tudm == false)
+          if(item.tudm == false || item.tieneTarifa == false)
             {
               this.shownota = true; 
             }
@@ -297,10 +313,30 @@ getItemsprovpedsuc()
 getItemsprovconf()
 {
   this.loading3= true; 
+  this.selecteditemsconf = []; 
   this.apiserv.getItemprovPedSucConfig(this.itemprovarts!.codproveedor).subscribe({
     next: data => {
        this.catitemsconf=data;
-       this.loading3 = false; 
+       this.loading3= true; 
+       this.apiserv.getItemprovPedSuc(this.itemprovarts!.codproveedor,this.perfilconfig).subscribe({
+        next: data => {
+         
+           this.selecteditemsconf=data;
+           for(let item of this.selecteditemsconf)
+            {
+              let temp = this.catitemsconf.filter(x=>x.cod == item.cod);
+              if(temp.length>0){ temp[0].fiscal = item.fiscal; temp[0].tudm = item.tudm; temp[0].tieneTarifa = item.tieneTarifa;}
+            } 
+            this.loading3= false; 
+           this.cdr.detectChanges();
+        },
+        error: error => {
+          this.loading3= false; 
+           console.log(error);
+           this.showMessage('error',"Error","Error al procesar la solicitud");
+        }
+    });
+
        this.cdr.detectChanges();
     },
     error: error => {
@@ -315,7 +351,7 @@ getItemsprovconf()
 getSucursalesConf()
 {
   this.loading3= true; 
-  this.apiserv.getSucursalesProvPedSucConfig(this.itemprovarts!.codproveedor).subscribe({
+  this.apiserv.getSucursalesProvPedSucConfig(this.itemprovarts!.codproveedor,this.perfilconfig).subscribe({
     next: data => {
        this.sucursalesselconf=data;
        this.getItemsprovconf();
@@ -337,13 +373,13 @@ agregarprov()
       sucursales.push(item.cod); 
     } 
   this.loading2 = true;
-  this.apiserv.addProvPedSuc(this.provselconf!.codproveedor,JSON.stringify(sucursales)).subscribe({
+  this.apiserv.addProvPedSuc(this.provselconf!.codproveedor,JSON.stringify(sucursales),this.perfilconfig).subscribe({
     next: data => {
        this.loading2 = false; 
        this.sucursalesselconf = []; 
        this.showMessage('success',"Success","Agregado correctamente");
        this.cdr.detectChanges();
-       this.getProveedores(); 
+       this.getprovedoresPedSuc();
     },
     error: error => {
        console.log(error);
@@ -366,12 +402,12 @@ deleteprovpedsuc(id:number)
     accept: () => {
      
       this.loading2 = true;
-      this.apiserv.deleteprovpedsuc(id).subscribe({
+      this.apiserv.deleteprovpedsuc(id,this.perfilconfig).subscribe({
         next: data => {
            this.loading2 = false; 
            this.showMessage('success',"Success","Eliminado correctamente");
            this.cdr.detectChanges();
-           this.getProveedores(); 
+           this.getprovedoresPedSuc(); 
         },
         error: error => {
            console.log(error);
@@ -399,8 +435,15 @@ agregaritemsprov()
     {
       data.push({id:item.cod,fiscal:item.fiscal}); 
     }
+ let sucursales:number[] = []; 
 
-  this.apiserv.agregaritemsprovpedsuc(this.itemprovarts!.codproveedor,JSON.stringify(data)).subscribe({
+ for(let suc of this.sucursalesselconf)
+  {
+    sucursales.push(suc.cod);
+  }
+
+
+  this.apiserv.agregaritemsprovpedsuc(this.itemprovarts!.codproveedor,JSON.stringify(data),this.perfilconfig,JSON.stringify(sucursales)).subscribe({
     next: data => {
        this.loading3 = false; 
        this.showMessage('success',"Success","Guardado correctamente");
@@ -527,7 +570,7 @@ rechazarPedido()
             this.getpedidosFecha()
           } else 
           {
-            this.getPedidoshoySuc(this.sucursalsel!.cod); 
+            this.getPedidoshoySuc(idsuc); 
           }
        
         this.showMessage('info',"Info","Pedido rechazado");
@@ -543,6 +586,20 @@ rechazarPedido()
 
 abrirhistorial()
 {
+  this.loading2 = true;
+  this.apiserv.getProveedoresPedSuc(-2,-2).subscribe({
+    next: data => {
+       this.catproveedoresPedSuc=data;
+       this.loading2 = false; 
+     this.cdr.detectChanges();
+    },
+    error: error => {
+       console.log(error);
+       this.loading2 = false
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
+
   this.getpedidosSucH();
   this.modalhistorial = true; 
 }
@@ -561,6 +618,7 @@ getpedidosSucH()
   this.apiserv.getPedidosSucH(idsuc,this.fechainiH,this.fechafinH).subscribe({
    next: data => {
       this.arr_dataH=data;
+      this.arr_dataH_all = [...this.arr_dataH]; 
       this.loading2 = false; 
     this.cdr.detectChanges();
    },
@@ -591,7 +649,7 @@ updateDescuentoPedSuc()
             this.getpedidosFecha()
           } else 
           {
-            this.getPedidoshoySuc(this.sucursalsel!.cod); 
+            this.getPedidoshoySuc(idsuc); 
           }
         
       this.loading = false;
@@ -637,7 +695,7 @@ eliminaritempedsuc(codart:number)
                   this.getpedidosFecha()
                 } else 
                 {
-                  this.getPedidoshoySuc(this.sucursalsel!.cod); 
+                  this.getPedidoshoySuc(idsuc); 
                 }
              
         },
@@ -708,7 +766,7 @@ updateItemPedSuc()
             this.getpedidosFecha()
           } else 
           {
-            this.getPedidoshoySuc(this.sucursalsel!.cod); 
+            this.getPedidoshoySuc(idsuc); 
           }
        
       this.loading2 = false;
@@ -743,7 +801,7 @@ confirmarpedidoSuc()
             this.getpedidosFecha()
           } else 
           {
-            this.getPedidoshoySuc(this.sucursalsel!.cod); 
+            this.getPedidoshoySuc(idsuc); 
           }
        
        this.cdr.detectChanges();
@@ -763,7 +821,7 @@ descativarbotton():boolean
 
   for(let item of this.selecteditems)
     {
-      if(item.tudm == false)
+      if(item.tudm == false || item.tieneTarifa == false)
         {
           val = true; 
         }
@@ -848,7 +906,7 @@ additemsped()
             this.getpedidosFecha()
           } else 
           {
-            this.getPedidoshoySuc(this.sucursalsel!.cod); 
+            this.getPedidoshoySuc(idsuc); 
           }
        
        this.showMessage('success',"Success","Actualizado correctamente");
@@ -964,4 +1022,35 @@ registrarnotificacion(resp:number)
     }
 });
 }
+
+
+filtrar()
+{  
+  this.arr_dataH = [...this.arr_dataH_all]; 
+  if(this.proveedorsel == -999 && this.sucursal == -999)
+  {
+    this.arr_dataH = [...this.arr_dataH_all]; 
+  }
+
+  if(this.proveedorsel! > -999 && this.sucursal > -999)
+    {  
+      this.arr_dataH = this.arr_dataH.filter(p => p.codProveedor == this.proveedorsel && p.idSucursal == ''+this.sucursal);
+    }
+
+    if(this.proveedorsel! > -999 && this.sucursal == -999)
+      {  
+        this.arr_dataH = this.arr_dataH.filter(p => p.codProveedor == this.proveedorsel);
+      }
+
+      if(this.proveedorsel! == -999 && this.sucursal > -999)
+        {  
+          this.arr_dataH = this.arr_dataH.filter(p => p.idSucursal == ''+this.sucursal);
+        }
+}
+
+closeConfigarts()
+{
+  this.sucursalesselconf = [];  
+}
+
 }

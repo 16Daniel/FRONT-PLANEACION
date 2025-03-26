@@ -1,7 +1,7 @@
 <h3 class="text-center mt-3 mb-3">PEDIDOS SUCURSAL</h3> 
 
 <div class="p-3 mt-3">
-    <button class="btn bg-p-b p-3" (click)="openmodaladd()" [disabled]="loading" *ngIf="idRol == 22"><i class='bx bx-plus-circle' ></i> AGREGAR PEDIDO</button>
+    <button class="btn bg-p-b p-3" (click)="openmodaladd()" [disabled]="loading"><i class='bx bx-plus-circle' ></i> AGREGAR PEDIDO</button>
     <button class="btn bg-p-b p-3 ms-3"[disabled]="loading" (click)="abrirhistorial()"><i class='bx bx-history'></i> HISTORIAL DE PEDIDOS</button>
     <button class="btn bg-p-b p-3 ms-3" (click)="openmodalconfig()" *ngIf="idRol > 18 && idRol < 22"><i class='bx bx-cog'></i> CONFIGURACIÓN</button>
 </div>
@@ -32,6 +32,7 @@
         <th scope="col">SUCURSAL</th>
         <th scope="col">PROVEEDOR</th>
         <th scope="col">TOTAL</th>
+        <th scope="col">FECHA</th>
         <th scope="col">ENTREGA</th>
         <th scope="col">ESTATUS</th>
         <th scope="col">SOLICITANTE</th>
@@ -43,6 +44,7 @@
         <td>{{item.nombresucursal}}</td>
         <td>{{item.nombreproveedor}}</td>
         <td>{{ (item.cantidaddescuento ? (item.total-item.cantidaddescuento) : item.total) | number : '1.2-2'}}</td>
+        <td>{{item.fecha | date:'yyyy-MM-dd HH:mm'}}</td>
         <td>{{item.fechaEntrega | date}}</td>
         <td>POR ACEPTAR</td>
         <td>{{item.nombresolicitante}}</td>
@@ -72,6 +74,20 @@
     </div>
 
     <div *ngIf="step2== false">
+
+      <p-dropdown *ngIf="idRol >18 && idRol < 22"
+      [options]="catsucursales"
+      [(ngModel)]="sucursalsel"
+      optionLabel="name"
+      [filter]="true"
+      filterBy="name" 
+      [showClear]="false"
+      placeholder="SELECCIONAR SUCURSAL"
+      [style]="{'width':'100%'}"
+      (onChange)="getProveedores()"
+      >
+  </p-dropdown>
+  <p>&nbsp;</p>
       <p-dropdown 
       [options]="catproveedores"
       [(ngModel)]="provsel"
@@ -92,7 +108,10 @@
 <p class="fw-bold fs-5">NOTA</p>
 Los artículos que aparecen con <p-tag 
           [value]="'ERROR'" 
-          [severity]="'danger'" /> son artículos que no cuentan con una unidad de medida, por lo tanto, no se pueden agregar al pedido.
+          [severity]="'danger'" /> son artículos que no cuentan con una unidad de medida, por lo tanto, no se pueden agregar al pedido. Los articulos con 
+          <p-tag 
+          [value]="'SIN TARIFA'" 
+          [severity]="'danger'" /> son artículos que no cuentan con una tarifa para el proveedor seleccionado. 
 <p class="fw-bold text-center">
   FAVOR DE NOTIFICARLO CON EL ÁREA DE COMPRAS.
 </p>
@@ -129,6 +148,10 @@ breakpoint="1400px"
           <p-tag 
           [value]="item.fiscal? 'FISCAL':'NO FISCAL'" 
           [severity]="item.fiscal ? 'info':'warning'" />
+          &nbsp;
+          <p-tag *ngIf="!item.tieneTarifa"
+          [value]="'SIN TARIFA'" 
+          [severity]="'danger'" />
           &nbsp;
           {{item.descripcion}}
         </div>
@@ -238,6 +261,11 @@ breakpoint="1400px"
       <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
     </div>
 
+    <select [(ngModel)]="perfilconfig" class="form-select" (change)="getprovedoresPedSuc()">
+      <option value="1">OPERA</option>
+      <option value="2">SLP</option>
+    </select>
+    <p></p>
     <p-dropdown 
     [options]="catproveedoresconf"
     [(ngModel)]="provselconf"
@@ -275,7 +303,7 @@ placeholder="SUCURSALES"
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let item of catproveedores">
+    <tr *ngFor="let item of catproveedoresPedSuc">
       <th>{{item.codproveedor}}</th>
       <td>{{item.nombre}}</td>
       <td>{{item.rfc}}</td>
@@ -295,7 +323,9 @@ placeholder="SUCURSALES"
     [(visible)]="modalconfigarts" 
     [style]="{ width: '70rem' }" 
     [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
-    [maximizable]="true">
+    [maximizable]="true"
+    (onHide)="closeConfigarts()"
+    >
   <div style="min-height: 400px;" *ngIf="itemprovarts != undefined">
     <div class="d-flex justify-content-center" *ngIf="loading3">
       <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
@@ -474,6 +504,33 @@ placeholder="SUCURSALES"
         <p>&nbsp;</p>
         <button class="btn bg-p-b p-3" (click)="getpedidosSucH()"><i class='bx bx-search' ></i>&nbsp;BUSCAR</button>
       </div>
+
+      <div class="col-auto" *ngIf="idRol > 18 && idRol < 22">
+        <div class="row mb-4">
+          <div class="col-5">
+            <p class="mt-3 fw-bold" >PROVEEDOR</p>
+            <select class="form-select" [(ngModel)]="proveedorsel">
+              <input type="text">
+              <option value="-999">TODOS</option>
+                <option *ngFor="let item of catproveedoresPedSuc" [value]="item.codproveedor">{{item.codproveedor +' - '+item.nombre}}</option>
+            </select>
+          </div>
+      
+          <div class="col-5">
+            <p class="mt-3 fw-bold" >SUCURSAL</p>
+            <select class="form-select" [(ngModel)]="sucursal">
+              <option value="-999">TODOS</option>
+                <option *ngFor="let item of catsucursales" [value]="item.cod">{{item.name}}</option>
+            </select>
+          </div>
+      
+          <diV class="col-2">
+            <P>&nbsp;</P>
+            <button class="btn bg-p-b p-3" (click)="filtrar()">FILTRAR</button>
+          </diV>
+      
+        </div>
+      </div>
     </div>
  
     <p></p>
@@ -509,7 +566,7 @@ placeholder="SUCURSALES"
           <td>{{item.nombresucursal}}</td>
           <td>{{item.nombreproveedor}}</td>
           <td>{{ (item.cantidaddescuento ? (item.total-item.cantidaddescuento) : item.total) | number : '1.2-2'}}</td>
-          <td>{{item.fecha | date}}</td>
+          <td>{{item.fecha | date:'yyyy-MM-dd HH:mm'}}</td>
           <td>{{item.fechaEntrega | date}}</td>
           @if(item.status == 3)
           {
@@ -550,6 +607,7 @@ placeholder="SUCURSALES"
   <P>JUSTIFICACIÓN</P>
   <div class="mt-3 mb-3">
     <select class="form-select" [(ngModel)]="justificacionajuste">
+      <option value="ERROR DE SUCURSAL">ERROR DE SUCURSAL</option>
       <option value="ALMACENAJE LIMITADO">ALMACENAJE LIMITADO</option>
       <option value="NUEVA PROMOCION">NUEVA PROMOCION</option>
       <option value="VENTA EXTRAODINARIA">VENTA EXTRAODINARIA</option>
@@ -594,7 +652,11 @@ placeholder="SUCURSALES"
       </thead>
       <tbody>
         <tr *ngFor="let item of datatable">
-          <th><input class="form-check-input" type="checkbox" (change)="checkitem(item)" [checked]="getCheck(item)" [disabled]="item.tienemultiplo == false"></th>
+          <th>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" role="switch" (change)="checkitem(item)" [checked]="getCheck(item)" [disabled]="item.tienemultiplo == false">
+            </div>
+          </th>
           <th>{{item.nombre}}</th>
           <td><input class="form-control P-2 text-center" type="number" [(ngModel)]="item.cajas"></td>
           <td *ngIf="item.tienemultiplo == true">{{item.unidadescaja}}</td>
