@@ -120,6 +120,19 @@ getPedidos()
 });
 }
 
+libeerarproceso()
+{
+  this.apiserv.liberarProceso().subscribe({
+    next: data => {
+        this.showMessage('success',"Success","Generación de pedidos habilitados");
+    },
+    error: error => {
+       console.log(error);
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
+}
+
 calcularcartones()
 {
   this.pedidos.sort((a, b) => {

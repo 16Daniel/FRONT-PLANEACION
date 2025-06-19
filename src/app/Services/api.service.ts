@@ -151,6 +151,14 @@ export class ApiService {
       return this.http.get<Inventario[]>(this.url+`Pedidos/getinventarios/${sucursal}/${articulo}?fechainicio=${fechainicio}&fechafin=${fechafin}`,{headers:this.headers})
    }
 
+   liberarProceso():Observable<any>
+   {
+
+      let userdata = JSON.parse(localStorage.getItem("rwuserdata")!);
+      let idu = userdata.id; 
+      return this.http.get<any>(this.url+`Pedidos/liberarproceso/${idu}`,{headers:this.headers})
+   }
+
    getPedidos():Observable<Pedido[]>
    {
 

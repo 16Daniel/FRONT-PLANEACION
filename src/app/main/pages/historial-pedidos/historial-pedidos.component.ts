@@ -194,7 +194,6 @@ getPedidos()
   {
     this.apiserv.getModificacion(this.pedidosel!.id, idart).subscribe({
       next: data => {
-        debugger
             if(data != null)
             {
                 this.tieneajustefinal = true; 
