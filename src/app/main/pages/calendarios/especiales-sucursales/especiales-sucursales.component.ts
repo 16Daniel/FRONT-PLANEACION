@@ -14,7 +14,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Sucursal } from '../../../../Interfaces/Sucursal';
 import { Item } from '../../../../Interfaces/Item';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { isDate } from 'date-fns';
+import * as XLSX from 'xlsx';
 @Component({
   selector: 'app-especiales-sucursales',
   standalone: true,
@@ -677,6 +677,41 @@ getStringArt(articulos:string):string
 
     }
     return data; 
+}
+
+
+exportarExcel()
+{ 
+  let data:any[] = []; 
+  for(let item of this.elementosfiltrados)
+    {
+        data.push(
+          {
+            DIA:item.dia,
+            SEMANA:item.semana,
+            FECHA: this.formatDate(item.fecha),
+            DESCRIPCION: item.descripcion,
+            ARTICULOS: this.getStringArt(item.articulos),
+            FACTOR_CONSUMO:item.factorConsumo
+          });
+    }
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(data);
+    
+    // Crear libro de trabajo
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Datos');
+  
+  // Exportar a Excel
+  XLSX.writeFile(wb, 'dias especiales por sucursal.xlsx');
+}
+
+ formatDate(date: Date): string {
+  date = new Date(date); 
+  const day = date.getDate().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const year = date.getFullYear();
+  
+  return `${day}/${month}/${year}`;
 }
 
 }
