@@ -59,7 +59,8 @@ export default class EspecialesSucursalesComponent {
   public registrosseleccionados:number[] = []; 
   public elementosfiltrados: DiasEspecialSuc[] = []; 
   public filtrosuc:Sucursal[] = [];
-  public filtrofecha:Date|undefined; 
+  public fechaIni:Date|undefined;
+  public fechaFinal:Date|undefined; 
   public fechasMultiples:Date[] = []; 
   public switchmultifechas:boolean = false; 
   public formIdDiaEspecialSuc:number|undefined; 
@@ -610,50 +611,35 @@ showDelete()
 filtrar()
 {
   debugger
-  
-  if(this.filtrosuc.length>0 && this.filtrofecha !=undefined)
+   this.elementosfiltrados = this.diasespeciales; 
+  if(this.filtrosuc.length>0)
     {
-      this.elementosfiltrados = this.elementosfiltrados = this.diasespeciales.filter(obj => {
-        debugger
-        let objDate = new Date(obj.fecha);
-        let filtrofecha2 = new Date(this.filtrofecha!.toString()+'T00:00:00');
-        return objDate.getDate() === filtrofecha2.getDate() &&
-               objDate.getMonth() === filtrofecha2.getMonth() &&
-               objDate.getFullYear() === filtrofecha2.getFullYear();
-      });
-
       this.elementosfiltrados = this.elementosfiltrados.filter(x => this.filtrosuc.some(sucursal => sucursal.cod === x.sucursal));
 
       this.cdr.detectChanges();
-      return;
     }
 
-    if(this.filtrosuc.length > 0 && this.filtrofecha == undefined)
+    if(this.fechaIni != undefined && this.fechaFinal != undefined)
       {
-        this.elementosfiltrados = this.diasespeciales.filter(x => this.filtrosuc.some(sucursal => sucursal.cod === x.sucursal));
-        this.cdr.detectChanges();
-        return;
+          this.elementosfiltrados = this.elementosfiltrados = this.diasespeciales.filter(obj => {
+        let objDate = new Date(obj.fecha);
+         let itemTimestamp = objDate.getTime(); 
+        let filtrofechaini = new Date(this.fechaIni!.toString()+'T00:00:00');
+        let filtrofechafinal = new Date(this.fechaFinal!.toString()+'T23:59:59');
+        console.log(filtrofechaini,filtrofechafinal); 
+         const startTimestamp = filtrofechaini ? new Date(filtrofechaini).getTime() : null;
+          const endTimestamp = filtrofechafinal ? new Date(filtrofechafinal).getTime() : null;
+
+        return itemTimestamp >= startTimestamp! && itemTimestamp <= endTimestamp!;
+      });
       }
 
-      if(this.filtrosuc.length==0 && this.filtrofecha != undefined)
-        {
-          this.elementosfiltrados = this.diasespeciales.filter(obj => {
-            debugger
-            let objDate = new Date(obj.fecha);
-            let filtrofecha2 = new Date(this.filtrofecha!.toString()+'T00:00:00');
-            return objDate.getDate() === filtrofecha2.getDate() &&
-                   objDate.getMonth() === filtrofecha2.getMonth() &&
-                   objDate.getFullYear() === filtrofecha2.getFullYear();
-          });
-          
-          this.cdr.detectChanges();
-          return;
-        } 
 }
 
 borrarfiltros()
 {
-  this.filtrofecha = undefined;
+  this.fechaIni = undefined;
+  this.fechaFinal = undefined; 
   this.filtrosuc = [];
   this.elementosfiltrados = this.diasespeciales; 
 }
