@@ -1,7 +1,7 @@
 <nav class="navbar">
   <div class="logo_item">
     <i class="bx bx-menu" id="sidebarOpen"></i>
-   REBEL WINGS V1.45
+   REBEL WINGS V1.46
   </div>
   <div *ngIf="mensaje" class="p-1 bg-danger w-auto rounded-3 text-light fw-bold">
     ⚠️ HOY ES VIERNES: HOY SE TIENE QUE CARGAR LOS DÍAS ESPECIALES (SUCURSAL / ARTÍCULO) DE LA SIGUIENTE SEMANA</div>
@@ -255,6 +255,18 @@
             <i class='bx bx-math' [routerLinkActive]="'text-light'"></i>
           </span>
           <span class="navlink" [routerLinkActive]="'text-light'">Inventario teórico</span>
+        </a>
+      </li>
+
+       <li class="item" *ngIf="comprobaracceso('/main/invsemanal')">
+        <a
+        [routerLink]="'invsemanal'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-checkbox-checked bx-sm' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Inventario semanal</span>
         </a>
       </li>
 

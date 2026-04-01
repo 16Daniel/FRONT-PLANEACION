@@ -55,13 +55,11 @@ export default class InventarioTeoricoComponent implements OnInit {
 
   getSucursales()
 {
-  this.loading = true; 
    this.apiserv.getSucursales().subscribe({
     next: data => {
        this.catsucursales=data;
     },
     error: error => {
-      this.loading = false; 
        console.log(error);
        this.showMessage('error',"Error","Error al procesar la solicitud");
     }
@@ -151,7 +149,6 @@ getProveedores()
      this.apiserv.getProveedores().subscribe({
       next: data => {
          this.catproveedores=data;
-         this.loading = false; 
        this.cdr.detectChanges();
       },
       error: error => {

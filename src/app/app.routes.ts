@@ -128,6 +128,11 @@ export const routes: Routes = [
             title:'Asignaciones',
             loadComponent: () => import('./main/pages/Asignaciones-pedidos-sucursal/Asignaciones-pedidos-sucursal.component')
         },
+         {
+            path:'invsemanal',
+            title:'Inventario semanal',
+            loadComponent: () => import('./main/pages/check-inv-semanal/check-inv-semanal')
+        },
         {
             path: '',
             redirectTo: '/main/home',

@@ -4,7 +4,7 @@ import { catchError, Observable, throwError, timeout } from "rxjs";
 import { environment } from '../../environments/enviroments';
 import { Sucursal } from '../Interfaces/Sucursal';
 import { Proveedor } from '../Interfaces/Proveedor';
-import { Item, ItemPS } from '../Interfaces/Item';
+import { Item, ItemInvSem, ItemPS } from '../Interfaces/Item';
 import { Consumo } from '../Interfaces/Consumo';
 import { Calendario, CalendarioTemporal } from '../Interfaces/Calendario';
 import { DiasEspecial,DiasEspecialSuc,respuestaDiaEspecial } from '../Interfaces/DiasEspecial';
@@ -222,7 +222,9 @@ export class ApiService {
 
    ConfirmarPedido(id:number):Observable<any>
    {
+      debugger
       return this.http.get<any>(this.url+`Pedidos/ConfirmarPedido/${id}`,{headers:this.headers})
+      //return this.http.get<any>(this.url+`Pedidosprueba/ConfirmarPedido/${id}`,{headers:this.headers})
    }
 
    RechazarPedido(id:number):Observable<any>
@@ -255,6 +257,7 @@ export class ApiService {
    guardarajustecompras(data:any):Observable<any>
    {
       return this.http.post<any>(this.url+`Pedidos/AjusteCompras`,data,{headers:this.headers})
+      //return this.http.post<any>(this.url+`Pedidosprueba/AjusteCompras`,data,{headers:this.headers})
    }
 
    getModificacion(idp:number, codArticulo:number):Observable<Modioficacion>
@@ -872,6 +875,36 @@ export class ApiService {
          }
       return this.http.get<any>(this.url+`Usuarios/ValidarToken/${idu}/${token}`,{headers:this.headers})
    }
+ 
+      getItemsinvsem():Observable<Item[]>
+   {
+      return this.http.get<Item[]>(this.url+'CheckInvSemanal/geArticulos',{headers:this.headers})
+   }
+ 
+       getItemsinvsembd():Observable<ItemInvSem[]>
+   {
+      return this.http.get<ItemInvSem[]>(this.url+'CheckInvSemanal/geArticulosbd',{headers:this.headers})
+   }
 
+    agregarArticulosInvSem(jdata:string):Observable<any>
+   { 
+      let formdata = new FormData();
+      formdata.append("jdata",jdata);
+      return this.http.post<any>(this.url+`CheckInvSemanal/agregarArticulos`,formdata,{headers:this.headers})
+   } 
+
+     eliminarArticulosInvSem(jdata:string):Observable<any>
+   { 
+      let formdata = new FormData();
+      formdata.append("jdata",jdata);
+      return this.http.post<any>(this.url+`CheckInvSemanal/eliminarArticulos`,formdata,{headers:this.headers})
+   }
+
+     actualizarArticulosInvSem(jdata:string):Observable<any>
+   { 
+      let formdata = new FormData();
+      formdata.append("jdata",jdata);
+      return this.http.post<any>(this.url+`CheckInvSemanal/actualizarArticulos`,formdata,{headers:this.headers})
+   }
 }
 

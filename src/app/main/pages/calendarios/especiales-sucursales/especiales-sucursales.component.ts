@@ -621,7 +621,7 @@ filtrar()
 
     if(this.fechaIni != undefined && this.fechaFinal != undefined)
       {
-          this.elementosfiltrados = this.elementosfiltrados = this.diasespeciales.filter(obj => {
+          this.elementosfiltrados = this.elementosfiltrados.filter(obj => {
         let objDate = new Date(obj.fecha);
          let itemTimestamp = objDate.getTime(); 
         let filtrofechaini = new Date(this.fechaIni!.toString()+'T00:00:00');
@@ -673,6 +673,7 @@ exportarExcel()
     {
         data.push(
           {
+            SUCURSAL: item.nombresuc,
             DIA:item.dia,
             SEMANA:item.semana,
             FECHA: this.formatDate(item.fecha),

@@ -15,3 +15,15 @@ export interface Item
     fiscal:boolean; 
     tieneTarifa:boolean; 
  }
+
+
+ export interface ItemInvSem 
+{
+    cod:number;
+    descripcion:string;
+    referencia:string; 
+    marca:string;
+    prioridad:number|undefined; 
+    umedida:string; 
+ }
+

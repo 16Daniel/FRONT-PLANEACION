@@ -1,0 +1,111 @@
+<h1 class="text-center">ARTICULOS CON INVENTARIO SEMANAL</h1>
+
+<div class="d-flex justify-content-center" *ngIf="loading">
+  <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+</div>
+
+
+<div class="m-3 p-3">
+ <p class="mt-3 fw-bold">ARTICULOS</p>
+        <p-multiSelect [options]="catitems" [(ngModel)]="selecteditems" optionLabel="descripcion" [style]="{'width':'100%'}" [disabled]="loading"></p-multiSelect>
+<button class="btn bg-p-b p-2 mt-3" [disabled]="loading || selecteditems.length == 0" (click)="agregarArticulos()">AGREGAR</button>
+</div>
+
+
+
+ <div class="mt-3 p-3" style="overflow: auto;">
+    
+    <div class="d-flex justify-content-between p-3">
+        <div class="text-bold fs-5">{{catitemsbd.length}} ARTÍCULOS</div>
+        
+    </div>
+
+        <p-table [value]="catitemsbd" [tableStyle]="{'min-width': '60rem', 'padding':'10px'}" [scrollable]="true" scrollHeight="700px" *ngIf="loading == false"
+        styleClass="p-datatable-gridlines" 
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="cod" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="referencia" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="descripcion" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="marca" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="umedida" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+                
+                <tr>
+                    <th pSortableColumn="cod">CODARTICULO <p-sortIcon field="cod" /></th>
+                    <th pSortableColumn="referencia">REFERENCIA <p-sortIcon field="referencia" /></th>
+                    <th pSortableColumn="descripcion">NOMBRE <p-sortIcon field="descripcion"/></th>
+                    <th pSortableColumn="marca">MARCA <p-sortIcon field="marca" /></th>
+                    <th pSortableColumn="umedida">MEDIDA REFERENCIA <p-sortIcon field="umedida" /></th>
+                    <th pSortableColumn="prioridad">PRIORIDAD <p-sortIcon field="prioridad" /></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+                <tr>
+                    <td>{{ item.cod }}</td>
+                    <td>{{ item.referencia }}</td>
+                    <td>{{ item.descripcion }}</td>
+                    <td>{{ item.marca }}</td>
+                    <td>{{ item.umedida }}</td>
+                    <td>{{ item.prioridad }}</td>
+                    <td><button class="btn btn-warning" (click)="abrirModal(item)"><i class='bx bx-edit bx-sm'></i></button></td>
+                    <td><button class="btn btn-danger" (click)="confirm2(item.cod)"><i class='bx bx-trash bx-sm'></i></button></td>
+                </tr>
+            </ng-template>
+        </p-table>
+        
+
+
+    </div>
+<p-toast />
+    <p-confirmDialog />
+
+
+<p-dialog header="Editar prioridad" [modal]="true" [(visible)]="modalPrioridad" [style]="{ width: '25rem' }">
+    <ng-template pTemplate="headless">
+      <div class="bg-white p-4 rounded-3">
+           <p>ESTABLECER PRIORIDAD</p>
+            <input type="number" class="form-control" [(ngModel)]="itemSel!.prioridad" *ngIf="itemSel!=undefined" >
+            <div class="d-flex justify-content-center gap-3 mt-3">
+                <button class="btn btn-secondary" (click)="cancelar()"><i class='bx bx-x-circle bx-sm'></i></button>
+                <button class="btn btn-success" (click)="ordenar()" [disabled]="itemSel?.prioridad == undefined"><i class='bx bx-check-circle bx-sm'></i></button>
+            </div>
+      </div>
+    </ng-template>
+</p-dialog>
