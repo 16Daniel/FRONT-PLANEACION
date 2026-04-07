@@ -27,6 +27,7 @@ export default class CheckInvSemanal implements OnInit {
   public modalPrioridad:boolean = false; 
   public itemSel:ItemInvSem|undefined; 
   public valOriginal:number|undefined; 
+  public arr_eliminar:number[] = []; 
  constructor(public apiserv:ApiService,private messageService: MessageService,public cdr:ChangeDetectorRef,private confirmationService: ConfirmationService)
   {
   }
@@ -60,6 +61,16 @@ export default class CheckInvSemanal implements OnInit {
   this.apiserv.getItemsinvsembd().subscribe({
     next: data => {
        this.catitemsbd=data;
+       this.catitemsbd.sort((a, b) => {
+         const prioridadA = a.prioridad ?? Infinity;
+         const prioridadB = b.prioridad ?? Infinity;
+         return prioridadA - prioridadB;
+         });
+
+         this.catitems= this.catitems.filter(item1 => 
+         !this.catitemsbd.some(item2 => item2.cod === item1.cod)
+         );
+
        this.loading = false; 
        this.cdr.detectChanges();
     },
@@ -96,15 +107,11 @@ agregarArticulos()
 });
 }
 
-eliminarArticulo(cod:number)
+eliminarArticulos()
 {
   
   this.loading = true; 
-  let articulos:number[] = [];
-
-  articulos.push(cod); 
-
-   this.apiserv.eliminarArticulosInvSem(JSON.stringify(articulos)).subscribe({
+   this.apiserv.eliminarArticulosInvSem(JSON.stringify(this.arr_eliminar)).subscribe({
     next: data => {
        this.showMessage('success',"Success","Eliminado correctamente");
        this.getItemsbd(); 
@@ -120,9 +127,9 @@ eliminarArticulo(cod:number)
 }
 
 
-  confirm2(cod:number) {
+  confirm2() {
         this.confirmationService.confirm({
-            message: '¿Esta segur@ que desea eliminar?',
+            message: '¿Esta segur@ que desea eliminar '+this.arr_eliminar.length+' artículo(s)?',
             header: 'Delete Confirmation',
             icon: 'pi pi-info-circle',
             acceptButtonStyleClass:"p-button-danger p-button-text",
@@ -131,7 +138,8 @@ eliminarArticulo(cod:number)
             rejectIcon:"none",
 
             accept: () => {
-               this.eliminarArticulo(cod)
+               console.log(this.arr_eliminar); 
+               this.eliminarArticulos()
             },
             reject: () => {
                
@@ -179,6 +187,11 @@ ordenar()
     next: data => {
        this.showMessage('success',"Success","Actualizado correctamente");
        this.loading = false; 
+       this.catitemsbd.sort((a, b) => {
+         const prioridadA = a.prioridad ?? Infinity;
+         const prioridadB = b.prioridad ?? Infinity;
+         return prioridadA - prioridadB;
+         });
        this.cdr.detectChanges();
     },
     error: error => {
@@ -194,6 +207,17 @@ cancelar()
 {
    this.itemSel!.prioridad = this.valOriginal; 
    this.modalPrioridad = false; 
+}
+
+actualizarArrayEliminar(codArt:number)
+{
+   if(this.arr_eliminar.filter(x=>x == codArt).length>0)
+      {
+         this.arr_eliminar = this.arr_eliminar.filter(x=> x != codArt); 
+      }else
+         {
+            this.arr_eliminar.push(codArt); 
+         }
 }
 
 }

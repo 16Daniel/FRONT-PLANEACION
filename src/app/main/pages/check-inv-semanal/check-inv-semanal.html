@@ -17,7 +17,7 @@
     
     <div class="d-flex justify-content-between p-3">
         <div class="text-bold fs-5">{{catitemsbd.length}} ARTÍCULOS</div>
-        
+        <div><button class="btn btn-danger" [disabled]="arr_eliminar.length == 0" (click)="confirm2()"><i class='bx bx-trash bx-sm'></i>&nbsp;ELIMINAR</button></div>
     </div>
 
         <p-table [value]="catitemsbd" [tableStyle]="{'min-width': '60rem', 'padding':'10px'}" [scrollable]="true" scrollHeight="700px" *ngIf="loading == false"
@@ -25,6 +25,7 @@
         >
             <ng-template pTemplate="header">
                 <tr>
+                    <th></th>
                     <th>
                         <p-columnFilter 
                             type="text" 
@@ -62,10 +63,10 @@
                     </th>
                     <th></th>
                     <th></th>
-                    <th></th>
                 </tr>
                 
                 <tr>
+                    <th></th>
                     <th pSortableColumn="cod">CODARTICULO <p-sortIcon field="cod" /></th>
                     <th pSortableColumn="referencia">REFERENCIA <p-sortIcon field="referencia" /></th>
                     <th pSortableColumn="descripcion">NOMBRE <p-sortIcon field="descripcion"/></th>
@@ -73,11 +74,15 @@
                     <th pSortableColumn="umedida">MEDIDA REFERENCIA <p-sortIcon field="umedida" /></th>
                     <th pSortableColumn="prioridad">PRIORIDAD <p-sortIcon field="prioridad" /></th>
                     <th></th>
-                    <th></th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-item>
                 <tr>
+                    <td style="background-color: #ddd;">
+                        <div class="form-check">
+                        <input class="form-check-input" type="checkbox" (change)="actualizarArrayEliminar(item.cod)" style="width: 20px; height: 20px;">
+                        </div>
+                    </td>
                     <td>{{ item.cod }}</td>
                     <td>{{ item.referencia }}</td>
                     <td>{{ item.descripcion }}</td>
@@ -85,7 +90,6 @@
                     <td>{{ item.umedida }}</td>
                     <td>{{ item.prioridad }}</td>
                     <td><button class="btn btn-warning" (click)="abrirModal(item)"><i class='bx bx-edit bx-sm'></i></button></td>
-                    <td><button class="btn btn-danger" (click)="confirm2(item.cod)"><i class='bx bx-trash bx-sm'></i></button></td>
                 </tr>
             </ng-template>
         </p-table>
