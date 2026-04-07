@@ -95,6 +95,7 @@ agregarArticulos()
 
    this.apiserv.agregarArticulosInvSem(JSON.stringify(articulos)).subscribe({
     next: data => {
+      this.selecteditems = []; 
        this.showMessage('success',"Success","Artículos agregados correctamente");
        this.getItemsbd(); 
        this.cdr.detectChanges();
