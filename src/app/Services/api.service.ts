@@ -31,8 +31,7 @@ export class ApiService {
   // URL api server
   private url: string = environment.apiURL;
   private headers = new HttpHeaders({
-    'Accept': 'application/json',
-    'Content-Type': 'application/json',
+   'Accept': 'application/json',
     'X-API-Key': environment.apiKey
   });
 
