@@ -30,12 +30,14 @@ export class ApiService {
   public apiURL = environment.apiURL;
   // URL api server
   private url: string = environment.apiURL;
-  private headers = new HttpHeaders();
+  private headers = new HttpHeaders({
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'X-API-Key': environment.apiKey
+  });
 
   constructor(private http: HttpClient) 
   {
-    this.headers.append("Accept", "application/json");
-    this.headers.append("content-type", "application/json");
    }
 
    getSucursales():Observable<Sucursal[]>
