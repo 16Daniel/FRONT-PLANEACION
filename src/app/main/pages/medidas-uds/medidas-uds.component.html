@@ -9,31 +9,147 @@
 </div>
 
 <div class="m-3 bg-white shadow rounded-3 p-3">
-    <table class="table table-bordered text-center">
-        <thead>
-          <tr>
+
+  <p-tabView>
+    <p-tabPanel header="OPERA">
+       <p-table [value]="filtrarMedidas('OPERA')" [tableStyle]="{ 'min-width': '50rem' }" [tableStyle]="{'min-width': '60rem', 'padding':'10px'}" [scrollable]="true" scrollHeight="600px"  styleClass="p-datatable-gridlines" >
+    <ng-template pTemplate="header">
+      <tr>
+          <th>
+               <p-columnFilter 
+                type="text" 
+                field="rfc" 
+                placeholder="" 
+                ariaLabel="" />
+          </th>
+            <th>
+               <p-columnFilter 
+                type="text" 
+                field="nomprov" 
+                placeholder="" 
+                ariaLabel="" />
+          </th>
+            <th>
+               <p-columnFilter 
+                type="text" 
+                field="nomarticulo" 
+                placeholder="" 
+                ariaLabel="" />
+          </th>
+           <th>
+               <p-columnFilter 
+                type="text" 
+                field="noIdentificacion" 
+                placeholder="" 
+                ariaLabel="" />
+          </th>
+            <th>
+               <p-columnFilter 
+                type="text" 
+                field="umedida" 
+                placeholder="" 
+                ariaLabel="" />
+          </th>
+            <th></th>
+            <th></th>
+            <th></th>
+      </tr>
+         <tr>
             <th scope="col">RFC</th>
             <th scope="col">PROVEEDOR</th>
             <th scope="col">ARTICULO</th>
+            <th scope="col">NUM. IDENTICICACIÓN</th>
             <th scope="col">UNIDAD DE MEDIDA</th>
             <th scope="col">UNIDADES</th>
             <th></th>
             <th></th>
           </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let item of medidasuds">
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+        <tr>
             <td>{{item.rfc}}</td>
             <td>{{item.nomprov}}</td>
             <td>{{item.nomarticulo}}</td>
+             <td>{{item.noIdentificacion}}</td>
             <td>{{item.umedida}}</td>
             <td>{{item.uds}}</td>
             <td><button class="btn btn-primary" (click)="showUpdate(item);"><i class='bx bxs-edit' ></i></button></td>
             <td><button class="btn btn-danger" (click)="confirm1($event,item.noIdentificacion);"><i class='bx bx-trash bx-sm' ></i></button></td>
+        </tr>
+    </ng-template>
+</p-table>
+    </p-tabPanel>
+    <p-tabPanel header="SLP">
+        <p-table [value]="filtrarMedidas('SLP')" [tableStyle]="{ 'min-width': '50rem' }" [tableStyle]="{'min-width': '60rem', 'padding':'10px'}" [scrollable]="true" scrollHeight="600px"  styleClass="p-datatable-gridlines" >
+    <ng-template pTemplate="header">
+      <tr>
+          <th>
+               <p-columnFilter 
+                type="text" 
+                field="rfc" 
+                placeholder="" 
+                ariaLabel="" />
+          </th>
+            <th>
+               <p-columnFilter 
+                type="text" 
+                field="nomprov" 
+                placeholder="" 
+                ariaLabel="" />
+          </th>
+            <th>
+               <p-columnFilter 
+                type="text" 
+                field="nomarticulo" 
+                placeholder="" 
+                ariaLabel="" />
+          </th>
+           <th>
+               <p-columnFilter 
+                type="text" 
+                field="noIdentificacion" 
+                placeholder="" 
+                ariaLabel="" />
+          </th>
+            <th>
+               <p-columnFilter 
+                type="text" 
+                field="umedida" 
+                placeholder="" 
+                ariaLabel="" />
+          </th>
+            <th></th>
+            <th></th>
+            <th></th>
+      </tr>
+         <tr>
+            <th scope="col">RFC</th>
+            <th scope="col">PROVEEDOR</th>
+            <th scope="col">ARTICULO</th>
+            <th scope="col">NUM. IDENTICICACIÓN</th>
+            <th scope="col">UNIDAD DE MEDIDA</th>
+            <th scope="col">UNIDADES</th>
+            <th></th>
+            <th></th>
           </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-item>
+        <tr>
+            <td>{{item.rfc}}</td>
+            <td>{{item.nomprov}}</td>
+            <td>{{item.nomarticulo}}</td>
+             <td>{{item.noIdentificacion}}</td>
+            <td>{{item.umedida}}</td>
+            <td>{{item.uds}}</td>
+            <td><button class="btn btn-primary" (click)="showUpdate(item);"><i class='bx bxs-edit' ></i></button></td>
+            <td><button class="btn btn-danger" (click)="confirm1($event,item.noIdentificacion);"><i class='bx bx-trash bx-sm' ></i></button></td>
+        </tr>
+    </ng-template>
+</p-table>
+    </p-tabPanel>
+</p-tabView>
 
-        </tbody>
-      </table> 
+  
 </div>
 
 
@@ -59,14 +175,22 @@
   </div>
 
     <div class="row">
-     <div class="col-md-6">
+     <div class="col-md-4">
       <P>UNIDAD DE MEDIDA</P>
      <input class="form-control" type="text" [(ngModel)]="modelmedida" [value]="modelmedida | uppercase">
      </div>
-     <div class="col-md-6">
+     <div class="col-md-4">
       <p>UNIDADES</p>
       <input class="form-control" type="number" [(ngModel)]="modeluds">
      </div>
+
+     <div class="col-md-4"> <p>GRUPO</p>
+        <select class="form-select" [(ngModel)]="modelgrupo">
+          <option value="OPERA">OPERA</option>
+          <option value="SLP">SLP</option>
+        </select>
+      </div>
+
     </div>
     
     <div class="d-flex justify-content-end mt-3">
@@ -87,15 +211,23 @@
       </div>
      </div>
       <div class="row mt-3">
-       <div class="col-md-6">
+       <div class="col-md-4">
         <P>UNIDAD DE MEDIDA</P>
        <input class="form-control p-2" type="text" [(ngModel)]="modelmedida" [value]="modelmedida| uppercase">
        </div>
-       <div class="col-md-6">
+       <div class="col-md-4">
         <p>UNIDADES</p>
         <input class="form-control p-2" type="number" [(ngModel)]="modeluds">
        </div>
+
+       <div class="col-md-4"> <p>GRUPO</p>
+        <select class="form-select" [(ngModel)]="modelgrupo">
+          <option value="OPERA">OPERA</option>
+          <option value="SLP">SLP</option>
+        </select>
       </div>
+      
+    </div>
       
       <div class="d-flex justify-content-end mt-3">
         <button class="btn bg-p-b p-3" (click)="updateMedidaUds();">ACTUALIZAR</button>

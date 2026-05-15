@@ -7,4 +7,5 @@ export interface ItProducto
     uds: number;
     nomarticulo:string;
     nomprov:string; 
+    grupo:string; 
  }

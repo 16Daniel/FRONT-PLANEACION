@@ -12,15 +12,20 @@ import { Proveedor } from '../../../Interfaces/Proveedor';
 import { Item } from '../../../Interfaces/Item';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, ConfirmEventType } from 'primeng/api';
+import { TableModule } from 'primeng/table';
+import { TabViewModule } from 'primeng/tabview';
 @Component({
   selector: 'app-medidas-uds',
   standalone: true,
+  styleUrl:'./medidas-uds.scss',
   imports: [
     CommonModule,
     FormsModule,
     ToastModule,
     DialogModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    TableModule,
+    TabViewModule
   ],
   providers:[MessageService,DatePipe,ConfirmationService],
   templateUrl: './medidas-uds.component.html',
@@ -30,6 +35,7 @@ export default class MedidasUdsComponent implements OnInit {
   public modaleditar:boolean = false; 
   public modelmedida:string | undefined; 
   public modeluds:number | undefined;
+  public modelgrupo:string = ''; 
   public catproveedores: Proveedor[] = []; 
   public proveedorsel:string = ""; 
   public catitems:Item[] = [];
@@ -37,6 +43,7 @@ export default class MedidasUdsComponent implements OnInit {
   public modalagregar:boolean = false;
   public itemumedidaupdate: ItProducto | undefined; 
   public loading:boolean= true;
+  
   constructor(public apiserv:ApiService, public cdr:ChangeDetectorRef,private messageService: MessageService,private datePipe: DatePipe,private confirmationService: ConfirmationService)
   {
     this.getMedidas();
@@ -104,7 +111,6 @@ export default class MedidasUdsComponent implements OnInit {
 
   guardarMedidaUds()
   {  
-   debugger
     if(this.modelmedida == undefined || this.modelmedida == "")
       {
         this.showMessage('info',"Error","Favor de agregar una unidad de medida");
@@ -121,7 +127,9 @@ export default class MedidasUdsComponent implements OnInit {
       rfc: this.proveedorsel,
       codarticulo: this.articulo,
       umedida: this.modelmedida.toUpperCase(),
-      uds: this.modeluds
+      uds: this.modeluds,
+      grupo: this.modelgrupo,
+      numIdentificacion: ''
     };
     this.loading = true; 
     this.apiserv.saveumedida(data).subscribe({
@@ -180,6 +188,7 @@ showUpdate(item:ItProducto)
   this.itemumedidaupdate = item; 
   this.modelmedida = item.umedida;
   this.modeluds = item.uds;
+  this.modelgrupo = item.grupo; 
 }
 
 updateMedidaUds()
@@ -196,12 +205,19 @@ updateMedidaUds()
         this.showMessage('info',"Error","Favor de agregar la cantidad de unidades");
         return
       }
+
+     if(this.modelgrupo == undefined || this.modelgrupo == "")
+    {
+      this.showMessage('info',"Error","Seleccionar grupo");
+      return
+    }
   const data =
   {
     rfc: this.itemumedidaupdate?.rfc,
     codarticulo: this.itemumedidaupdate?.codarticulo,
     umedida: this.modelmedida.toUpperCase(),
-    uds: this.modeluds
+    uds: this.modeluds,
+    grupo: this.modelgrupo
   };
 
   this.apiserv.UpdateMedidauds(data).subscribe({
@@ -220,6 +236,12 @@ updateMedidaUds()
        this.showMessage('error',"Error","Error al procesar la solicitud");
     }
 });
+}
+
+
+filtrarMedidas(grupo:string):ItProducto[]
+{
+  return this.medidasuds.filter(x=>x.grupo == grupo); 
 }
 
 }
