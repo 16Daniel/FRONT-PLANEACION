@@ -175,20 +175,24 @@
   </div>
 
     <div class="row">
-     <div class="col-md-4">
+     <div class="col-md-3">
       <P>UNIDAD DE MEDIDA</P>
      <input class="form-control" type="text" [(ngModel)]="modelmedida" [value]="modelmedida | uppercase">
      </div>
-     <div class="col-md-4">
+     <div class="col-md-3">
       <p>UNIDADES</p>
       <input class="form-control" type="number" [(ngModel)]="modeluds">
      </div>
 
-     <div class="col-md-4"> <p>GRUPO</p>
+     <div class="col-md-3"> <p>GRUPO</p>
         <select class="form-select" [(ngModel)]="modelgrupo">
           <option value="OPERA">OPERA</option>
           <option value="SLP">SLP</option>
         </select>
+      </div>
+  
+      <div class="col-md-3"> <p>NO. IDENTIFICACIÓN</p>
+        <input class="form-control" type="text" [(ngModel)]="modelnoidentificacion">
       </div>
 
     </div>
@@ -211,21 +215,26 @@
       </div>
      </div>
       <div class="row mt-3">
-       <div class="col-md-4">
+       <div class="col-md-3">
         <P>UNIDAD DE MEDIDA</P>
        <input class="form-control p-2" type="text" [(ngModel)]="modelmedida" [value]="modelmedida| uppercase">
        </div>
-       <div class="col-md-4">
+       <div class="col-md-3">
         <p>UNIDADES</p>
         <input class="form-control p-2" type="number" [(ngModel)]="modeluds">
        </div>
 
-       <div class="col-md-4"> <p>GRUPO</p>
+       <div class="col-md-3"> <p>GRUPO</p>
         <select class="form-select" [(ngModel)]="modelgrupo">
           <option value="OPERA">OPERA</option>
           <option value="SLP">SLP</option>
         </select>
       </div>
+
+          <div class="col-md-3"> <p>NO. IDENTIFICACIÓN</p>
+        <input class="form-control" type="text" [(ngModel)]="modelnoidentificacion">
+      </div>
+
       
     </div>
       

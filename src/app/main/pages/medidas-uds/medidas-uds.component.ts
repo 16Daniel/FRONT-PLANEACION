@@ -35,6 +35,7 @@ export default class MedidasUdsComponent implements OnInit {
   public modaleditar:boolean = false; 
   public modelmedida:string | undefined; 
   public modeluds:number | undefined;
+  public modelnoidentificacion:string = ""; 
   public modelgrupo:string = ''; 
   public catproveedores: Proveedor[] = []; 
   public proveedorsel:string = ""; 
@@ -122,14 +123,15 @@ export default class MedidasUdsComponent implements OnInit {
           this.showMessage('info',"Error","Favor de agregar la cantidad de unidades");
           return
         }
+        debugger
     const data =
     {
       rfc: this.proveedorsel,
       codarticulo: this.articulo,
+      numIdentificacion: this.modelnoidentificacion,
       umedida: this.modelmedida.toUpperCase(),
       uds: this.modeluds,
-      grupo: this.modelgrupo,
-      numIdentificacion: ''
+      grupo: this.modelgrupo
     };
     this.loading = true; 
     this.apiserv.saveumedida(data).subscribe({
@@ -189,6 +191,7 @@ showUpdate(item:ItProducto)
   this.modelmedida = item.umedida;
   this.modeluds = item.uds;
   this.modelgrupo = item.grupo; 
+  this.modelnoidentificacion = item.noIdentificacion; 
 }
 
 updateMedidaUds()
@@ -217,7 +220,8 @@ updateMedidaUds()
     codarticulo: this.itemumedidaupdate?.codarticulo,
     umedida: this.modelmedida.toUpperCase(),
     uds: this.modeluds,
-    grupo: this.modelgrupo
+    grupo: this.modelgrupo,
+    numIdentificacion: this.modelnoidentificacion
   };
 
   this.apiserv.UpdateMedidauds(data).subscribe({

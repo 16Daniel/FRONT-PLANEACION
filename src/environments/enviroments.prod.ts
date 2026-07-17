@@ -1,6 +1,6 @@
 export const environment = {
     production: false,
-    apiURL: "https://localhost:7171/api/",
+    apiURL: "https://operamx.no-ip.net/back/api_planeacion/api/",
     apiKey:"QG15czNjcjN0QXAxazN5LXJ3LXAzZDFkMDUtMjAyNkA="
   };
   

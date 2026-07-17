@@ -461,7 +461,7 @@ export class ApiService {
 
    testvpn():Observable<any>
    {
-      return this.http.get<any>("https://operamx.no-ip.net/back/api_planeacion/api/Usuarios/TestCon",{headers:this.headers}).pipe(
+      return this.http.get<any>(this.url+"Usuarios/TestCon",{headers:this.headers}).pipe(
          timeout(5000), // Tiempo de espera de 5 segundos
          catchError(error => {
            return throwError(error);
