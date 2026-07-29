@@ -887,6 +887,15 @@ export class ApiService {
       return this.http.get<ItemInvSem[]>(this.url+'CheckInvSemanal/geArticulosbd',{headers:this.headers})
    }
 
+       getItemsinvDiairio():Observable<ItemInvSem[]>
+   {
+      return this.http.get<ItemInvSem[]>(this.url+'CheckInvSemanal/geArticulosInvDiario',{headers:this.headers})
+   }
+       getItemsinvMes():Observable<ItemInvSem[]>
+   {
+      return this.http.get<ItemInvSem[]>(this.url+'CheckInvSemanal/geArticulosInvMensual',{headers:this.headers})
+   }
+
     agregarArticulosInvSem(jdata:string):Observable<any>
    { 
       let formdata = new FormData();

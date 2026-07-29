@@ -1,0 +1,210 @@
+<div class="p-3">
+    <h5 class="text-center">TIPOS DE INVENTARIO</h5>
+    <div class="d-flex justify-content-center" *ngIf="loading">
+  <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+</div>
+    <div class="m-3">
+        <p-tabView>
+    <p-tabPanel header="DIARIO">
+        <div class="d-flex justify-content-end m-3">
+              <button class="btn btn-outline-success p-2" style="min-width: 10rem;" (click)="exportarExcelDiario()" [disabled]="loading"><img width="42" height="42" src="https://img.icons8.com/fluency/40/microsoft-excel-2019.png" alt="microsoft-excel-2019"/> EXCEL</button>
+        </div>
+         <p-table [value]="catitemsdiario" [tableStyle]="{'min-width': '60rem', 'padding':'10px'}" [scrollable]="true" scrollHeight="700px" *ngIf="loading == false"
+        styleClass="p-datatable-gridlines" 
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="cod" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="referencia" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="descripcion" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="marca" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="umedida" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                </tr>
+                
+                <tr>
+                    <th pSortableColumn="cod">CODARTICULO <p-sortIcon field="cod" /></th>
+                    <th pSortableColumn="referencia">REFERENCIA <p-sortIcon field="referencia" /></th>
+                    <th pSortableColumn="descripcion">NOMBRE <p-sortIcon field="descripcion"/></th>
+                    <th pSortableColumn="marca">MARCA <p-sortIcon field="marca" /></th>
+                    <th pSortableColumn="umedida">MEDIDA REFERENCIA <p-sortIcon field="umedida" /></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+                <tr>
+                    <td>{{ item.cod }}</td>
+                    <td>{{ item.referencia }}</td>
+                    <td>{{ item.descripcion }}</td>
+                    <td>{{ item.marca }}</td>
+                    <td>{{ item.umedida }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+        
+    </p-tabPanel>
+      <p-tabPanel header="SEMANAL">
+        <p>
+             <div class="d-flex justify-content-end m-3">
+              <button class="btn btn-outline-success p-2" style="min-width: 10rem;" (click)="exportarExcelsemana()" [disabled]="loading"><img width="42" height="42" src="https://img.icons8.com/fluency/40/microsoft-excel-2019.png" alt="microsoft-excel-2019"/> EXCEL</button>
+        </div>
+           <p-table [value]="catitemsbd" [tableStyle]="{'min-width': '60rem', 'padding':'10px'}" [scrollable]="true" scrollHeight="700px" *ngIf="loading == false"
+        styleClass="p-datatable-gridlines" 
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="cod" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="referencia" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="descripcion" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="marca" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="umedida" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                </tr>
+                
+                <tr>
+                    <th pSortableColumn="cod">CODARTICULO <p-sortIcon field="cod" /></th>
+                    <th pSortableColumn="referencia">REFERENCIA <p-sortIcon field="referencia" /></th>
+                    <th pSortableColumn="descripcion">NOMBRE <p-sortIcon field="descripcion"/></th>
+                    <th pSortableColumn="marca">MARCA <p-sortIcon field="marca" /></th>
+                    <th pSortableColumn="umedida">MEDIDA REFERENCIA <p-sortIcon field="umedida" /></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+                <tr>
+                    <td>{{ item.cod }}</td>
+                    <td>{{ item.referencia }}</td>
+                    <td>{{ item.descripcion }}</td>
+                    <td>{{ item.marca }}</td>
+                    <td>{{ item.umedida }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+        
+    </p-tabPanel>
+    <p-tabPanel header="MENSUAL">
+         <div class="d-flex justify-content-end m-3">
+              <button class="btn btn-outline-success p-2" style="min-width: 10rem;" (click)="exportarExcelmes()" [disabled]="loading"><img width="42" height="42" src="https://img.icons8.com/fluency/40/microsoft-excel-2019.png" alt="microsoft-excel-2019"/> EXCEL</button>
+        </div>
+        <p-table [value]="catitemsmensual" [tableStyle]="{'min-width': '60rem', 'padding':'10px'}" [scrollable]="true" scrollHeight="700px" *ngIf="loading == false"
+        styleClass="p-datatable-gridlines" 
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="cod" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="referencia" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="descripcion" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="marca" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="umedida" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                </tr>
+                
+                <tr>
+                    <th pSortableColumn="cod">CODARTICULO <p-sortIcon field="cod" /></th>
+                    <th pSortableColumn="referencia">REFERENCIA <p-sortIcon field="referencia" /></th>
+                    <th pSortableColumn="descripcion">NOMBRE <p-sortIcon field="descripcion"/></th>
+                    <th pSortableColumn="marca">MARCA <p-sortIcon field="marca" /></th>
+                    <th pSortableColumn="umedida">MEDIDA REFERENCIA <p-sortIcon field="umedida" /></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+                <tr>
+                    <td>{{ item.cod }}</td>
+                    <td>{{ item.referencia }}</td>
+                    <td>{{ item.descripcion }}</td>
+                    <td>{{ item.marca }}</td>
+                    <td>{{ item.umedida }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+        
+    </p-tabPanel>
+</p-tabView>
+    </div>
+</div>
+<p-toast />

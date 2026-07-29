@@ -133,6 +133,11 @@ export const routes: Routes = [
             title:'Inventario semanal',
             loadComponent: () => import('./main/pages/check-inv-semanal/check-inv-semanal')
         },
+         {
+            path:'tipos-inv',
+            title:'reporte inventarios',
+            loadComponent: () => import('./main/pages/articulos-tipo-inventario/articulos-tipo-inventario')
+        },
         {
             path: '',
             redirectTo: '/main/home',
