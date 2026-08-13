@@ -1,0 +1,420 @@
+<h3 class="text-center">PLANEACION MENSUAL</h3>
+
+<div class="d-flex justify-content-center" *ngIf="loading">
+  <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+</div>
+
+<button class="btn bg-p-b " (click)="abrirModal()"> <i class='bx bx-cog bx-sm'></i></button>
+
+<button class="btn bg-p-b m-3" (click)="generarPedidos()"> GENERAR PEDIDOS </button>
+
+<div class="mt-3"></div>
+
+<p-tabView>
+    <p-tabPanel header="POR ACEPTAR">
+        <p-table 
+            [value]="listaResultados" 
+            [responsive]="true"
+            [scrollable]="true" scrollHeight="700px"
+            styleClass="p-datatable-gridlines">
+            
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>SUCURSAL</th>
+                    <th>PROVEEDOR</th>
+                    <th>FECHA</th>
+                    <th>ESTATUS</th>
+                    <th>NUM. PEDIDOS</th>
+                    <th></th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-item>
+                <tr [ngClass]="{'bg-success bg-opacity-25': item.estatus == 'AUTORIZADO'}">
+                    <td>{{ getnombreSucursal(item) }}</td>
+                    <td>{{ getNombreProv(item) }}</td>
+                    <td>{{ item.fecha | date}}</td>
+                    <td>{{ item.estatus}}</td>
+                    <td>{{ item.division}}</td>
+                    <td><button class="btn btn-dark" (click)="verDetallesPedido(item)">ver detalles</button></td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+    </p-tabPanel>
+    <p-tabPanel header="HISTORIAL">
+        <div class="row">
+            <div class="col-auto">
+                 <p-calendar 
+                [readonlyInput]="true"
+                [(ngModel)]="formHfi" 
+                appendTo="body"
+                dateFormat="dd/mm/yy"/>
+            </div>
+            <div class="col-auto">
+                 <p-calendar 
+                [readonlyInput]="true"
+                [(ngModel)]="formHff" 
+                appendTo="body"
+                dateFormat="dd/mm/yy"/>
+            </div>
+            <div class="col-auto">
+                <button class="btn bg-p-b p-2" (click)="getpedidosBDH()"><i class='bx bx-search'></i>&nbsp;CONSULTAR</button>
+            </div>
+        </div>
+        <div class="mt-3"></div>
+         <p-table 
+            [value]="listaResultadosH" 
+            [responsive]="true"
+            [scrollable]="true" scrollHeight="700px"
+            styleClass="p-datatable-gridlines">
+            
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>SUCURSAL</th>
+                    <th>PROVEEDOR</th>
+                    <th>FECHA</th>
+                    <th>ESTATUS</th>
+                    <th>NUM. PEDIDOS</th>
+                    <th></th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-item>
+                <tr [ngClass]="{'bg-success bg-opacity-25': item.estatus == 'AUTORIZADO'}">
+                    <td>{{ getnombreSucursal(item) }}</td>
+                    <td>{{ getNombreProv(item) }}</td>
+                    <td>{{ item.fecha | date}}</td>
+                    <td>{{ item.estatus}}</td>
+                    <td>{{ item.division}}</td>
+                    <td><button class="btn btn-dark" (click)="verDetallesPedido(item)">ver detalles</button></td>
+                </tr>
+            </ng-template>
+        </p-table>
+
+    </p-tabPanel>
+</p-tabView>
+
+
+<p-dialog 
+    header="Artículos" 
+    [modal]="true"
+    [(visible)]="modalarticulos" 
+    [style]="{ width: '80rem' }" 
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
+    [maximizable]="true">
+
+<div class="d-flex justify-content-center" *ngIf="loading">
+  <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+</div>
+
+
+<div class="m-3 p-3">
+<p class="mt-3 fw-bold">PARÁMETROS</p>
+
+<div class="row gap-3">
+
+<div class="col-auto">
+    <p>Tiempo de entrega del proveedor (días)</p>
+    <input type="number" class="form-control" [(ngModel)]="formp1">
+</div>
+<div class="col-auto">
+    <p>Período de revisión (días)</p>
+    <input type="number" class="form-control" [(ngModel)]="formp2">
+</div>
+<div class="col-auto">
+    <p>Nivel de servicio Z</p>
+    <input type="number" class="form-control" [(ngModel)]="formp3">
+</div>
+<div class="col-auto">
+    <p>Número de meses con datos (N)</p>
+    <input type="number" class="form-control" [(ngModel)]="formp4">
+</div>
+
+<div class="col-auto">
+    <p>GUARDAR</p>
+    <button class="btn bg-p-b" (click)="guardarParametros()"><i class="bx bx-save"></i></button>
+</div>
+
+</div>
+
+</div>
+
+
+    <div class="m-3 p-3">
+ <p class="mt-3 fw-bold">AGREGAR ARTÍCULOS</p>
+       <div class="row">
+        <div class="col-md-6">
+            <p>SELECCIONAR ARTÍCULOS</p>
+             <p-dropdown [options]="catitems" [(ngModel)]="selecteditem" (onChange)="getProveedoresArt()"
+              [filter]="true" filterBy="descripcion" optionLabel="descripcion" [style]="{'width':'100%'}" [disabled]="loading"></p-dropdown >
+        </div>
+        <div class="col-md-6">
+            <p>SELECCIONAR PROVEEDOR</p>
+             <p-dropdown [options]="proveedoresArt" [(ngModel)]="selectedProv" 
+             [filter]="true" filterBy="nombreprov" optionLabel="nombreprov" [style]="{'width':'100%'}" [disabled]="loading"></p-dropdown >
+        </div>
+       </div>
+<button class="btn bg-p-b p-2 mt-3" [disabled]="loading || selecteditem == undefined || selectedProv == undefined" (click)="agregarArticulos()">AGREGAR</button>
+</div>
+
+ <button class="btn bg-p-b" (click)="confirm2()" [disabled]="arr_eliminar.length==0"><i class="bx bx-trash"></i> ELIMINAR</button>
+
+   <p-table [value]="catitemsbd" [tableStyle]="{'min-width': '60rem', 'padding':'10px'}" [scrollable]="true" scrollHeight="700px" *ngIf="loading == false"
+        styleClass="p-datatable-gridlines" 
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th></th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="cod" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="referencia" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="descripcion" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="marca" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th>
+                        <p-columnFilter 
+                            type="text" 
+                            field="umedida" 
+                            placeholder="" 
+                            ariaLabel="" />
+                    </th>
+                    <th></th>
+                </tr>
+                
+                <tr>
+                    <th></th>
+                    <th pSortableColumn="cod">CODARTICULO <p-sortIcon field="cod" /></th>
+                    <th pSortableColumn="referencia">REFERENCIA <p-sortIcon field="referencia" /></th>
+                    <th pSortableColumn="descripcion">NOMBRE <p-sortIcon field="descripcion"/></th>
+                    <th pSortableColumn="marca">MARCA <p-sortIcon field="marca" /></th>
+                    <th pSortableColumn="umedida">MEDIDA REFERENCIA <p-sortIcon field="umedida" /></th>
+                    <th >PROVEEDOR</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-item>
+                <tr>
+                    <td style="background-color: #ddd;">
+                        <div class="form-check">
+                        <input class="form-check-input" type="checkbox" (change)="actualizarArrayEliminar(item.cod)" style="width: 20px; height: 20px;">
+                        </div>
+                    </td>
+                    <td>{{ item.cod }}</td>
+                    <td>{{ item.referencia }}</td>
+                    <td>{{ item.descripcion }}</td>
+                    <td>{{ item.marca }}</td>
+                    <td>{{ item.umedida }}</td>
+                    <td>{{ item.nomprov }}</td>
+                </tr>
+            </ng-template>
+        </p-table>
+        
+<div class="m-3 p-3" *ngIf="parametros != undefined || parametros != null">
+
+<div class="row">
+<div class="col-md-6">
+            <p>SELECCIONAR PROVEEDOR</p>
+             <p-dropdown [options]="proveedoresbd" [(ngModel)]="formdivProv" 
+             [filter]="true" filterBy="nombreprov" optionLabel="nombreprov" [style]="{'width':'100%'}" [disabled]="loading"></p-dropdown >
+</div>
+<div class="col-6">
+    <p>NúMERO DE PEDIDOS</p> 
+   <input class="form-control"  type="number" [(ngModel)]="formNumDivision" />
+</div>
+
+</div>
+<div class="col-auto">
+    <p>AGREGAR</p>
+    <button class="btn bg-p-b" (click)="agregarDivisionPed()"><i class="bx bx-plus"></i>&nbsp;AGREGAR</button>
+</div>
+
+<p-table [value]="arr_division_ped" [tableStyle]="{ 'min-width': '50rem' }">
+    <ng-template pTemplate="header">
+        <tr>
+            <th>PROVEEDOR</th>
+            <th>NUMERO DE PEDIDOS</th>
+            <th></th>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-product let-i="rowIndex">
+        <tr>
+            <td>{{ product.nomprov }}</td>
+            <td>{{ product.division }}</td>
+            <th><button class="btn btn-danger" (click)="eliminarItemDiv(i)"><i class="bx bx-trash"></i></button></th>
+        </tr>
+    </ng-template>
+</p-table>
+ <button class="btn bg-p-b" (click)="guardarParametros()"><i class="bx bx-save"></i></button>
+</div>
+
+</p-dialog>
+
+<p-dialog 
+    header="Artículos" 
+    [modal]="true"
+    [(visible)]="modalDetalles" 
+    [style]="{ width: '80rem' }" 
+    [breakpoints]="{ '1199px': '75vw', '575px': '90vw' }" 
+    (onHide)="onHide()"
+    [maximizable]="true">
+
+<div class="d-flex justify-content-center" *ngIf="loading">
+  <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+</div>
+
+<div *ngIf="itemdetalles != undefined">
+    
+   <div *ngFor="let numPedido of clavesGrupo" class="mt-3">
+  @if(numPedido == '0')
+  {
+    <h3>PEDIDO ORIGINAL</h3>
+  } @else { <h3>PEDIDO N° {{ numPedido }}</h3>}
+  <div class="bg-g-l p-3 text-center">TOTAL: {{getTotalPedido(numPedido) | number:'1.2-2'}}&nbsp;<div *ngIf="grupos[numPedido][0].fechaEntrega != null">FECHA DE ENTREGA: {{grupos[numPedido][0].fechaEntrega | date}}</div></div> 
+  <p-table [value]="grupos[numPedido]" styleClass="p-datatable-sm">
+    
+    <ng-template pTemplate="header">
+      <tr>
+            <th>Referencia</th>
+            <th>Descripción</th>
+            <th>Cajas</th>
+            <th>Uds/caja</th>
+            <th>Impuesto</th>
+            <th>Precio</th>
+            <th>Total</th>
+            <th>Num pedido</th>
+            <th></th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-item>
+       <tr [ngClass]="{'bg-success bg-opacity-25': item.numpedido != '' && item.numpedido}">
+            <td>{{ item.referencia }}</td>
+            <td>{{ item.descripcion }}</td>
+            <td>{{ item.pedidoSugerido }}</td>
+            <td>{{ item.udscaja }}</td>
+            <td>{{ item.tipoimpuesto }}</td>
+            <td>${{ item.precio | number:'1.2-2' }}</td>
+            <td>${{ (item.precio * (item.pedidoSugerido*item.udscaja)) | number:'1.2-2' }}</td>
+             <th>{{item.numpedido}}</th>
+            <td><button class="btn bg-g-l" (click)="verdetallesart(item)"><i class='bx bx-info-circle bx-sm'></i></button></td>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="8">No hay registros en esta línea de pedido.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <div class="d-flex justify-content-end p-3 gap-3" *ngIf="numPedido !='0' && pedidoPoraceptar(numPedido)">
+    <p>FECHA DE ENTREGA </p>
+    <p-calendar 
+    [readonlyInput]="true"
+    [(ngModel)]="formFechaentrega" 
+    appendTo="body"
+    dateFormat="dd/mm/yy"/>
+<button class="btn bg-p-b p-2" (click)="confirmar(numPedido)">CONFIRMAR PEDIDO</button>
+
+</div>
+
+
+</div>
+
+   <!-- <div class="d-flex justify-content-center gap-3 p-3">
+    <div class="bg-g-l p-3">{{itemdetalles.items[0].ubicacion }}</div>
+    <div class="bg-g-l p-3">{{itemdetalles.items[0].nombreprov }}</div>
+    <div class="bg-g-l p-3"><strong>TOTAL: ${{getToatalPedido(itemdetalles)}}</strong></div>
+   </div> -->
+
+    <!-- <p-table 
+    [value]="itemdetalles!.items" 
+    selectionMode="single" 
+    dataKey="codarticulo"
+    [responsive]="true"
+    [scrollable]="true" scrollHeight="700px" >
+    
+    <ng-template pTemplate="header">
+        <tr>
+            <th>Referencia</th>
+            <th>Descripción</th>
+            <th>Cajas</th>
+            <th>Uds/caja</th>
+            <th>Impuesto</th>
+            <th>Precio</th>
+            <th>Total</th>
+            <th></th>
+        </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-item>
+        <tr>
+            <td>{{ item.referencia }}</td>
+            <td>{{ item.descripcion }}</td>
+            <td>{{ item.pedidoSugerido }}</td>
+            <td>{{ item.udscaja }}</td>
+            <td>{{ item.tipoimpuesto }}</td>
+            <td>${{ item.precio }}</td>
+            <td>${{ (item.precio * (item.pedidoSugerido*item.udscaja)) }}</td>
+            <td><button class="btn bg-g-l" (click)="verdetallesart(item)"><i class='bx bx-info-circle bx-sm'></i></button></td>
+        </tr>
+    </ng-template>
+</p-table> -->
+
+<p class="pt-3 fw-bold">DETALLES DEL CALCULO</p>
+<p-table [value]="detallesart">
+  
+  <ng-template pTemplate="header">
+    <tr>
+    <th>Cod</th>
+      <th>Descripción</th>
+      <th>Consumo Prom.</th>
+      <th>Desv. Estándar</th>
+      <th>Nivel Objetivo</th>
+      <th>Stock Físico</th>
+      <th>Pedido Sugerido</th>
+    </tr>
+  </ng-template>
+
+  <ng-template pTemplate="body" let-resultado>
+    <tr>
+    <td>{{ resultado.codarticulo}}</td>
+      <td>{{ resultado.descripcion }}</td>
+      <td>{{ resultado.consumoPromedio | number:'1.2-2' }}</td>
+      <td>{{ resultado.desviacionEstandar | number:'1.2-2' }}</td>
+      <td>{{ resultado.nivelObjetivo | number:'1.2-2' }}</td>
+      <td>{{ resultado.stockFisico | number }}</td>
+      <td>{{ resultado.pedidoSugerido | number }}</td>
+    </tr>
+  </ng-template>
+
+</p-table>
+
+
+</div>
+</p-dialog>
+
+<p-toast />
+    <p-confirmDialog />

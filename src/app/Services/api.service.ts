@@ -21,6 +21,7 @@ import { Retornable } from '../Interfaces/Retornable.';
 import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 import { Almacenaje } from '../Interfaces/Almacenaje';
 import { Diferencia } from '../Interfaces/Diferencia';
+import { ResultadoPedidoMensual, ResultadoPedidoMensualGrupo } from '../Interfaces/PlaneacionMensual.ts';
 
 @Injectable({
   providedIn: 'root'
@@ -916,5 +917,80 @@ export class ApiService {
       formdata.append("jdata",jdata);
       return this.http.post<any>(this.url+`CheckInvSemanal/actualizarArticulos`,formdata,{headers:this.headers})
    }
+
+       getItemsPlaneacionMensual():Observable<Item[]>
+   {
+      return this.http.get<Item[]>(this.url+'planeacionMensual/getArticulos',{headers:this.headers})
+   }
+
+     agregarArticulosPlanecionMensual(jdata:string,codprov:string):Observable<any>
+   { 
+      let formdata = new FormData();
+      formdata.append("jdata",jdata);
+      formdata.append("codprov",codprov);
+      return this.http.post<any>(this.url+`planeacionMensual/agregarArticulos`,formdata,{headers:this.headers})
+   } 
+     getParametrosPlaneacionMensual():Observable<any>
+   {
+      return this.http.get<any>(this.url+'planeacionMensual/getParametros',{headers:this.headers})
+   }
+       getItemsbdPlaneacionMensual():Observable<ItemInvSem[]>
+   {
+      return this.http.get<ItemInvSem[]>(this.url+'planeacionMensual/geArticulosbd',{headers:this.headers})
+   }
+
+     guardarParametrosPlanecionMensual(tiempoentrega:number,periodorev:number,nivelRev:number,meses:number,datadivision:string):Observable<any>
+   { 
+      let formdata = new FormData();
+      formdata.append("tiempoentrega",tiempoentrega.toString());
+      formdata.append("periodorev",periodorev.toString()); 
+      formdata.append("nivelRev",nivelRev.toString()); 
+      formdata.append("meses",meses.toString()); 
+      formdata.append("datadivision",datadivision); 
+      return this.http.post<any>(this.url+`planeacionMensual/guardarParametros`,formdata,{headers:this.headers})
+   } 
+
+       eliminarArticulosPlaneacionMensual(jdata:string):Observable<any>
+   { 
+      let formdata = new FormData();
+      formdata.append("jdata",jdata);
+      return this.http.post<any>(this.url+`planeacionMensual/eliminarArticulos`,formdata,{headers:this.headers})
+   }
+
+      getProveedoresArt(codarticulo:number):Observable<any[]>
+   {
+      return this.http.get<any[]>(this.url+'planeacionMensual/getProveedoresArt/'+codarticulo,{headers:this.headers})
+   }
+
+     generarpedidosmensuales():Observable<ResultadoPedidoMensualGrupo[]>
+   { 
+      return this.http.post<ResultadoPedidoMensualGrupo[]>(this.url+`planeacionMensual/calcularResumen`,null,{headers:this.headers})
+   }
+
+     getPedidosBD():Observable<ResultadoPedidoMensualGrupo[]>
+   { 
+      return this.http.post<ResultadoPedidoMensualGrupo[]>(this.url+`planeacionMensual/getPedidosBD`,null,{headers:this.headers})
+   }
+     getPedidosBDH(fi:Date,ff:Date):Observable<ResultadoPedidoMensualGrupo[]>
+   { 
+       let formdata = new FormData();
+      formdata.append("fi",fi.toDateString());
+      formdata.append("ff",ff.toDateString());
+      return this.http.post<ResultadoPedidoMensualGrupo[]>(this.url+`planeacionMensual/getPedidosBDH`,formdata,{headers:this.headers})
+   }
+
+        getProveedoresBD():Observable<any[]>
+   {
+      return this.http.get<any[]>(this.url+'planeacionMensual/getProveedoresBD',{headers:this.headers})
+   }
+
+    confirmarPedido(idp:number,nump:number,fechaentrega:Date):Observable<any>
+   { 
+      let formdata = new FormData();
+      formdata.append("idp",idp.toString());
+      formdata.append("nump",nump.toString());
+      formdata.append("fechaentrega",fechaentrega.toDateString());
+      return this.http.post<any>(this.url+`planeacionMensual/ConfirmarPedido`,formdata,{headers:this.headers})
+   } 
 }
 
