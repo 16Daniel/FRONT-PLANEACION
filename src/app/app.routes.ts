@@ -138,6 +138,11 @@ export const routes: Routes = [
             title:'reporte inventarios',
             loadComponent: () => import('./main/pages/articulos-tipo-inventario/articulos-tipo-inventario')
         },
+         {
+            path:'planeacion-mensual',
+            title:'PLANEACIÓN MENSUAL',
+            loadComponent: () => import('./main/pages/planeacion-mensual/planeacion-mensual')
+        },
         {
             path: '',
             redirectTo: '/main/home',

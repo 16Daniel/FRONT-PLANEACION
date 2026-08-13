@@ -25,5 +25,6 @@ export interface Item
     marca:string;
     prioridad:number|undefined; 
     umedida:string; 
+    nomprov?:string; 
  }
 

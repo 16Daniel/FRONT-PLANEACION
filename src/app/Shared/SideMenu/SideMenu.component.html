@@ -146,6 +146,17 @@
         </a>
       </li>
 
+ <li class="item" *ngIf="comprobaracceso('/main/planeacion-mensual')">
+        <a
+        [routerLink]="'planeacion-mensual'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-list-ul' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Pedidos Mensuales</span>
+        </a>
+      </li>
 
       <li class="item" *ngIf="comprobaracceso('/main/h-orders')">
         <a
