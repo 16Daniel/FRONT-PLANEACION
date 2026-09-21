@@ -144,6 +144,11 @@ export const routes: Routes = [
             loadComponent: () => import('./main/pages/planeacion-mensual/planeacion-mensual')
         },
         {
+            path:'invdiarioasem',
+            title:'CONFIGURACIÓN',
+            loadComponent: () => import('./main/pages/invDiarioASem/invDiarioASem')
+        },
+        {
             path: '',
             redirectTo: '/main/home',
             pathMatch: 'full'

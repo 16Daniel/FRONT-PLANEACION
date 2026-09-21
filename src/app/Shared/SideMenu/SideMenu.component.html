@@ -281,6 +281,18 @@
         </a>
       </li>
 
+       <li class="item" *ngIf="comprobaracceso('/main/invdiarioasem')">
+        <a
+        [routerLink]="'invdiarioasem'"
+        [routerLinkActive]="'bg-p-l'"
+         class="nav_link">
+          <span class="navlink_icon">
+            <i class='bx bx-checkbox-checked bx-sm' [routerLinkActive]="'text-light'"></i>
+          </span>
+          <span class="navlink" [routerLinkActive]="'text-light'">Inv diario a sem</span>
+        </a>
+      </li>
+
        <li class="item" *ngIf="comprobaracceso('/main/tipos-inv')">
         <a
         [routerLink]="'tipos-inv'"

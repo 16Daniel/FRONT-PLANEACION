@@ -1,0 +1,10 @@
+/* Ajuste de ancho nativo para componentes PrimeNG en Bootstrap */
+:host ::ng-deep .p-multiselect {
+  width: 100%;
+  border-color: #dee2e6; /* Border-color estándar de Bootstrap 5 */
+}
+
+:host ::ng-deep .p-multiselect:not(.p-disabled).p-focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Glow de enfoque estilo Bootstrap */
+}
