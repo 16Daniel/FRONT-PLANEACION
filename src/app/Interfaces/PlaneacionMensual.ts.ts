@@ -42,3 +42,18 @@ export interface GrupoPedido {
   numPedidoLin: number;
   items: ResultadoPedidoMensual[];
 }
+
+export interface PMProvSuc
+{
+    codprov:number;
+    idsuc:number; 
+    nomprov:string; 
+}
+
+export interface DatatTabProvSuc
+{
+    codprov:number;
+    nomprov:string;
+    sucursales:string;  
+}
+

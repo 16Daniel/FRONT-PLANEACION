@@ -1,0 +1,79 @@
+<p-toast></p-toast>
+
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-danger text-white py-3">
+          <h4 class="card-title mb-0 h5">
+            <i class="bi bi-gear-fill me-2"></i>Administración de Parámetros
+          </h4>
+        </div>
+
+        <div class="card-body p-4">
+          <form [formGroup]="form" (ngSubmit)="guardar()">
+            
+            <!-- Campo Sucursales -->
+            <div class="mb-4">
+              <label for="sucursales" class="form-label fw-bold">
+                Sucursales Permitidas
+              </label>
+              <p-multiSelect 
+                id="sucursales"
+                [options]="catsucursales" 
+                formControlName="sucursalIds" 
+                optionLabel="name" 
+                optionValue="cod"
+                placeholder="Selecciona sucursales"
+                [filter]="true"
+                filterBy="name"
+                styleClass="w-100">
+              </p-multiSelect>
+              <div class="form-text text-muted">
+                Selecciona una o más sucursales para asociar a la configuración.
+              </div>
+            </div>
+
+            <!-- Campo Artículos -->
+            <div class="mb-4">
+              <label for="articulos" class="form-label fw-bold">
+                Artículos Habilitados
+              </label>
+              <p-multiSelect 
+                id="articulos"
+                [options]="catItems" 
+                formControlName="articuloIds" 
+                optionLabel="descripcion" 
+                optionValue="cod"
+                placeholder="Selecciona artículos"
+                [filter]="true"
+                filterBy="descripcion"
+                styleClass="w-100">
+              </p-multiSelect>
+              <div class="form-text text-muted">
+                Define la lista de artículos válidos para este parámetro.
+              </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <!-- Botón de Acción -->
+            <div class="d-flex justify-content-end gap-2">
+              <p-button 
+                label="Guardar Configuración" 
+                icon="pi pi-save" 
+                type="submit" 
+                styleClass="p-button-danger"
+                [loading]="loading"
+                [disabled]="form.invalid">
+              </p-button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

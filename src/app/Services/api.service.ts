@@ -21,7 +21,8 @@ import { Retornable } from '../Interfaces/Retornable.';
 import { AnyCatcher } from 'rxjs/internal/AnyCatcher';
 import { Almacenaje } from '../Interfaces/Almacenaje';
 import { Diferencia } from '../Interfaces/Diferencia';
-import { ResultadoPedidoMensual, ResultadoPedidoMensualGrupo } from '../Interfaces/PlaneacionMensual.ts';
+import { PMProvSuc, ResultadoPedidoMensual, ResultadoPedidoMensualGrupo } from '../Interfaces/PlaneacionMensual.ts';
+import { ParametrosConfig } from '../Interfaces/invDiarioASem';
 
 @Injectable({
   providedIn: 'root'
@@ -48,6 +49,10 @@ export class ApiService {
    getProveedores():Observable<Proveedor[]>
    {
       return this.http.get<Proveedor[]>(this.url+'Catalogos/getProveedores',{headers:this.headers})
+   }
+   getProveedoresActivos():Observable<Proveedor[]>
+   {
+      return this.http.get<Proveedor[]>(this.url+'Catalogos/getProveedoresActivos',{headers:this.headers})
    }
    getProveedoresAllPedSuc():Observable<Proveedor[]>
    {
@@ -918,9 +923,9 @@ export class ApiService {
       return this.http.post<any>(this.url+`CheckInvSemanal/actualizarArticulos`,formdata,{headers:this.headers})
    }
 
-       getItemsPlaneacionMensual():Observable<Item[]>
+       getItemsPlaneacionMensual(cod:number):Observable<Item[]>
    {
-      return this.http.get<Item[]>(this.url+'planeacionMensual/getArticulos',{headers:this.headers})
+      return this.http.get<Item[]>(this.url+'planeacionMensual/getArticulosProv/'+cod,{headers:this.headers})
    }
 
      agregarArticulosPlanecionMensual(jdata:string,codprov:string):Observable<any>
@@ -939,7 +944,7 @@ export class ApiService {
       return this.http.get<ItemInvSem[]>(this.url+'planeacionMensual/geArticulosbd',{headers:this.headers})
    }
 
-     guardarParametrosPlanecionMensual(tiempoentrega:number,periodorev:number,nivelRev:number,meses:number,datadivision:string):Observable<any>
+     guardarParametrosPlanecionMensual(tiempoentrega:number,periodorev:number,nivelRev:number,meses:number,datadivision:string,data:PMProvSuc[]):Observable<any>
    { 
       let formdata = new FormData();
       formdata.append("tiempoentrega",tiempoentrega.toString());
@@ -947,6 +952,7 @@ export class ApiService {
       formdata.append("nivelRev",nivelRev.toString()); 
       formdata.append("meses",meses.toString()); 
       formdata.append("datadivision",datadivision); 
+      formdata.append("arrprovsuc",JSON.stringify(data));
       return this.http.post<any>(this.url+`planeacionMensual/guardarParametros`,formdata,{headers:this.headers})
    } 
 
@@ -991,6 +997,28 @@ export class ApiService {
       formdata.append("nump",nump.toString());
       formdata.append("fechaentrega",fechaentrega.toDateString());
       return this.http.post<any>(this.url+`planeacionMensual/ConfirmarPedido`,formdata,{headers:this.headers})
+   } 
+
+   eliminarLineasRojasMensual(idp:number,nump:number):Observable<any>
+   { 
+      let formdata = new FormData();
+      formdata.append("idp",idp.toString());
+      formdata.append("nump",nump.toString());
+      return this.http.post<any>(this.url+`planeacionMensual/eliminarLineasRojas`,formdata,{headers:this.headers})
+   } 
+   getconfigInvDiarioASem():Observable<ParametrosConfig>
+   {
+      return this.http.get<ParametrosConfig>(this.url+'InvDiarioASem',{headers:this.headers})
+   }
+
+   guardarconfigInvDiarioASem(data:any):Observable<ParametrosConfig>
+   {
+       return this.http.post<any>(this.url+`InvDiarioASem`,data,{headers:this.headers})
+   }
+
+   getItemsinvDiario():Observable<Item[]>
+   {
+      return this.http.get<Item[]>(this.url+'InvDiarioASem/getArticulosInvDiario',{headers:this.headers})
    } 
 }
 

@@ -10,9 +10,10 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from "primeng/toast";
 import { ConfirmDialogModule } from "primeng/confirmdialog";
 import { DropdownModule } from 'primeng/dropdown';
-import { GrupoPedido, ResultadoPedidoMensual, ResultadoPedidoMensualGrupo } from '../../../Interfaces/PlaneacionMensual.ts';
+import { DatatTabProvSuc, GrupoPedido, PMProvSuc, ResultadoPedidoMensual, ResultadoPedidoMensualGrupo } from '../../../Interfaces/PlaneacionMensual.ts';
 import { CalendarModule } from 'primeng/calendar';
 import { TabViewModule } from 'primeng/tabview';
+import { Sucursal } from '../../../Interfaces/Sucursal';
 
 @Component({
   selector: 'app-planeacion-mensual',
@@ -29,12 +30,13 @@ export default class PlaneacionMensual implements OnInit {
   modalarticulos:boolean = false; 
   public catitems:Item[] = [];
   public catitemsbd:ItemInvSem[] = [];
-  public selecteditem:Item|undefined;
+  public selecteditems:Item[] = [];
   public arr_eliminar:number[] = []; 
   public parametros:any; 
   public proveedoresArt:any[] = []; 
   public proveedoresbd:any[] = []; 
   public selectedProv:any; 
+  public selectedProvSuc:any; 
   public listaResultados:ResultadoPedidoMensualGrupo[] = []; 
   public listaResultadosH:ResultadoPedidoMensualGrupo[] = []; 
   public itemdetalles:ResultadoPedidoMensualGrupo|undefined; 
@@ -50,6 +52,10 @@ export default class PlaneacionMensual implements OnInit {
   public formFechaentrega:Date = new Date();
   public formHfi:Date = new Date(); 
   public formHff:Date = new Date(); 
+  public catsucursales:Sucursal[] = []; 
+  public dataProvSuc:PMProvSuc[] = []; 
+  public sucursalesSel:Sucursal[] = []; 
+  public datatabprovsuc:DatatTabProvSuc[] = []; 
    
   grupos: { [key: string]: ResultadoPedidoMensual[] } = {};
   clavesGrupo: string[] = []; // ahora es string[]
@@ -61,17 +67,17 @@ export default class PlaneacionMensual implements OnInit {
    constructor(public apiserv:ApiService,private messageService: MessageService,public cdr:ChangeDetectorRef,private confirmationService: ConfirmationService)
     {
     }
-  ngOnInit(): void { this.getItems(); this.getParametros(); this.getpedidosBD(); this.getProveedoresBD();}
+  ngOnInit(): void { this.getParametros(); this.getpedidosBD(); this.getProveedoresBD(); this.getProveedores()}
 
   abrirModal()
   {
     this.modalarticulos = true; 
   }
 
-    getItems()
+    getItems(cod:number)
 { 
   this.loading = true; 
-  this.apiserv.getItemsPlaneacionMensual().subscribe({
+  this.apiserv.getItemsPlaneacionMensual(cod).subscribe({
     next: data => {
        this.catitems=data;
        this.loading = false;
@@ -92,9 +98,57 @@ export default class PlaneacionMensual implements OnInit {
   this.apiserv.getPedidosBD().subscribe({
     next: data => {
        this.listaResultados = data; 
-       console.log(data); 
+       if(this.itemdetalles != undefined)
+        {
+          let pedido = this.listaResultados.filter(x=>x.id == this.itemdetalles?.id);
+          this.itemdetalles = pedido[0]; 
+        }
        this.loading = false;
        this.getItemsbd(); 
+    },
+    error: error => {
+       console.log(error);
+       this.loading = false; 
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
+} 
+
+    actualizarpedidosBD()
+{ 
+  this.loading = true; 
+  this.apiserv.getPedidosBD().subscribe({
+    next: data => {
+       this.listaResultados = data; 
+       if(this.itemdetalles != undefined)
+        {
+          let pedido = this.listaResultados.filter(x=>x.id == this.itemdetalles?.id);
+          this.itemdetalles = pedido[0];  
+          this.loading = false;
+            this.grupos = this.itemdetalles.items.reduce((acc, item) => {
+      // Si numpedidolin es null/undefined, usar 'Sin número'
+      const clave = item.numpedidoLin != null ? item.numpedidoLin.toString() : 'Sin número';
+      if (!acc[clave]) {
+        acc[clave] = [];
+      }
+      acc[clave].push(item);
+      return acc;
+    }, {} as { [key: string]: ResultadoPedidoMensual[] });
+
+    // claves ordenadas alfabéticamente (puedes personalizar el orden)
+    this.clavesGrupo = Object.keys(this.grupos).sort((a, b) => {
+      // Si ambas son números, ordenar numéricamente
+      const aNum = Number(a);
+      const bNum = Number(b);
+      if (!isNaN(aNum) && !isNaN(bNum)) {
+        return aNum - bNum;
+      }
+      return a.localeCompare(b);
+    });
+
+          this.cdr.detectChanges(); 
+        }
+      
     },
     error: error => {
        console.log(error);
@@ -150,7 +204,12 @@ export default class PlaneacionMensual implements OnInit {
           this.formp2 = this.parametros.periodoDeRevision;
           this.formp3 = this.parametros.nivelDeServicio;
           this.formp4 = this.parametros.mesesConDatos; 
-        }
+          if(this.parametros.dataProvSuc != null)
+            {
+              this.dataProvSuc = JSON.parse(this.parametros.dataProvSuc); 
+            }
+            this.getSucursales();
+          }
        console.log(this.parametros); 
        if(this.parametros.dataDivisionPedidos != null)
         {
@@ -165,11 +224,11 @@ export default class PlaneacionMensual implements OnInit {
     }
 });
 }
-   getProveedoresArt()
+   getProveedores()
 { 
   this.proveedoresArt = []; 
   this.loading = true; 
-  this.apiserv.getProveedoresArt(this.selecteditem!.cod).subscribe({
+  this.apiserv.getProveedoresActivos().subscribe({
     next: data => {
        this.proveedoresArt = data; 
        this.loading = false; 
@@ -222,10 +281,14 @@ export default class PlaneacionMensual implements OnInit {
         this.loading = true; 
           let articulos:number[] = [];
           
-          articulos.push(this.selecteditem!.cod); 
+          for(let item of this.selecteditems)
+            {
+              articulos.push(item.cod); 
+            }
+
           this.apiserv.agregarArticulosPlanecionMensual(JSON.stringify(articulos),this.selectedProv.codprov).subscribe({
             next: data => {
-              this.selecteditem = undefined; 
+              this.selecteditems = []; 
               this.selectedProv = undefined; 
               this.showMessage('success',"Success","Artículos agregados correctamente");
               this.getItemsbd(); 
@@ -253,7 +316,7 @@ actualizarArrayEliminar(codArt:number)
 guardarParametros()
 {
   let datadivision = JSON.stringify(this.arr_division_ped); 
-      this.apiserv.guardarParametrosPlanecionMensual(this.formp1,this.formp2,this.formp3,this.formp4,datadivision).subscribe({
+      this.apiserv.guardarParametrosPlanecionMensual(this.formp1,this.formp2,this.formp3,this.formp4,datadivision,this.dataProvSuc).subscribe({
             next: data => { 
               this.showMessage('success',"Success","Guardado correctamente");
               this.getItemsbd(); 
@@ -310,6 +373,11 @@ eliminarArticulos()
     getnombreSucursal(item:ResultadoPedidoMensualGrupo):string
     {
       return item.items[0].ubicacion; 
+    }
+
+     getnombreSucursalById(id:number):string
+    {
+      return this.catsucursales.filter(x=>x.cod == id)[0].name ?? '';  
     }
 
     getNombreProv(item:ResultadoPedidoMensualGrupo):string
@@ -413,6 +481,22 @@ eliminarArticulos()
 
     }
     
+eliminarLineasRojas(nump:string)
+{
+   this.loading = true;
+      this.apiserv.eliminarLineasRojasMensual(this.itemdetalles!.id,parseInt(nump)).subscribe({
+            next: data => { 
+              this.showMessage('success',"Success","ELIMINADO CORRECTAMENTE");
+              this.loading = false;
+              this.actualizarpedidosBD(); 
+            },
+            error: error => {
+              console.log(error);
+              this.loading = false; 
+              this.showMessage('error',"Error","Error al procesar la solicitud");
+            }
+        });
+}
     confirmarPedido(nump:number)
 {
        this.loading = true;
@@ -454,6 +538,80 @@ getTotalPedido(numpedido:string):number
       total = total + (i.pedidoSugerido * i.udscaja * i.precio); 
     }
   return total; 
+}
+
+getSucursales()
+{
+   this.apiserv.getSucursales().subscribe({
+    next: data => {
+       this.catsucursales=data;
+        this.datatabprovsuc = this.agruparProveedores(this.dataProvSuc); 
+       this.cdr.detectChanges();
+    },
+    error: error => {
+       console.log(error);
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
+} 
+
+agregarSucursalesProv()
+{  
+  this.dataProvSuc = this.dataProvSuc.filter(x=> x.codprov != this.selectedProvSuc.codprov);
+  for(let itemsuc of this.sucursalesSel)
+    {
+      let temp:PMProvSuc = 
+      {
+        codprov: this.selectedProvSuc.codprov,
+        idsuc: itemsuc.cod,
+        nomprov: this.selectedProvSuc.nombreprov
+      }
+      this.dataProvSuc.push(temp);
+    }
+    this.datatabprovsuc = this.agruparProveedores(this.dataProvSuc); 
+    this.cdr.detectChanges(); 
+}
+
+agruparProveedores(lista: PMProvSuc[]): DatatTabProvSuc[] {
+  const agrupado = lista.reduce((acc, curr) => {
+    const key = curr.codprov;
+
+    if (!acc[key]) {
+      acc[key] = {
+        codprov: curr.codprov,
+        nomprov: curr.nomprov,
+        sucursales: this.getnombreSucursalById(curr.idsuc)
+      };
+    } else {
+      acc[key].sucursales += `, ${this.getnombreSucursalById(curr.idsuc)}`;
+    }
+
+    return acc;
+  }, {} as Record<number, DatatTabProvSuc>);
+
+  return Object.values(agrupado);
+}
+
+editarProvSuc(codprov:number)
+{ 
+  this.selectedProvSuc = this.proveedoresbd.filter(x=>x.codprov == codprov)[0];
+  this.sucursalesSel = []; 
+  let regs = this.dataProvSuc.filter(x=>x.codprov == codprov); 
+  for(let item of regs)
+    {
+      let temp = this.catsucursales.filter(x=>x.cod == item.idsuc)[0];
+      if(temp != undefined && temp != null)
+        {
+          this.sucursalesSel.push(temp); 
+        }
+    }
+  this.cdr.detectChanges(); 
+}
+
+eliminarprovsuc(codprov:number)
+{
+  this.dataProvSuc = this.dataProvSuc.filter(x=>x.codprov != codprov); 
+  this.datatabprovsuc = this.datatabprovsuc.filter(x=>x.codprov != codprov); 
 }
 
 }
