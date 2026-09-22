@@ -314,7 +314,7 @@ getItemsprovconf()
 {
   this.loading3= true; 
   this.selecteditemsconf = []; 
-  this.apiserv.getItemprovPedSucConfig(this.itemprovarts!.codproveedor).subscribe({
+  this.apiserv.getItemprovPedSucConfig(this.itemprovarts!.codproveedor,this.perfilconfig).subscribe({
     next: data => {
        this.catitemsconf=data;
        this.loading3= true; 

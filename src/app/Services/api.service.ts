@@ -726,9 +726,9 @@ export class ApiService {
       return this.http.get<Proveedor[]>(this.url+'PedidosSucursal/getProveedores',{headers:this.headers})
    }
 
-   getItemprovPedSucConfig(idprov:number):Observable<ItemPS[]>
+   getItemprovPedSucConfig(idprov:number,idperfil:number):Observable<ItemPS[]>
    {
-      return this.http.get<ItemPS[]>(this.url+'PedidosSucursal/getItemsprov/'+idprov,{headers:this.headers})
+      return this.http.get<ItemPS[]>(this.url+'PedidosSucursal/getItemsprov/'+idprov+'/'+idperfil,{headers:this.headers})
    } 
 
    getSucursalesProvPedSucConfig(idprov:number,idperfil:number):Observable<Sucursal[]>
