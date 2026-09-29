@@ -75,6 +75,12 @@
 
     <div *ngIf="step2== false">
 
+      <p>REGIÓN</p>
+      <select [(ngModel)]="perfilconfig" class="form-select" (change)="provsel = undefined">
+      <option value="1">QRO,CDMX</option>
+      <option value="2">SLP</option>
+    </select>
+
       <p-dropdown *ngIf="idRol >18 && idRol < 22"
       [options]="catsucursales"
       [(ngModel)]="sucursalsel"

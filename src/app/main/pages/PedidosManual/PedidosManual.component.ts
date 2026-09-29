@@ -287,7 +287,7 @@ getItemsprovpedsuc()
   this.shownota = false; 
   this.loading = true; 
   this.selecteditems = [];
-  this.apiserv.getItemprovPedSuc(this.provsel!.codproveedor,-1).subscribe({
+  this.apiserv.getItemprovPedSuc(this.provsel!.codproveedor,this.perfilconfig).subscribe({
     next: data => {
        this.catitems=data;
 
