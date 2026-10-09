@@ -14,13 +14,15 @@ import { DatatTabProvSuc, GrupoPedido, PMProvSuc, ResultadoPedidoMensual, Result
 import { CalendarModule } from 'primeng/calendar';
 import { TabViewModule } from 'primeng/tabview';
 import { Sucursal } from '../../../Interfaces/Sucursal';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { RadioButtonModule } from 'primeng/radiobutton';
 
 @Component({
   selector: 'app-planeacion-mensual',
   standalone: true,
-  imports: [CommonModule, DialogModule, MultiSelectModule, 
-    FormsModule, TableModule, ToastModule, ConfirmDialogModule,DropdownModule,CalendarModule,
-  TabViewModule],
+  imports: [CommonModule, DialogModule, MultiSelectModule,
+    FormsModule, TableModule, ToastModule, ConfirmDialogModule, DropdownModule, CalendarModule,
+    TabViewModule, OverlayPanelModule, RadioButtonModule],
   providers:[MessageService,ConfirmationService],
   templateUrl: './planeacion-mensual.html',
   styleUrl: './planeacion-mensual.scss',
@@ -56,7 +58,11 @@ export default class PlaneacionMensual implements OnInit {
   public dataProvSuc:PMProvSuc[] = []; 
   public sucursalesSel:Sucursal[] = []; 
   public datatabprovsuc:DatatTabProvSuc[] = []; 
-   
+  
+  public oprecalcular:number = 1; 
+  public recfiltroproveedor = -999; 
+  public recfiltrosucursal = -999; 
+
   grupos: { [key: string]: ResultadoPedidoMensual[] } = {};
   clavesGrupo: string[] = []; // ahora es string[]
 
@@ -191,6 +197,21 @@ export default class PlaneacionMensual implements OnInit {
 });
 }
 
+    generarPedidosF()
+{ 
+  this.loading = true; 
+  this.apiserv.generarpedidosmensualesF(this.recfiltroproveedor,this.recfiltrosucursal).subscribe({
+    next: data => {
+       this.getpedidosBD(); 
+       this.getItemsbd(); 
+    },
+    error: error => {
+       console.log(error);
+       this.loading = false; 
+       this.showMessage('error',"Error","Error al procesar la solicitud");
+    }
+});
+}
 
    getParametros()
 { 

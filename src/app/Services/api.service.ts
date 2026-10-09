@@ -973,6 +973,14 @@ export class ApiService {
       return this.http.post<ResultadoPedidoMensualGrupo[]>(this.url+`planeacionMensual/calcularResumen`,null,{headers:this.headers})
    }
 
+     generarpedidosmensualesF(filtroprov:number,filtrosuc:number):Observable<ResultadoPedidoMensualGrupo[]>
+   {  debugger
+      let formdata = new FormData();
+      formdata.append("filtroproveedor",filtroprov.toString()); 
+      formdata.append("filtrosucursal",filtrosuc.toString()); 
+      return this.http.post<ResultadoPedidoMensualGrupo[]>(this.url+`planeacionMensual/calcularResumenFiltro`,formdata,{headers:this.headers})
+   }
+
      getPedidosBD():Observable<ResultadoPedidoMensualGrupo[]>
    { 
       return this.http.post<ResultadoPedidoMensualGrupo[]>(this.url+`planeacionMensual/getPedidosBD`,null,{headers:this.headers})
