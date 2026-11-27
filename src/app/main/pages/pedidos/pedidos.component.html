@@ -56,6 +56,7 @@
             <th scope="col">SUCURSAL</th>
             <th scope="col">PROVEEDOR</th>
             <th scope="col">TOTAL</th>
+            <th scope="col">FECHA</th>
             <th scope="col">ENTREGA</th>
             <th scope="col">ESTATUS</th>
             <td></td>
@@ -67,6 +68,7 @@
             <td>{{item.nombresucursal}}</td>
             <td>{{item.nombreproveedor}}</td>
             <td>{{ (item.cantidaddescuento ? (item.total-item.cantidaddescuento) : item.total) | number : '1.2-2'}}</td>
+            <td>{{item.fechapedido | date:'yyyy-MM-dd HH:mm'}}</td>
             <td>{{item.fechaEntrega | date}}</td>
             @if(item.status == 1)
             {

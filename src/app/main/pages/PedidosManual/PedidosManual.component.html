@@ -556,6 +556,7 @@ placeholder="SUCURSALES"
     <ng-template pTemplate="header">
         <tr>
           <th scope="col">NUM PEDIDO</th>
+          <th scope="col">CARGADO A ICG</th>
           <th scope="col">SUCURSAL</th>
           <th scope="col">PROVEEDOR</th>
           <th scope="col">TOTAL</th>
@@ -569,6 +570,7 @@ placeholder="SUCURSALES"
     <ng-template pTemplate="body" let-item>
         <tr class="bg-opacity-25 text-dark" [ngClass]="{'bg-danger': item.status == 4, 'bg-success' : item.status ==3 }">
           <td>{{item.numpedido}}</td>
+          <td>{{(item.cargadoicg | date:'yyyy-MM-dd HH:mm') || ''}}</td>
           <td>{{item.nombresucursal}}</td>
           <td>{{item.nombreproveedor}}</td>
           <td>{{ (item.cantidaddescuento ? (item.total-item.cantidaddescuento) : item.total) | number : '1.2-2'}}</td>

@@ -21,6 +21,7 @@ export interface Pedido
     diferenciacartones:number|undefined; 
 
     totiva:number; 
+    fechapedido:Date;
 }
 
 export interface PedidoH 
@@ -39,6 +40,7 @@ export interface PedidoH
     numpedido:string; 
     notificado:boolean; 
     cantidaddescuento:number|undefined; 
+    cargadoicg:Date|undefined|null;
 }
 
 export interface ArticuloPedido 
@@ -115,4 +117,5 @@ export interface ArticuloPedSuc {
     
     cantidaddescuento:number|undefined; 
     numpedido:string|undefined; 
+    cargadoicg:Date|undefined|null;
   }
